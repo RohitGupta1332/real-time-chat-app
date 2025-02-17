@@ -1,0 +1,34 @@
+.auth-page {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+
+.auth-container {
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-page img {
+    width: 50%;
+    height: 100vh;
+    object-fit: cover;
+}
+
+@media (max-width: 768px) {
+    .auth-page {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .auth-container {
+        width: 100%;
+        height: 100vh;
+    }
+
+    .auth-page img {
+        display: none;
+    }
+}
