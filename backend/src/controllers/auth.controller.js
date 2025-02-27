@@ -80,7 +80,8 @@ export const verifyEmail = async (req, res) => {
 
     await newUser.save();
     res.json({
-      message: "Email verified successfully. User created.",
+      _id: newUser._id,
+      email: newUser.email,
     });
 
   } catch (error) {
@@ -115,3 +116,11 @@ export const login = async (req, res) => {
       .json({ message: "Internal server error", error: error });
   }
 };
+
+export const checkAuth = (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    res.status(500).json({message: "Internal server error"});
+  }
+}
