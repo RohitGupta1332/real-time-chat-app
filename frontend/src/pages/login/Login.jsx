@@ -12,7 +12,7 @@ function Login() {
                 <AuthInputs></AuthInputs>
                 <AuthButton text1="Login Now" text2="New User" text3="Sign up"></AuthButton>
             </div>
-            <img src="./public/images/Rectangle 4.jpg" alt="" />
+            <img src="/images/Rectangle 4.jpg" alt="" />
         </div>
     )
 }

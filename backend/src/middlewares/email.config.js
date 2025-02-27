@@ -20,7 +20,6 @@ export const sendVerificationMail = async (email, verificationCode) => {
             html: `<b>${verificationCode}</b>`, // html body
         });
       
-        console.log("Message sent: ", info.messageId);
     } catch (error) {
           console.log("Email error", error);
     }
