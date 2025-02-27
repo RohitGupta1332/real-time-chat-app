@@ -26,14 +26,24 @@ export const useAuthStore = create((set) => ({
         try {
             set({ isSigningIn: true });
             const res = await axiosInstance.post("/auth/signup", data);
-            navigate("/otp")
+            navigate("/otp");
         } catch (error) {
-            toast.error(`${error.response?.data?.message} || "Signup failed`);
+            toast.error(`${error.response?.data?.message}` || "Signup failed");
             console.log(error.response.data)
         } finally {
             set({ isSigningIn: false });
         }
-    }
+    },
 
-    //create a handleOTP method in otp.jsx on otp submission and inside that call the otp method, write the api calling here
+    verifyEmail: async (code, navigate) => {
+        try {
+            const res = await axiosInstance.post("/auth/verify", {code});
+            console.log(res.data)
+            set({authUser: res.data});
+            navigate("/profile");
+        } catch (error) {
+            toast.error(`${error.response?.data?.message}` || "Signup failed");
+            console.log(error);
+        }
+    }
 }))

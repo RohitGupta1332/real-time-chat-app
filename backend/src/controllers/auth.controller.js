@@ -44,7 +44,7 @@ export const verifyEmail = async (req, res) => {
     //fetching the userData from unverified map using the otp(code)
     for (let [userEmail, userData] of unverifiedUsers) {
       if (userData.verificationToken === code) {
-        email = userEmail; 
+        email = userEmail;
         break;
       }
     }
@@ -121,6 +121,6 @@ export const checkAuth = (req, res) => {
   try {
     res.status(200).json(req.user);
   } catch (error) {
-    res.status(500).json({message: "Internal server error"});
+    res.status(500).json({ message: "Internal server error" });
   }
 }
