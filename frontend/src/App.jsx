@@ -9,14 +9,22 @@ import { useAuthStore } from './store/useAuthStore';
 import { useEffect } from 'react';
 import { Loader } from "lucide-react";
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
 
-  const { isCheckingAuth, authUser, checkAuth, isSigningIn } = useAuthStore()
+  const { isCheckingAuth, authUser, checkAuth, isSigningIn } = useAuthStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  useEffect(() => {
+    if (authUser) {
+      navigate("/"); 
+    }
+  }, [authUser, navigate]);
 
   if (isSigningIn) {
     toast.success("Verification code sent")
