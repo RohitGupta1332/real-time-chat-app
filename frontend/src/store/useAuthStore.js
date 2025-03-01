@@ -7,13 +7,16 @@ export const useAuthStore = create((set) => ({
     isSigningIn: false,
     isLoggingIn: false,
     isCheckingAuth: true,
+    isCreatingProfile: false,
+    isUpdatingProfile: false,
+    isProfileCreated: false,
 
 
     checkAuth: async () => {
         try {
             const res = await axiosInstance.get("/auth/check");
 
-            set({ authUser: res });
+            set({ authUser: res.data });
         } catch (error) {
             console.error(error);
             set({ authUser: null });
@@ -51,12 +54,25 @@ export const useAuthStore = create((set) => ({
     verifyEmail: async (code, navigate) => {
         try {
             const res = await axiosInstance.post("/auth/verify", { code });
-            console.log(res.data)
             set({ authUser: res.data });
             navigate("/profile");
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Signup failed");
             console.log(error);
+        }
+    },
+
+    createProfile: async (data) => {
+        try {
+            set({ isCreatingProfile: true });
+            const res = await axiosInstance.post("/profile/create", data);
+            set({ authUser: res.data });
+            toast.success("Profile created successfully");
+            set({ isProfileCreated: true });
+        } catch (error) {
+            toast.error(`${error.response?.data?.message}` || "Profile creation failed");
+        } finally {
+            set({ isCreatingProfile: false });
         }
     }
 }))

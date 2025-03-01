@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 function App() {
 
-  const { isCheckingAuth, authUser, checkAuth, isSigningIn } = useAuthStore();
+  const { isCheckingAuth, authUser, checkAuth, isSigningIn, isProfileCreated } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -21,10 +21,12 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (authUser) {
-      navigate("/"); 
+    if (authUser && isProfileCreated) {
+      navigate("/");
+    } else if (authUser && !isProfileCreated) {
+      navigate("/profile");
     }
-  }, [authUser, navigate]);
+  }, [authUser, navigate, isProfileCreated]);
 
   if (isSigningIn) {
     toast.success("Verification code sent")
