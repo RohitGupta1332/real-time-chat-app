@@ -10,11 +10,16 @@ export const createProfile = async (req, res) => {
         }
         let imageUrl;
         if (image) {
-            const uploadResponse = cloudinary.uploader.upload(image);
-            imageUrl = uploadResponse.secure_url;
+            try {
+                const uploadResponse = await cloudinary.uploader.upload(image);
+                imageUrl = uploadResponse.secure_url;
+            } catch (uploadError) {
+                return res.status(500).json({ message: "Image upload failed", error: uploadError.message });
+            }
         }
 
-        const newProfile = Profile.create({
+
+        const newProfile = await Profile.create({
             name,
             username,
             gender,

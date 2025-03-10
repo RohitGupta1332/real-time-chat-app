@@ -80,7 +80,7 @@ textarea {
     resize: none;
 }
 
-button {
+.submit-button {
     width: 124px;
     height: 39px;
     background: #6852D6;
