@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 
 function App() {
 
-  const { isCheckingAuth, authUser, checkAuth, isSigningIn, isProfileCreated } = useAuthStore();
+  const { isCheckingAuth, authUser, checkAuth, isSigningIn, isProfileCreated, isVerificationCodeSent } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +28,7 @@ function App() {
     }
   }, [authUser, navigate, isProfileCreated]);
 
-  if (isSigningIn) {
+  if (isVerificationCodeSent) {
     toast.success("Verification code sent")
   }
 

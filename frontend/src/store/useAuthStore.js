@@ -10,7 +10,7 @@ export const useAuthStore = create((set) => ({
     isCreatingProfile: false,
     isUpdatingProfile: false,
     isProfileCreated: false,
-
+    isVerificationCodeSent: false,
 
     checkAuth: async () => {
         try {
@@ -29,10 +29,13 @@ export const useAuthStore = create((set) => ({
         try {
             set({ isSigningIn: true });
             const res = await axiosInstance.post("/auth/signup", data);
-            navigate("/otp");
+            if (res.status === 201) {
+                set({ isVerificationCodeSent: true })
+                navigate("/otp");
+            }
         } catch (error) {
+            console.log(error.response)
             toast.error(`${error.response?.data?.message}` || "Signup failed");
-            console.log(error.response.data)
         } finally {
             set({ isSigningIn: false });
         }
@@ -55,7 +58,10 @@ export const useAuthStore = create((set) => ({
         try {
             const res = await axiosInstance.post("/auth/verify", { code });
             set({ authUser: res.data });
-            navigate("/profile");
+            if (res.status === 200) {
+                set({ isVerificationCodeSent: false })
+                navigate("/profile");
+            }
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Signup failed");
             console.log(error);
