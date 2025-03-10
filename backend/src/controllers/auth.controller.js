@@ -70,6 +70,7 @@ export const verifyEmail = async (req, res) => {
       email,
       password: userData.hash,
       isVerified: true,
+      isProfileCreated: false,
       verficationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
     });
 
@@ -117,10 +118,16 @@ export const login = async (req, res) => {
   }
 };
 
-export const checkAuth = (req, res) => {
+export const checkAuth = async (req, res) => {
   try {
-    res.status(200).json(req.user);
+    const userId = req.user.userId;
+    const user = await User.findById(userId).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 }

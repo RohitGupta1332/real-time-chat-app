@@ -15,8 +15,8 @@ export const useAuthStore = create((set) => ({
     checkAuth: async () => {
         try {
             const res = await axiosInstance.get("/auth/check");
-
             set({ authUser: res.data });
+            set({ isProfileCreated: res.data.isProfileCreated })
         } catch (error) {
             console.error(error);
             set({ authUser: null });
@@ -30,11 +30,11 @@ export const useAuthStore = create((set) => ({
             set({ isSigningIn: true });
             const res = await axiosInstance.post("/auth/signup", data);
             if (res.status === 201) {
-                set({ isVerificationCodeSent: true })
-                navigate("/otp");
+                set({ isVerificationCodeSent: true });
+                setTimeout(() => navigate("/otp"), 1300);
             }
         } catch (error) {
-            console.log(error.response)
+            console.log(error.response);
             toast.error(`${error.response?.data?.message}` || "Signup failed");
         } finally {
             set({ isSigningIn: false });
@@ -70,15 +70,16 @@ export const useAuthStore = create((set) => ({
 
     createProfile: async (data) => {
         try {
-            set({ isCreatingProfile: true });
-            const res = await axiosInstance.post("/profile/create", data);
-            set({ authUser: res.data });
-            toast.success("Profile created successfully");
-            set({ isProfileCreated: true });
-        } catch (error) {
-            toast.error(`${error.response?.data?.message}` || "Profile creation failed");
-        } finally {
-            set({ isCreatingProfile: false });
-        }
+        set({ isCreatingProfile: true });
+        await axiosInstance.post("/profile/create", data);
+        toast.success("Profile created successfully");
+
+        await useAuthStore.getState().checkAuth();
+
+    } catch (error) {
+        toast.error(`${error.response?.data?.message}` || "Profile creation failed");
+    } finally {
+        set({ isCreatingProfile: false });
+    }
     }
 }))

@@ -18,6 +18,10 @@ const userSchema = new Schema({
     type: String,
     default: null,
   },
+  isProfileCreated: {
+    type: Boolean,
+    default: false
+  },
   verficationTokenExpiresAt: Date,
 });
 
