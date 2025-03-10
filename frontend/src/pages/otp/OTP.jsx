@@ -9,7 +9,6 @@ function OTP() {
     const navigate = useNavigate();
 
     const handleSubmit = () => {
-        console.log(otp)
         if (otp.length === 6) {
             verifyEmail(otp, navigate);
         }
