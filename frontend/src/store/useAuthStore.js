@@ -29,10 +29,9 @@ export const useAuthStore = create((set) => ({
         try {
             set({ isSigningIn: true });
             const res = await axiosInstance.post("/auth/signup", data);
-            if (res.status === 201) {
-                set({ isVerificationCodeSent: true });
-                setTimeout(() => navigate("/otp"), 1300);
-            }
+            toast.success("Verification code sent")
+            set({ isVerificationCodeSent: true });
+            setTimeout(() => navigate("/otp"), 3000);
         } catch (error) {
             console.log(error.response);
             toast.error(`${error.response?.data?.message}` || "Signup failed");
@@ -45,8 +44,11 @@ export const useAuthStore = create((set) => ({
         try {
             set({ isLoggingIn: true });
             const res = await axiosInstance.post("/auth/login", data);
-            set({ authUser: res.data });
             toast.success("Login successful");
+            setTimeout(() => {
+                set({ isProfileCreated: res.data.isProfileCreated });
+                set({ authUser: res.data });
+            }, 2000);
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Login failed")
         } finally {
@@ -70,16 +72,19 @@ export const useAuthStore = create((set) => ({
 
     createProfile: async (data) => {
         try {
-        set({ isCreatingProfile: true });
-        await axiosInstance.post("/profile/create", data);
-        toast.success("Profile created successfully");
+            set({ isCreatingProfile: true });
+            const res = await axiosInstance.post("/profile/create", data);
+            if (res.status === 201)
+                toast.success("Profile created successfully");
+            else
+                toast.error(`${error.response?.data?.message}` || "Profile creation failed")
 
-        await useAuthStore.getState().checkAuth();
+            await useAuthStore.getState().checkAuth();
 
-    } catch (error) {
-        toast.error(`${error.response?.data?.message}` || "Profile creation failed");
-    } finally {
-        set({ isCreatingProfile: false });
-    }
+        } catch (error) {
+            toast.error(`${error.response?.data?.message}` || "Profile creation failed");
+        } finally {
+            set({ isCreatingProfile: false });
+        }
     }
 }))

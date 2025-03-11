@@ -20,20 +20,6 @@ function App() {
     checkAuth();
   }, []);
 
-  useEffect(() => {
-    if (authUser && isProfileCreated) {
-      navigate("/");
-    } else if (authUser && !isProfileCreated) {
-      navigate("/profile");
-    }
-  }, [authUser, navigate, isProfileCreated]);
-
-  useEffect(() => {
-    if (isVerificationCodeSent) {
-      toast.success("Verification code sent");
-    }
-  }, [isVerificationCodeSent]);
-
 
   if (isCheckingAuth && !authUser) {
     return (
@@ -54,11 +40,11 @@ function App() {
   return (
     <div className='main-container'>
       <Routes>
-        <Route path='/' element={authUser ? <Home /> : <Login />} />
-        <Route path='/login' element={!authUser ? <Login /> : <Home />} />
-        <Route path='/signup' element={!authUser ? <SignUp /> : <Home />} />
+        <Route path='/' element={authUser ? (isProfileCreated ? <Home /> : <Profile />) : <Login />} />
+        <Route path='/login' element={!authUser ? <Login /> : isProfileCreated ? <Home /> : <Profile />} />
+        <Route path='/signup' element={!authUser ? <SignUp /> : isProfileCreated ? <Home /> : <Profile />} />
         <Route path='/otp' element={<OTP />} />
-        <Route path='/profile' element={authUser ? <Profile /> : <Login />} />
+        <Route path='/profile' element={authUser ? (!isProfileCreated ? <Profile /> : <Home />) : <Login />} />
       </Routes>
     </div>
   )

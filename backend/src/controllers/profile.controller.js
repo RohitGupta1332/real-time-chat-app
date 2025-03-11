@@ -7,10 +7,6 @@ export const createProfile = async (req, res) => {
         const userId = req.user.userId;
         let { name, username, gender, image, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
 
-        const existingUser = await Profile.findOne({ username });
-        if (existingUser) {
-            return res.status(400).json({ message: "Username already exists" });
-        }
 
         let imageUrl = "";
         if (image) {
@@ -35,7 +31,7 @@ export const createProfile = async (req, res) => {
             twitterUrl
         });
 
-        const userUpdateResult = await User.findOne(
+        const userUpdateResult = await User.findOneAndUpdate(
             { _id: userId },
             { $set: { isProfileCreated: true } },
             { new: true }
@@ -48,6 +44,9 @@ export const createProfile = async (req, res) => {
         res.status(201).json({ message: "Profile created successfully", profile: newProfile });
 
     } catch (error) {
+        if (error.code === 11000) {
+            return res.status(400).json({ message: "Username already exists" });
+        }
         res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
 };
