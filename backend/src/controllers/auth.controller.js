@@ -109,8 +109,7 @@ export const login = async (req, res) => {
     res.cookie("token", token, {
       credential: true,
     });
-
-    return res.status(200).json({ message: "Login successful" });
+    return res.status(200).json({ message: "Login successful", isProfileCreated: user.isProfileCreated });
   } catch (error) {
     return res
       .status(500)

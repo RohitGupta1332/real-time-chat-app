@@ -39,12 +39,7 @@ function ProfilePage() {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validateForm()) {
-            try {
-                createProfile(formDetails);
-                toast.success("Profile created successfully!");
-            } catch (error) {
-                toast.error("Failed to create profile.");
-            }
+            createProfile(formDetails);
         }
     }
     return (
