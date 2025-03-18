@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute)
-app.use("/api/message", messageRoute);
+app.use("/api/messages", messageRoute);
 
 app.listen(3000, () => {
     console.log("Server is running on port 3000");

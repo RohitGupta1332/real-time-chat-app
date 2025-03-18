@@ -4,9 +4,9 @@ import cloudinary from "cloudinary";
 
 export const getUsersForSidebar = async (req, res) => {
     try {
-        const loggedInUser = req.user._id;
-        const users = await User.find({ _id: { $ne: loggedInUser } });
-
+        const loggedInUserId = req.user._id;
+        const users = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+        res.status(200).json(users);
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
