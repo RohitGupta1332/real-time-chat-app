@@ -9,6 +9,7 @@ export const useChatStore = create((set) => ({
     selectedUser: null,
     isMessageLoading: false,
     isUserLoading: false,
+    isResponseLoading: false,
 
     getUsers: async () => {
         set({ isUserLoading: true })
@@ -38,7 +39,8 @@ export const useChatStore = create((set) => ({
         set({ isMessageLoading: true })
         try {
             const res = await axiosInstance(`/messages/ai/chats`);
-            set({ messages: res.data })
+            set({ aiMessages: res.data.messages });
+
         } catch (error) {
             toast.error(error.response.data.message)
         } finally {
@@ -48,13 +50,17 @@ export const useChatStore = create((set) => ({
     },
 
     chatWithAI: async (prompt) => {
+        set({ isResponseLoading: true })
         try {
             const response = await axiosInstance.post("/messages/ai", { prompt });
+            const result = await response.json();
             set((state) => ({
-                aiMessages: [...state.aiMessages, { prompt, response: response.data }]
+                aiMessages: [...state.aiMessages, { prompt, response: result.data }]
             }));
         } catch (error) {
             toast.error(error?.response?.data?.message || "Something went wrong!");
+        } finally {
+            set({ isResponseLoading: false })
         }
     }
 }))

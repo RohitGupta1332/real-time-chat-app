@@ -81,7 +81,7 @@ export const getMessagesWithAi = async (req, res) => {
     try {
         const userId = req.user.userId;
         const messages = await AIMessage.find({ userId })
-        res.status(200).json({ data: messages });
+        res.status(200).json({ messages });
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message })
     }
