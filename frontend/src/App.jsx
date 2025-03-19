@@ -10,6 +10,7 @@ import { useEffect } from 'react';
 import { Loader } from "lucide-react";
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import Astra from './pages/aiChat/Astra';
 
 function App() {
 
@@ -40,11 +41,12 @@ function App() {
   return (
     <div className='main-container'>
       <Routes>
-        <Route path='/' element={authUser ? (isProfileCreated ? <Home /> : <Profile />) : <Login />} />
         <Route path='/login' element={!authUser ? <Login /> : isProfileCreated ? <Home /> : <Profile />} />
         <Route path='/signup' element={!authUser ? <SignUp /> : isProfileCreated ? <Home /> : <Profile />} />
         <Route path='/otp' element={<OTP />} />
         <Route path='/profile' element={authUser ? (!isProfileCreated ? <Profile /> : <Home />) : <Login />} />
+        <Route path='/' element={authUser ? (isProfileCreated ? <Home /> : <Profile />) : <Login />} />
+        <Route path='/ai' element={authUser ? (isProfileCreated ? <Astra /> : <Profile />) : <Login />} />
       </Routes>
     </div>
   )
