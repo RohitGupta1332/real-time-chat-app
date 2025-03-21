@@ -14,12 +14,14 @@ import Astra from './pages/aiChat/Astra';
 
 function App() {
 
-  const { isCheckingAuth, authUser, checkAuth, isProfileCreated, isVerificationCodeSent } = useAuthStore();
+  const { isCheckingAuth, authUser, checkAuth, isProfileCreated, onlineUsers } = useAuthStore();
   const navigate = useNavigate();
 
   useEffect(() => {
     checkAuth();
   }, []);
+
+  console.log(onlineUsers);
 
 
   if (isCheckingAuth && !authUser) {

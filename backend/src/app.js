@@ -6,8 +6,8 @@ import authRoute from "./routes/auth.route.js";
 import messageRoute from "./routes/message.route.js";
 import profileRoute from "./routes/profile.route.js";
 import cors from "cors";
+import { app, server } from "./lib/socket.js";
 
-const app = express();
 dotenv.config();
 
 databaseConn();
@@ -24,6 +24,6 @@ app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute)
 app.use("/api/messages", messageRoute);
 
-app.listen(3000, () => {
+server.listen(3000, () => {
     console.log("Server is running on port 3000");
 })
