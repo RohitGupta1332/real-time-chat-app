@@ -53,7 +53,7 @@ export const useChatStore = create((set) => ({
         set({ isResponseLoading: true })
         try {
             const response = await axiosInstance.post("/messages/ai", { prompt });
-            const result = await response.json();
+            const result = response.data;
             set((state) => ({
                 aiMessages: [...state.aiMessages, { prompt, response: result.data }]
             }));
