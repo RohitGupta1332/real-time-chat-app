@@ -3,6 +3,8 @@ import { Message } from "../models/message.model.js";
 import { AIMessage } from "../models/ai.model.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import cloudinary from "cloudinary";
+import { getReceiverSocketId, io } from "../lib/socket.js";
+
 
 export const getUsersForSidebar = async (req, res) => {
     try {
@@ -49,6 +51,8 @@ export const sendMessage = async (req, res) => {
             image: imageUrl
         });
 
+        const receiverSocketId = getReceiverSocketId(receiverId);
+        io.to(receiverSocketId).emit("newMessage", newMessage);
 
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error })
