@@ -1,8 +1,9 @@
 import { create } from "zustand"
 import { axiosInstance } from "../lib/axios"
 import { toast } from "react-toastify"
+import { useState } from "react"
 
-export const useChatStore = create((set) => ({
+export const useChatStore = create((set, get) => ({
     messages: [],
     aiMessages: [],
     users: [],
@@ -33,6 +34,19 @@ export const useChatStore = create((set) => ({
         } finally {
             set({ isMessageLoading: false })
         }
+    },
+
+    listenMessages: () => {
+        const { selectedUser } = get();
+        if (!selectedUser) return;
+
+        const socket = useState.getState().socket;
+        socket.on("newMessage", (newMessage) => {
+            if (newMessage.senderId !== selectedUser._id) {
+                return;
+            }
+            set({ messages: [...get().messages, newMessage] })
+        })
     },
 
     getAIMessages: async () => {
