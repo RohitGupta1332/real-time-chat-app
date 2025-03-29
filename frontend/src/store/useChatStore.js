@@ -47,7 +47,7 @@ export const useChatStore = create((set, get) => ({
             }
             set({ messages: [...get().messages, newMessage] })
         })
-    },
+    }, //add unsubscribeToMessage function
 
     getAIMessages: async () => {
         set({ isMessageLoading: true })

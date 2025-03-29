@@ -1,22 +1,26 @@
 import { Profile } from "../models/profile.model.js";
-import cloudinary from "cloudinary";
 import { User } from "../models/user.model.js";
+import { upload } from "../utils/multer.js";
+
 
 export const createProfile = async (req, res) => {
     try {
+        const uploadImage = () => {
+            return new Promise((resolve, reject) => {
+                upload.single("image")(req, res, (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(req.file ? req.file.filename : "");
+                    }
+                });
+            });
+        };
+
+        const imageUrl = await uploadImage();
+
         const userId = req.user.userId;
-        let { name, username, gender, image, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
-
-
-        let imageUrl = "";
-        if (image) {
-            try {
-                const uploadResponse = await cloudinary.uploader.upload(image);
-                imageUrl = uploadResponse.secure_url;
-            } catch (uploadError) {
-                return res.status(500).json({ message: "Image upload failed", error: uploadError.message });
-            }
-        }
+        const { name, username, gender, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
 
         const newProfile = await Profile.create({
             userId,
@@ -51,37 +55,52 @@ export const createProfile = async (req, res) => {
     }
 };
 
+
+
 export const updateProfile = async (req, res) => {
     try {
-        let { name, username, gender, image, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
-        const existingUser = await Profile.findOne({ username });
-        if (!existingUser) {
+        const { name, username, gender, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
+
+        const existingProfile = await Profile.findOne({ username });
+        if (!existingProfile) {
             return res.status(404).json({ message: "Profile not found" });
         }
 
-        let imageUrl = existingUser.image;
-        if (image) {
-            const uploadResponse = await cloudinary.uploader.upload(image);
-            imageUrl = uploadResponse.secure_url;
-        }
+        let imageUrl = existingProfile.image; 
+        await new Promise((resolve, reject) => {
+            upload.single("image")(req, res, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    if (req.file) {
+                        imageUrl = req.file.filename; // Update image if a new file is uploaded
+                    }
+                    resolve();
+                }
+            });
+        });
 
-        await Profile.updateOne({ username },
+        const updatedProfile = await Profile.findOneAndUpdate(
+            { username },
             {
                 $set: {
                     name,
                     gender,
-                    image: imageUrl,
+                    image: imageUrl, 
                     bio,
                     instagramUrl,
                     youtubeUrl,
                     facebookUrl,
                     twitterUrl
                 }
-            }
+            },
+            { new: true }
         );
-        res.status(200).json({ message: "Profile updated successfully" });
+
+        return res.status(200).json({ message: "Profile updated successfully", profile: updatedProfile });
 
     } catch (error) {
-        res.status(500).json({ message: "Internal server error", error: error.message || error });
+        console.error("Error updating profile:", error);
+        return res.status(500).json({ message: "Internal server error", error: error.message });
     }
-}
+};
