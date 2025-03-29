@@ -2,7 +2,6 @@ import { User } from "../models/user.model.js";
 import { Message } from "../models/message.model.js";
 import { AIMessage } from "../models/ai.model.js";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import cloudinary from "cloudinary";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 
 
@@ -40,8 +39,7 @@ export const sendMessage = async (req, res) => {
 
         let imageUrl;
         if (image) {
-            const uploadResponse = cloudinary.uploader.upload(image);
-            imageUrl = uploadResponse.secure_url;
+            //add file sharing using multer (import upload from utils)
         }
 
         const newMessage = Message.create({
