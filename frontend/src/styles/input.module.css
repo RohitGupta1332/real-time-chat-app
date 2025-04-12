@@ -1,0 +1,67 @@
+input:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0px 1000px #1A1A1A inset !important;
+    -webkit-text-fill-color: #fff !important;
+    transition: background-color 9999s ease-in-out 0s;
+}
+  
+
+.inputWrapper {
+    position: relative;
+    width: 100%;
+    margin: 10px auto;
+}
+
+.inputWrapper input {
+    width: 100%;
+    height: min(60px, 15vw);
+    padding: 0 2.5rem; /* Adjust padding to work with icons */
+
+    background-color: #1A1A1A;
+    color: #fff;
+
+    border: none;
+    border-radius: 1rem;
+    font-size: 1rem;
+    outline: none;
+
+    transition: all 0.2s ease-in-out;
+}
+
+.inputIcon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+
+    width: 1.25rem;
+    height: 1.25rem;
+
+    opacity: 0.6;
+    pointer-events: none;
+    color: #989898;
+}
+
+.eyeIcon {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+
+    color: #aaa;
+    font-size: 1.25rem;
+    cursor: pointer;
+}
+
+@media (max-width: 480px) {
+    .inputWrapper input {
+        font-size: 0.95rem;
+        height: 50px;
+    }
+
+    .inputIcon,
+    .eyeIcon {
+        font-size: 1rem;
+        width: 1rem;
+        height: 1rem;
+    }
+}

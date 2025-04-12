@@ -1,57 +1,47 @@
-import './App.css'
-import Home from "./pages/home/Home"
-import Login from './pages/login/Login';
-import SignUp from './pages/signup/SignUp';
-import OTP from "./pages/otp/OTP";
-import Profile from "./pages/profile/Profile";
-import { Routes, Route } from "react-router-dom";
-import { useAuthStore } from './store/useAuthStore';
-import { useEffect } from 'react';
-import { Loader } from "lucide-react";
-import { toast } from 'react-toastify';
-import { useNavigate } from 'react-router-dom';
-import Astra from './pages/aiChat/Astra';
+import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from "react-router-dom"
+import { useEffect } from "react";
+
+import { useAuthStore } from "./store/userAuth";
+
+import AuthPage from "./pages/Auth";
+import Otp from './pages/Otp';
+import Profile from './pages/Profile'
+import Chat from "./pages/Chat";
+
+import RootLayout from "./layouts/RootLayout";
+
+import NotFound from './components/NotFound'
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
 
-  const { isCheckingAuth, authUser, checkAuth, isProfileCreated, onlineUsers } = useAuthStore();
-  const navigate = useNavigate();
-
+  const checkAuth = useAuthStore((state) => state.checkAuth);
   useEffect(() => {
     checkAuth();
-  }, []);
+  }, [checkAuth])
 
-  console.log(onlineUsers);
-
-
-  if (isCheckingAuth && !authUser) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh", // Full height of viewport
-        }}
-      >
-        <Loader className="size-10 animate-spin" />
-      </div>
-
-    )
-  }
-
+  const route = createBrowserRouter(
+    createRoutesFromElements(
+      <Route path="/" element={<RootLayout />}>
+        <Route index element={<ProtectedRoute>
+          <AuthPage />
+        </ProtectedRoute>}/>
+        <Route path="otp" element={<ProtectedRoute>
+          <Otp />
+        </ProtectedRoute>}/>
+        <Route path="profile" element={<ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>}/>
+        <Route path="chat" element={<ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>}/>
+        <Route path="*" element={<NotFound />}/>
+      </Route>
+    ));
+  
   return (
-    <div className='main-container'>
-      <Routes>
-        <Route path='/login' element={!authUser ? <Login /> : isProfileCreated ? <Home /> : <Profile />} />
-        <Route path='/signup' element={!authUser ? <SignUp /> : isProfileCreated ? <Home /> : <Profile />} />
-        <Route path='/otp' element={<OTP />} />
-        <Route path='/profile' element={authUser ? (!isProfileCreated ? <Profile /> : <Home />) : <Login />} />
-        <Route path='/' element={authUser ? (isProfileCreated ? <Home /> : <Profile />) : <Login />} />
-        <Route path='/ai' element={authUser ? (isProfileCreated ? <Astra /> : <Profile />) : <Login />} />
-      </Routes>
-    </div>
-  )
+    <RouterProvider router={route}/>
+  );
 }
 
-export default App
+export default App;
