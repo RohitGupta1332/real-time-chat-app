@@ -11,7 +11,6 @@ import passwordIcon from '../assets/Password.svg'
 import { useState } from 'react';
 import { useAuthStore } from '../store/userAuth';
 import { useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 const Signup = () => {
 
@@ -59,15 +58,11 @@ const Signup = () => {
 
         if(Object.values(newErrors).some((msg) => msg != '')) return;
 
-        try {
-            await signup({
-                email : formData.email,
-                password : formData.password
-            }, navigate);
 
-        } catch (err) {
-            toast.error(err?.response?.data?.message || "Signup or OTP sending failed");
-        }
+        await signup({
+            email : formData.email,
+            password : formData.password
+        }, navigate);
     };
 
     return (
