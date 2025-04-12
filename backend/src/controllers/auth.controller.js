@@ -5,6 +5,38 @@ import bcrypt from "bcrypt";
 
 const unverifiedUsers = new Map(); //storing users whose email is not verified
 
+// export const generateOtp = () => {
+//   const token = Math.floor(100000 + Math.random() * 900000).toString();
+//   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+//   return { token, expiresAt };
+// };
+
+// export const resendVerification = async (req, res) => {
+//   try {
+//     const { email } = req.body;
+
+//     const userEntry = unverifiedUsers.get(email.toLowerCase());
+//     if (!userEntry) {
+//       return res.status(404).json({ message: "User not found or already verified." });
+//     }
+
+//     const { token: newVerificationToken, expiresAt } = generateOtp();
+
+//     unverifiedUsers.set(email.toLowerCase(), {
+//       ...userEntry,
+//       verificationToken: newVerificationToken,
+//       expiresAt,
+//     });
+
+//     await sendVerificationMail(email, newVerificationToken);
+
+//     return res.status(200).json({ message: "Verification code resent." });
+//   } catch (error) {
+//     console.error(error);
+//     return res.status(500).json({ message: "Failed to resend code", error });
+//   }
+// };
+
 export const signup = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -18,6 +50,8 @@ export const signup = async (req, res) => {
       100000 + Math.random() * 900000
     ).toString();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // Expires in 24 hours
+
+    // const { token: newVerificationToken, expiresAt } = generateOtp();
 
     // Temporarily store user data before verification
     unverifiedUsers.set(email.toLowerCase(), {
