@@ -27,6 +27,7 @@ const Otp = () => {
 
     const navigate = useNavigate();
     const verifyEmail = useAuthStore((state) => state.verifyEmail);
+    const resendVerification = useAuthStore((state) => state.resendVerification);
 
     const handleVerify = async (e) => {
         e.preventDefault();
@@ -123,6 +124,7 @@ const Otp = () => {
                 {(timer === 0)?
                 <p className={styles.dividerText}>Didn’t receive the code ?&nbsp;<a onClick={(e) => {
                     setTimer(30);
+                    resendVerification();
                 }}>Resend</a></p>:
                 <p className={styles.dividerText}>You can Resend in&nbsp;<span style={{color : '#A366FF'}}>{timer}</span>&nbsp;seconds</p>}
             </div>
