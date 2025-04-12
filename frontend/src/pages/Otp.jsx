@@ -4,7 +4,8 @@ import { toast } from "react-toastify";
 
 import { useAuthStore } from '../store/userAuth.js'
 
-import Button from "../components/Button";
+import Button from "../components/Button.jsx";
+import Loading from "./Loading.jsx";
 
 import styles from '../styles/auth.module.css';
 
@@ -28,6 +29,7 @@ const Otp = () => {
     const navigate = useNavigate();
     const verifyEmail = useAuthStore((state) => state.verifyEmail);
     const resendVerification = useAuthStore((state) => state.resendVerification);
+    const isVerifing = useAuthStore((state) => state.isVerifing);
 
     const handleVerify = async (e) => {
         e.preventDefault();
@@ -92,6 +94,7 @@ const Otp = () => {
 
     return (
         <div className={styles.authPage}>
+            {isVerifing && <Loading />}
             <div className={styles.left}>
                 <form onPaste={handlePaste} onSubmit={handleVerify}>
                     <div className={styles.head}>
@@ -119,7 +122,7 @@ const Otp = () => {
                             />
                         ))}
                     </div>
-                    <Button text="Verify"/>
+                    <Button text={isVerifing?"Verifying...." : "Verify"}/>
                 </form>
                 {(timer === 0)?
                 <p className={styles.dividerText}>Didn’t receive the code ?&nbsp;<a onClick={(e) => {

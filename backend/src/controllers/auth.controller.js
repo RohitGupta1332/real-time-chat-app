@@ -33,16 +33,31 @@ export const resendVerification = async (req, res) => {
 export const signup = async (req, res) => {
   try {
     const { email, password } = req.body;
+
     const user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({ message: "User already exists" });
     }
+
+    const PUser = await PendingUser.findOne({ email });
+    if (PUser) {
+      if (PUser.expiresAt > new Date()) {
+        return res.status(400).json({ message: "Verification already pending. Please verify your email or request a new code." });
+      }
+
+      if (pendingUser.expiresAt < new Date()) {
+        return res.status(400).json({ message: "Verification code has expired" });
+      }      
+
+      await PendingUser.deleteOne({email});
+    }
+
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
 
     const { token: verificationCode, expiresAt } = generateOtp();
 
-    const pendingUser = PendingUser.create({
+    const pendingUser = await PendingUser.create({
       email,
       password: hash,
       verificationCode,
@@ -77,7 +92,7 @@ export const verifyEmail = async (req, res) => {
       password: pendingUser.password,
     });
 
-    await pendingUser.deleteOne({ email });
+    await pendingUser.deleteOne();
 
     const token = generateToken(newUser);
     res.cookie("token", token, {

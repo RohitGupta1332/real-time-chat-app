@@ -7,13 +7,20 @@ const BASE_URL = "http://localhost:3000"
 
 export const useAuthStore = create((set, get) => ({
     authUser: null,
+
     isSigningIn: false,
     isLoggingIn: false,
     isCheckingAuth: true,
     isCreatingProfile: false,
     isUpdatingProfile: false,
+    isResending : false,
+    isVerifing : false,
+
     isProfileCreated: false,
     isVerificationCodeSent: false,
+
+    isVerified : false,
+
     onlineUsers: [],
     socket: null,
 
@@ -33,14 +40,22 @@ export const useAuthStore = create((set, get) => ({
 
     resendVerification: async () => {
         try {
+            set({ isResending : true })
             const email = localStorage.getItem("email");
-            if (!email) toast.error("Some error occured! Please retry");
-    
+            
+            if (!email) {
+                toast.error("Some error occured! Please retry");
+                return;
+            }
+
             await axiosInstance.post("/auth/resend", { email });
             toast.success("Verification code resent");
         } catch (error) {
             console.error(error);
             toast.error(error.response?.data?.message || "Failed to resend code");
+        }
+        finally {
+            set({ isResending: false });
         }
     },    
 
@@ -55,8 +70,8 @@ export const useAuthStore = create((set, get) => ({
             set({ isVerificationCodeSent: true });
             setTimeout(() => navigate("/otp"), 100);
         } catch (error) {
-            console.log(error.response);
             toast.error(`${error.response?.data?.message}` || "Signup failed");
+            console.error(error)
         } finally {
             set({ isSigningIn: false });
         }
@@ -90,19 +105,31 @@ export const useAuthStore = create((set, get) => ({
     },
 
     verifyEmail: async (code, navigate) => {
-        console.log(code)
         try {
-            const res = await axiosInstance.post("/auth/verify", { code });
-            console.log(res.status)
-            set({ authUser: res.data });
-            if (res.status === 200) {
-                toast.success("Verification Success")
-                set({ isVerificationCodeSent: false })
+            set({ isVerifing : true })
+            const email = localStorage.getItem('email');
+            const res = await axiosInstance.post("/auth/verify", { email, verificationCode: code });
+
+            console.log(res);
+            console.log(res.data);
+            
+            if (res.status === 201) {
+                set({ authUser: res.data,
+                    isVerified : true,
+                    isVerificationCodeSent: false });
+
+                localStorage.setItem("isVerified", true);
+                toast.success("Verification Success");
+
                 navigate("/profile");
             }
         } catch (error) {
-            toast.error(`${error.response?.data?.message}` || "Signup failed");
-            console.log(error);
+            toast.error(
+                error?.response?.data?.message ??
+                error?.message ??
+                "Verification failed"
+              );
+            set({ isVerifing : false })
         }
     },
 
