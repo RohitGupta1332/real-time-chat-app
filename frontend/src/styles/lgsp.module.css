@@ -1,0 +1,55 @@
+.head h1 {
+    margin-top: 6vh;
+    font-weight: 600;
+    font-size: clamp(1.8rem, 5vw, 2.5rem);
+}
+
+.head p {
+    color: #989898;
+    font-weight: 400;
+    font-size: clamp(0.9rem, 2vw, 1rem);
+    margin-top: 0.5rem;
+}
+
+form {
+    height: auto;
+    width: min(90%, 500px);
+    margin: 0 auto;
+    padding: 2rem;
+
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    gap: 2rem;
+}
+
+.inps {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.error {
+    color: red;
+    font-size: 0.8em;
+    margin: 0;
+}
+
+@media (orientation: portrait), (min-resolution: 200dpi), (max-width: 768px) {
+    .head h1 {
+        margin-top: 0;
+        font-size: 2rem;
+    }
+
+    .head p {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+}
