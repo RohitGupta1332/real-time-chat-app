@@ -11,6 +11,7 @@ import Loading from './Loading';
 import { useState } from 'react';
 import { useAuthStore } from '../store/userAuth';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify'; 
 
 const Login = () => {
 
@@ -35,7 +36,8 @@ const Login = () => {
         try {
             await login(formData, navigate);
         } catch (err) {
-            toast.error(err.message || "Login failed");
+            // toast.error(err.message || "Login failed");
+            alert(err.message || "Login failed");
         }
     };
 

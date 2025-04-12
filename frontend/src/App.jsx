@@ -1,5 +1,6 @@
 import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from "react-router-dom"
 import { useEffect } from "react";
+import { ToastContainer } from "react-toastify";
 
 import { useAuthStore } from "./store/userAuth";
 
@@ -40,7 +41,10 @@ function App() {
     ));
   
   return (
-    <RouterProvider router={route}/>
+    <>
+      <ToastContainer />
+      <RouterProvider router={route}/>
+    </>
   );
 }
 
