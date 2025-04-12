@@ -37,7 +37,7 @@ export const useAuthStore = create((set, get) => ({
             const res = await axiosInstance.post("/auth/signup", data);
             toast.success("Verification code sent")
             set({ isVerificationCodeSent: true });
-            setTimeout(() => navigate("/otp"), 3000);
+            setTimeout(() => navigate("/otp"), 100);
         } catch (error) {
             console.log(error.response);
             toast.error(`${error.response?.data?.message}` || "Signup failed");
@@ -63,7 +63,7 @@ export const useAuthStore = create((set, get) => ({
                 } else {
                     navigate("/profile");
                 }
-            }, 1500);
+            }, 10);
 
 
         } catch (error) {
@@ -80,6 +80,7 @@ export const useAuthStore = create((set, get) => ({
             console.log(res.status)
             set({ authUser: res.data });
             if (res.status === 200) {
+                toast.success("Verification Success")
                 set({ isVerificationCodeSent: false })
                 navigate("/profile");
             }

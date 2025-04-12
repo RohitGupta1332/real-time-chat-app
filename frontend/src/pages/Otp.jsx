@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -13,6 +13,17 @@ import AuthImg from '../assets/AuthImg.png'
 const Otp = () => {
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const inputRefs = useRef([]);
+    const [timer, setTimer] = useState(30)
+    
+    useEffect(() => {
+        if (timer <= 0) return;
+
+        const interval = setInterval(() => {
+            setTimer(prevtime => prevtime - 1);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [timer])
 
     const navigate = useNavigate();
     const verifyEmail = useAuthStore((state) => state.verifyEmail);
@@ -109,7 +120,11 @@ const Otp = () => {
                     </div>
                     <Button text="Verify"/>
                 </form>
-                <p className={styles.dividerText}>Didn’t receive the code ?&nbsp;<a href="#">Resend</a></p>
+                {(timer === 0)?
+                <p className={styles.dividerText}>Didn’t receive the code ?&nbsp;<a onClick={(e) => {
+                    setTimer(30);
+                }}>Resend</a></p>:
+                <p className={styles.dividerText}>You can Resend in&nbsp;<span style={{color : '#A366FF'}}>{timer}</span>&nbsp;seconds</p>}
             </div>
             <div className={styles.right}>
                 <img src={AuthImg} alt="Smiling woman using a tablet with text 'Fast. Simple. Secure.'" />
