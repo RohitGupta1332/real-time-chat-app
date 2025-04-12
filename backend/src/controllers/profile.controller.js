@@ -55,8 +55,6 @@ export const createProfile = async (req, res) => {
     }
 };
 
-
-
 export const updateProfile = async (req, res) => {
     try {
         const { name, username, gender, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
