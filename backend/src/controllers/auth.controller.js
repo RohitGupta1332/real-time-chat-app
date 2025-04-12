@@ -51,7 +51,7 @@ export const signup = async (req, res) => {
 
     await sendVerificationMail(email, verificationCode);
 
-    return res.status(201).json({ message: "Verification code sent." });
+    return res.status(201).json({ message: "Verification code sent.", email: email });
   } catch (error) {
     return res
       .status(500)
