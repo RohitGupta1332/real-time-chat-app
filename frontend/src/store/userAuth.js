@@ -31,10 +31,26 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
+    resendVerification: async () => {
+        try {
+            const email = localStorage.getItem("email");
+            if (!email) toast.error("Some error occured! Please retry");
+    
+            await axiosInstance.post("/auth/resend", { email });
+            toast.success("Verification code resent");
+        } catch (error) {
+            console.error(error);
+            toast.error(error.response?.data?.message || "Failed to resend code");
+        }
+    },    
+
     signup: async (data, navigate) => {
         try {
             set({ isSigningIn: true });
             const res = await axiosInstance.post("/auth/signup", data);
+
+            localStorage.setItem("email", res.data.email);
+            
             toast.success("Verification code sent")
             set({ isVerificationCodeSent: true });
             setTimeout(() => navigate("/otp"), 100);
