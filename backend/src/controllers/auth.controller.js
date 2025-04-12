@@ -1,41 +1,34 @@
 import { sendVerificationMail } from "../middlewares/email.config.js";
 import { User } from "../models/user.model.js";
+import { PendingUser } from "../models/pendingUser.model.js"
 import { generateToken } from "../utils/generateToken.js";
 import bcrypt from "bcrypt";
 
-const unverifiedUsers = new Map(); //storing users whose email is not verified
 
-// export const generateOtp = () => {
-//   const token = Math.floor(100000 + Math.random() * 900000).toString();
-//   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-//   return { token, expiresAt };
-// };
+export const generateOtp = () => {
+  const token = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+  return { token, expiresAt };
+};
 
-// export const resendVerification = async (req, res) => {
-//   try {
-//     const { email } = req.body;
+export const resendVerification = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const pendingUser = await PendingUser.findOne({ email });
+    const { token: newVerificationCode, expiresAt } = generateOtp();
 
-//     const userEntry = unverifiedUsers.get(email.toLowerCase());
-//     if (!userEntry) {
-//       return res.status(404).json({ message: "User not found or already verified." });
-//     }
+    pendingUser.verificationCode = newVerificationCode;
+    pendingUser.expiresAt = expiresAt;
+    await pendingUser.save();
 
-//     const { token: newVerificationToken, expiresAt } = generateOtp();
+    await sendVerificationMail(email, newVerificationCode);
 
-//     unverifiedUsers.set(email.toLowerCase(), {
-//       ...userEntry,
-//       verificationToken: newVerificationToken,
-//       expiresAt,
-//     });
-
-//     await sendVerificationMail(email, newVerificationToken);
-
-//     return res.status(200).json({ message: "Verification code resent." });
-//   } catch (error) {
-//     console.error(error);
-//     return res.status(500).json({ message: "Failed to resend code", error });
-//   }
-// };
+    return res.status(200).json({ message: "Verification code resent." });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Failed to resend code", error });
+  }
+};
 
 export const signup = async (req, res) => {
   try {
@@ -46,21 +39,17 @@ export const signup = async (req, res) => {
     }
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
-    const verificationToken = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // Expires in 24 hours
 
-    // const { token: newVerificationToken, expiresAt } = generateOtp();
+    const { token: verificationCode, expiresAt } = generateOtp();
 
-    // Temporarily store user data before verification
-    unverifiedUsers.set(email.toLowerCase(), {
-      hash,
-      verificationToken,
-      expiresAt,
+    const pendingUser = PendingUser.create({
+      email,
+      password: hash,
+      verificationCode,
+      expiresAt
     });
 
-    await sendVerificationMail(email, verificationToken);
+    await sendVerificationMail(email, verificationCode);
 
     return res.status(201).json({ message: "Verification code sent." });
   } catch (error) {
@@ -72,53 +61,30 @@ export const signup = async (req, res) => {
 
 export const verifyEmail = async (req, res) => {
   try {
-    const { code } = req.body;
-    let email = null;
+    const { email, verificationCode } = req.body;
 
-    //fetching the userData from unverified map using the otp(code)
-    for (let [userEmail, userData] of unverifiedUsers) {
-      if (userData.verificationToken === code) {
-        email = userEmail;
-        break;
-      }
+    const pendingUser = await PendingUser.findOne({ email, verificationCode });
+    if (!pendingUser) {
+      return res.status(400).json({ message: "Invalid verification code" });
     }
 
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: "Invalid or expired verification code.",
-      });
-    }
-
-    const userData = unverifiedUsers.get(email);
-
-    if (userData.expiresAt < new Date()) {
-      unverifiedUsers.delete(email);
-      return res.status(400).json({
-        success: false,
-        message: "OTP has expired.",
-      });
+    if (pendingUser.expiresAt < new Date()) {
+      return res.status(400).json({ message: "Verification code has expired" });
     }
 
     const newUser = await User.create({
       email,
-      password: userData.hash,
-      isVerified: true,
-      isProfileCreated: false,
-      verficationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
+      password: pendingUser.password,
     });
+
+    await pendingUser.deleteOne({ email });
 
     const token = generateToken(newUser);
     res.cookie("token", token, {
       credential: true,
     });
 
-    await newUser.save();
-    res.json({
-      _id: newUser._id,
-      email: newUser.email,
-    });
-
+    res.status(201).json({ message: "New user added" });
   } catch (error) {
     console.error(error);
     return res
@@ -126,6 +92,7 @@ export const verifyEmail = async (req, res) => {
       .json({ message: "Internal server error", error: error.message || error });
   }
 };
+
 
 export const login = async (req, res) => {
   try {
