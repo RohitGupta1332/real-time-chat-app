@@ -1,0 +1,144 @@
+.authPage {
+    display: flex;
+    align-items: stretch;
+}
+
+.authPage a {
+    color: #6852D6 !important;
+}
+
+.left {
+    min-height: 500px;
+    height: auto;
+    width: 50vw;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #272727;
+    color: #FFFFFF;
+
+    overflow: hidden;
+}
+
+.otpInput {
+    width: 3rem;
+    height: 3.3rem;
+    margin: 0 5px;
+
+    text-align: center;
+    font-size: 1.5rem;
+    
+    border-radius: 8px;
+    border: none;
+    
+    background-color: #1A1A1A;
+    color: white;
+    
+    outline: none;
+}
+
+input:focus {
+    border-color: #8a63d2;
+    box-shadow: 0 0 4px rgba(138, 99, 210, 0.6);
+    outline: none;
+}
+
+.dividerText {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    color: #989898;
+
+    margin: 1.5rem 0;
+    font-weight: 500;
+    width: 70%;
+    max-width: 20em;
+}
+
+.dividerText::before, .dividerText::after {
+    content: "";
+    flex: 1;
+    border-bottom: 2px solid #F0EDFF;
+    margin: 4px;
+}
+
+.dividerText a {
+    color: #6852D6;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.inps {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+}
+
+
+.right {
+    flex: 1;
+    height: auto;
+    min-height: 100vh;
+
+    background-image: url('../assets/AuthBg.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    overflow: hidden;
+}
+
+img {
+    height: auto;
+    max-height: 80vh;
+}
+
+@media (orientation: portrait), (min-resolution: 200dpi), (max-width: 768px) {
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        min-height: 100vh;
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        background-image: url('../assets/AuthBg.png');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-attachment: fixed;
+
+        padding: 2rem 1rem;
+    }
+
+    .inps {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: center;
+    }
+
+    .left {
+        width: 90vw;
+        border-radius: 30px;
+    }
+
+    .otpInput {
+        min-width: 2.5rem;
+    }
+
+    .right {
+        display: none;
+    }
+
+}
