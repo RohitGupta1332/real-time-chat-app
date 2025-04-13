@@ -41,15 +41,7 @@ export const signup = async (req, res) => {
 
     const PUser = await PendingUser.findOne({ email });
     if (PUser) {
-      if (PUser.expiresAt > new Date()) {
-        return res.status(400).json({ message: "Verification already pending. Please verify your email or request a new code." });
-      }
-
-      if (pendingUser.expiresAt < new Date()) {
-        return res.status(400).json({ message: "Verification code has expired" });
-      }      
-
-      await PendingUser.deleteOne({email});
+      await PendingUser.deleteOne({ email });
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -107,7 +99,6 @@ export const verifyEmail = async (req, res) => {
       .json({ message: "Internal server error", error: error.message || error });
   }
 };
-
 
 export const login = async (req, res) => {
   try {
