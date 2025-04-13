@@ -1,0 +1,74 @@
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+
+    background-color: rgba(0, 0, 0, 0.75);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 50;
+}
+
+.modalContent {
+    background-color: #1A1A1A;
+
+    border-radius: 8px;
+
+    padding: 20px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.modalTitle {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+}
+
+.cropContainer {
+    margin-bottom: 16px;
+}
+
+.cropImage {
+    max-width: 100%;
+    max-height: 400px;
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.cancelButton {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+
+    background-color: #e0e0e0;
+
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.cancelButton:hover {
+    background-color: #c0c0c0;
+}
+
+.applyButton {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+
+    background-color: #6852D6;
+    color: white;
+
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.applyButton:hover {
+    background-color: #4630b7;
+}
