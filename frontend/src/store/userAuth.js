@@ -109,9 +109,6 @@ export const useAuthStore = create((set, get) => ({
             set({ isVerifing : true })
             const email = localStorage.getItem('email');
             const res = await axiosInstance.post("/auth/verify", { email, verificationCode: code });
-
-            console.log(res);
-            console.log(res.data);
             
             if (res.status === 201) {
                 set({ authUser: res.data,
@@ -130,6 +127,8 @@ export const useAuthStore = create((set, get) => ({
                 "Verification failed"
               );
             set({ isVerifing : false })
+        } finally {
+            localStorage.clear();
         }
     },
 
