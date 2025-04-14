@@ -54,7 +54,6 @@ input {
     cursor: pointer;
 }
 
-
 .profilePicWrapper {
     position: relative;
     width: 120px;
@@ -73,6 +72,27 @@ input {
 
     cursor: pointer;
 }
+
+.statusDot {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    border: 3px solid #272727;
+    box-sizing: content-box;
+    z-index: 2;
+}
+
+.online {
+    background-color: #2ec92e;
+}
+
+.offline {
+    background-color: #c92e2e;
+}
+
 
 .cameraIcon {
     position: absolute;
@@ -103,6 +123,10 @@ input {
     resize: none;
 }
 
+.bioForm {
+    padding: 0;
+}
+
 .saveBtn {
     background-color: #A366FF;
     color: white;
@@ -113,6 +137,12 @@ input {
     padding: 12px 24px;
     
     cursor: pointer;
+
+    transition: all 0.3s;
+}
+
+.saveBtn:hover {
+    background-color: #5942c4;
 }
 
 .right {
@@ -146,6 +176,11 @@ input {
     appearance: none;
 }
 
+.inputGrid input:disabled,
+.inputGrid select:disabled {
+    color: #808080;
+}
+
 .selectWrapper {
     position: relative;
     width: 100%;
@@ -154,13 +189,16 @@ input {
 .selectWrapper select {
     width: 100%;
     padding: 12px 40px 12px 12px;
+
     appearance: none;
     -webkit-appearance: none;
     -moz-appearance: none;
+
     border: none;
     border-radius: 10px;
-    font-size: 1em;
     box-sizing: border-box;
+
+    font-size: 1em;
 }
 
 .customArrow {
@@ -179,20 +217,58 @@ input {
     transform: translateY(-50%) rotate(180deg);
 }
 
+.rightData {
+    width: 60%;
+    height: 75%;
+    max-width: 1200px;
+    margin-left: 50px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.profileInfo {
+    margin-bottom: 10px;
+}
+
+.profileInfo h3 {
+    color: #fff;
+    margin: 0;
+    font-size: 1.5em;
+}
+
+.profileInfo p {
+    color: #888;
+    margin: 0;
+    font-size: 1em;
+}
+
+.socialIcons {
+    display: flex;
+    gap: 10px;
+}
+
+.socialIcons a {
+    font-size: 2em;
+    color: #fff;
+    margin: 0 10px;
+    margin-bottom: 30px;
+}
 
 @media (orientation: portrait), (min-resolution: 200dpi), (max-width: 768px) {
     body {
         min-height: 100%;
         background-color: #272727;
+        overflow-x: hidden;
     }
     .page {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: center;
 
         overflow-y: auto;
         height: auto;
 
-        padding: 40px 20px;
+        padding: 40px 40px;
     }
 
     .left, .right {
@@ -207,5 +283,10 @@ input {
 
     .inputGrid {
         grid-template-columns: 1fr;
+    }
+
+    .rightData {
+        justify-content: center;
+        margin: 0;
     }
 }

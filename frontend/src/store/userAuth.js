@@ -15,6 +15,7 @@ export const useAuthStore = create((set, get) => ({
     isUpdatingProfile: false,
     isResending : false,
     isVerifing : false,
+    isLoadingProfile : false,
 
     isProfileCreated: false,
     isVerificationCodeSent: false,
@@ -132,16 +133,24 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    createProfile: async (data) => {
+    createProfile: async (data, navigate) => {
         try {
             set({ isCreatingProfile: true });
-            const res = await axiosInstance.post("/profile/create", data);
-            if (res.status === 201)
-                toast.success("Profile created successfully");
-            else
-                toast.error(`${error.response?.data?.message}` || "Profile creation failed")
 
-            await useAuthStore.getState().checkAuth();
+            const requiredFields = ['name', 'username', 'bio', 'gender'];
+            const missingFields = requiredFields.filter(field => !data[field] || data[field].trim() === '');
+
+            if (missingFields.length > 0) {
+                toast.error(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+                return;
+            }
+
+            const res = await axiosInstance.post("/profile/create", data);
+            if (res.status === 201) {
+                toast.success("Profile created successfully");
+                navigate("/chat");
+            } else
+                toast.error(`${error.response?.data?.message}` || "Profile creation failed")
 
             get().connectSocket();
 
@@ -149,6 +158,52 @@ export const useAuthStore = create((set, get) => ({
             toast.error(`${error.response?.data?.message}` || "Profile creation failed");
         } finally {
             set({ isCreatingProfile: false });
+        }
+    },
+
+    viewProfile: async () => {
+        try {
+            set({ isLoadingProfile : true })
+            const res = await axiosInstance.get("/profile/view");
+
+            if (res.status === 200) {
+                return res.data;
+            } else if (res.status === 404) {
+                toast.error("Profile not found!");
+            } else {
+                toast.error("Unexpected server error");
+            }
+
+        } catch (error) {
+            toast.error(`${error.response?.data?.message}` || "Some error occured")
+        } finally {
+            set({ isLoadingProfile : false })
+        }
+    },
+
+    updateProfile : async (data, navigate) => {
+        try {
+            set({ isUpdatingProfile : true })
+
+            const requiredFields = ['name', 'bio'];
+            const missingFields = requiredFields.filter(field => !data[field] || data[field].trim() === '');
+
+            if (missingFields.length > 0) {
+                toast.error(`Please fill in the following required fields: ${missingFields.join(', ')}`);
+                return;
+            }
+
+            const res = await axiosInstance.post("/profile/update", data);
+            if (res.status === 200) {
+                toast.success("Profile Updated successfully");
+                navigate("/profile/view")
+            } else
+                toast.error(`${error.response?.data?.message}` || "Profile update failed")
+
+        } catch (error) {
+            toast.error(`${error.response?.data?.message}` || "Some error occured")
+        } finally {
+            set({ isUpdatingProfile : false })
         }
     },
 
