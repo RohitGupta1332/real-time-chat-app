@@ -148,11 +148,11 @@ export const useAuthStore = create((set, get) => ({
             const res = await axiosInstance.post("/profile/create", data);
             if (res.status === 201) {
                 toast.success("Profile created successfully");
+                get().connectSocket();
+                set({isProfileCreated : true})
                 navigate("/chat");
             } else
                 toast.error(`${error.response?.data?.message}` || "Profile creation failed")
-
-            get().connectSocket();
 
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Profile creation failed");

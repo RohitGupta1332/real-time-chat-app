@@ -12,7 +12,7 @@ import Chat from "./pages/Chat";
 import RootLayout from "./layouts/RootLayout";
 
 import NotFound from './components/NotFound'
-import ProtectedRoute from "./components/ProtectedRoute";
+import ProtectedRoute from "./utils/ProtectedRoute";
 
 function App() {
 
