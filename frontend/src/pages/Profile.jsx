@@ -34,7 +34,7 @@ const Profile = () => {
     twitterUrl: '',
   });
 
-  const { createProfile, updateProfile, viewProfile, isLoadingProfile, onlineUsers } = useAuthStore();
+  const { authUser, isProfileCreated, createProfile, updateProfile, viewProfile, isLoadingProfile, onlineUsers } = useAuthStore();
 
   const isView = location.pathname === '/profile/view';
   const isCreate = location.pathname === '/profile/create' || location.pathname === '/profile';
@@ -43,6 +43,7 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
+      if (!authUser || !isProfileCreated) return;
       if (isView || isUpdate) {
         try {
           const response = await viewProfile();
@@ -66,7 +67,7 @@ const Profile = () => {
       }
     };
     fetchProfile();
-  }, [isView, isUpdate, viewProfile]);
+  }, [authUser, isProfileCreated, isView, isUpdate, viewProfile]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
