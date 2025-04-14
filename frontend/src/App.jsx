@@ -27,15 +27,29 @@ function App() {
         <Route index element={<ProtectedRoute>
           <AuthPage />
         </ProtectedRoute>}/>
+
         <Route path="otp" element={<ProtectedRoute>
           <Otp />
         </ProtectedRoute>}/>
-        <Route path="profile" element={<ProtectedRoute>
+
+        <Route path="profile" element={<ProtectedRoute />}/>
+
+        <Route path="profile/view" element={<ProtectedRoute>
           <Profile />
         </ProtectedRoute>}/>
+
+        <Route path="profile/update" element={<ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>}/>
+
+        <Route path="profile/create" element={<ProtectedRoute>
+          <Profile />
+        </ProtectedRoute>}/>
+
         <Route path="chat" element={<ProtectedRoute>
             <Chat />
           </ProtectedRoute>}/>
+
         <Route path="*" element={<NotFound />}/>
       </Route>
     ));

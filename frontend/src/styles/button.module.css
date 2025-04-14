@@ -1,13 +1,13 @@
 .button {
-    width: 125px;
-    height: 40px;
+    max-width: 500px;
     min-height: 40px;
+    padding: 12px 24px;
 
-    background-color: #6852D6;
+    background-color: #A366FF;
     color: white;
 
     border: none;
-    border-radius: 12px;
+    border-radius: 10px;
 
     font-size: 1em;
     font-weight: 700;
