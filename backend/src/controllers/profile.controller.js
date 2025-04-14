@@ -5,29 +5,29 @@ import { upload } from "../utils/multer.js";
 
 export const createProfile = async (req, res) => {
     try {
-        const uploadImage = () => {
-            return new Promise((resolve, reject) => {
-                upload.single("image")(req, res, (err) => {
-                    if (err) {
-                        reject(err);
-                    } else {
-                        resolve(req.file ? req.file.filename : "");
-                    }
-                });
-            });
-        };
+        // const uploadImage = () => {
+        //     return new Promise((resolve, reject) => {
+        //         upload.single("image")(req, res, (err) => {
+        //             if (err) {
+        //                 reject(err);
+        //             } else {
+        //                 resolve(req.file ? req.file.filename : "");
+        //             }
+        //         });
+        //     });
+        // };
 
-        const imageUrl = await uploadImage();
+        // const imageUrl = await uploadImage();
 
         const userId = req.user.userId;
-        const { name, username, gender, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
+        const { image, name, username, gender, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
 
         const newProfile = await Profile.create({
             userId,
             name,
             username,
             gender,
-            image: imageUrl,
+            image,
             bio,
             instagramUrl,
             youtubeUrl,
@@ -57,26 +57,26 @@ export const createProfile = async (req, res) => {
 
 export const updateProfile = async (req, res) => {
     try {
-        const { name, username, gender, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
+        const { image, name, username, gender, bio, instagramUrl, youtubeUrl, facebookUrl, twitterUrl } = req.body;
 
         const existingProfile = await Profile.findOne({ username });
         if (!existingProfile) {
             return res.status(404).json({ message: "Profile not found" });
         }
 
-        let imageUrl = existingProfile.image; 
-        await new Promise((resolve, reject) => {
-            upload.single("image")(req, res, (err) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    if (req.file) {
-                        imageUrl = req.file.filename; // Update image if a new file is uploaded
-                    }
-                    resolve();
-                }
-            });
-        });
+        // let imageUrl = existingProfile.image;
+        // await new Promise((resolve, reject) => {
+        //     upload.single("image")(req, res, (err) => {
+        //         if (err) {
+        //             reject(err);
+        //         } else {
+        //             if (req.file) {
+        //                 imageUrl = req.file.filename; // Update image if a new file is uploaded
+        //             }
+        //             resolve();
+        //         }
+        //     });
+        // });
 
         const updatedProfile = await Profile.findOneAndUpdate(
             { username },
@@ -84,7 +84,7 @@ export const updateProfile = async (req, res) => {
                 $set: {
                     name,
                     gender,
-                    image: imageUrl, 
+                    image,
                     bio,
                     instagramUrl,
                     youtubeUrl,
