@@ -255,6 +255,25 @@ input {
     margin-bottom: 30px;
 }
 
+.crossIcon {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+  
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+  
+    transition: all 0.3s ease-in-out;
+    z-index: 1000;
+}
+  
+.crossIcon:hover {
+    transform: scale(1.1);
+    color: #A366FF;
+}
+  
+
 @media (orientation: portrait), (min-resolution: 200dpi), (max-width: 768px) {
     body {
         min-height: 100%;
