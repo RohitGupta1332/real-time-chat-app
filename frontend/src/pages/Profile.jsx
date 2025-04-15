@@ -4,23 +4,29 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from '../store/userAuth';
 
 import Crop from '../components/Crop';
-import Button from '../components/Button'
+import ProfilePic from '../components/ProfilePic';
+import Button from '../components/Button';
+
 import DownArrow from '../assets/DownArrow.svg';
+import DefaultPic from '../assets/default-profile.png';
+
 import styles from '../styles/profile.module.css';
-import buttonStyle from '../styles/button.module.css'
+import buttonStyle from '../styles/button.module.css';
 
 import { FaCamera, FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
-import { IoIosAddCircle } from "react-icons/io";
 
 const Profile = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+
   const [isOpen, setIsOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [imageToCrop, setImageToCrop] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
-  const fileInputRef = useRef(null);
+  const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
+
   const [formData, setFormData] = useState({
     userID: '',
     image: '',
@@ -40,7 +46,6 @@ const Profile = () => {
   const isCreate = location.pathname === '/profile/create' || location.pathname === '/profile';
   const isUpdate = location.pathname === '/profile/update';
 
-
   useEffect(() => {
     const fetchProfile = async () => {
       if (!authUser || !isProfileCreated) return;
@@ -59,8 +64,9 @@ const Profile = () => {
             youtubeUrl: profileData.youtubeUrl || '',
             facebookUrl: profileData.facebookUrl || '',
             twitterUrl: profileData.twitterUrl || '',
+            image: profileData.image || '',
           }));
-          setProfileImage(profileData.image || null);
+          setProfileImage(profileData.image || DefaultPic);
         } catch (error) {
           console.error('Failed to fetch profile:', error.message);
         }
@@ -77,74 +83,34 @@ const Profile = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setImageToCrop(imageUrl);
-      setShowCropper(true);
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageToCrop(reader.result);
+        setShowCropper(true);
+        setShowProfilePicOptions(false);
+      };
+      reader.readAsDataURL(file);
     }
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
-  const triggerFileInput = () => {
-    fileInputRef.current.click();
-  };
-
-  const handleSelectChange = () => {
-    setIsOpen(false);
+    e.target.value = '';
   };
 
   const handleCrop = (croppedImageUrl) => {
     setProfileImage(croppedImageUrl);
+    setFormData((prev) => ({ ...prev, image: croppedImageUrl })); 
     setShowCropper(false);
-    setImageToCrop(null);
   };
 
   const handleCancel = () => {
     setShowCropper(false);
-    setImageToCrop(null);
-  };
-
-  const getBase64Image = (imageUrl) => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'Anonymous';
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0);
-        const base64String = canvas.toDataURL('image/jpeg');
-        resolve(base64String);
-      };
-      img.onerror = reject;
-      img.src = imageUrl;
-    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const data = {
-      name: formData.name || '',
-      username: formData.username || '',
-      gender: formData.gender || '',
-      bio: formData.bio || '',
-      instagramUrl: formData.instagramUrl || '',
-      youtubeUrl: formData.youtubeUrl || '',
-      facebookUrl: formData.facebookUrl || '',
-      twitterUrl: formData.twitterUrl || '',
+      ...formData,
+      image: profileImage === DefaultPic ? null : profileImage
     };
-
-    if ((isCreate || isUpdate) && profileImage) {
-      try {
-        const base64Image = await getBase64Image(profileImage);
-        data.image = base64Image;
-      } catch (error) {
-        console.error('Error converting image to base64:', error);
-        return;
-      }
-    }
 
     if (isUpdate) {
       await updateProfile(data, navigate);
@@ -153,19 +119,22 @@ const Profile = () => {
     }
   };
 
+  const triggerFileInput = () => {
+    fileInputRef.current.click();
+  };
+
   if (isView) {
     return (
       <div className={styles.page}>
         <div className={styles.left}>
           <h2>PROFILE</h2>
           <div className={styles.profilePicWrapper}>
-            {profileImage ? (
-              <img src={profileImage} alt="Profile" className={styles.profilePic} />
-            ) : (
-              <div className={styles.addIcon}>
-                <IoIosAddCircle size={50} />
-              </div>
-            )}
+            <img
+              src={profileImage || DefaultPic}
+              alt="Profile"
+              className={styles.profilePic}
+              onClick={() => setShowProfilePicOptions(true)}
+            />
             <div
               className={`${styles.statusDot} ${(onlineUsers.indexOf(formData.userID) !== -1) ? styles.online : styles.offline}`}
             />
@@ -181,18 +150,33 @@ const Profile = () => {
             <p>{formData.username || 'No Username'}</p>
           </div>
           <div className={styles.socialIcons}>
-            {formData.instagramUrl && <a href={formData.instagramUrl} target='_blank'><FaInstagram /></a>}
-            {formData.facebookUrl && <a href={formData.facebookUrl} target='_blank'><FaFacebook /></a>}
-            {formData.youtubeUrl && <a href={formData.youtubeUrl} target='_blank'><FaYoutube /></a>}
-            {formData.twitterUrl && <a href={formData.twitterUrl} target='_blank'><FaXTwitter /></a>}
+            {formData.instagramUrl && <a href={formData.instagramUrl} target='_blank' rel="noreferrer"><FaInstagram /></a>}
+            {formData.facebookUrl && <a href={formData.facebookUrl} target='_blank' rel="noreferrer"><FaFacebook /></a>}
+            {formData.youtubeUrl && <a href={formData.youtubeUrl} target='_blank' rel="noreferrer"><FaYoutube /></a>}
+            {formData.twitterUrl && <a href={formData.twitterUrl} target='_blank' rel="noreferrer"><FaXTwitter /></a>}
           </div>
-          <button
-          className={buttonStyle.button}
-          onClick={() => {
-            navigate("/profile/update")
-          }}
-          >Update</button>
+          {authUser?._id === formData.userID && (
+            <button
+              className={buttonStyle.button}
+              onClick={() => navigate("/profile/update")}
+            >
+              Update
+            </button>
+          )}
         </div>
+        {showProfilePicOptions && (
+          <ProfilePic
+            fileInputRef={fileInputRef}
+            image={profileImage}
+            onClose={() => setShowProfilePicOptions(false)}
+            onRemove={() => {
+              setProfileImage(DefaultPic);
+              setFormData((prev) => ({ ...prev, image: null }));
+              setShowProfilePicOptions(false);
+            }}
+            isViewMode = {true}
+          />
+        )}
       </div>
     );
   }
@@ -202,19 +186,13 @@ const Profile = () => {
       <div className={styles.left}>
         <h2>{isUpdate ? 'UPDATE PROFILE' : 'CREATE PROFILE'}</h2>
         <div className={styles.profilePicWrapper}>
-          {profileImage ? (
-            <img
-              src={profileImage}
-              alt="Profile"
-              className={styles.profilePic}
-              onClick={triggerFileInput}
-            />
-          ) : (
-            <div className={styles.addIcon} onClick={triggerFileInput}>
-              <IoIosAddCircle size={50} />
-            </div>
-          )}
-          <div className={styles.cameraIcon} onClick={triggerFileInput}>
+          <img
+            src={profileImage || DefaultPic}
+            alt="Profile"
+            className={styles.profilePic}
+            onClick={() => setShowProfilePicOptions(true)}
+          />
+          <div className={styles.cameraIcon} onClick={() => setShowProfilePicOptions(true)}>
             <FaCamera />
           </div>
           <input
@@ -225,6 +203,7 @@ const Profile = () => {
             style={{ display: "none" }}
           />
         </div>
+
         {showCropper && imageToCrop && (
           <Crop
             imageToCrop={imageToCrop}
@@ -232,6 +211,21 @@ const Profile = () => {
             onCancel={handleCancel}
           />
         )}
+
+        {showProfilePicOptions && (
+          <ProfilePic
+            fileInputRef={fileInputRef}
+            image={profileImage}
+            onClose={() => setShowProfilePicOptions(false)}
+            onRemove={() => {
+              setProfileImage(DefaultPic);
+              setFormData((prev) => ({ ...prev, image: null }));
+              setShowProfilePicOptions(false);
+            }}
+            isViewMode={false}
+          />
+        )}
+
         <form className={styles.bioForm} onSubmit={handleSubmit}>
           <textarea
             name="bio"
@@ -241,9 +235,10 @@ const Profile = () => {
             onChange={handleInputChange}
             required
           ></textarea>
-          <Button text={isUpdate ? 'Update & Next' : 'Save & Next'} /> 
+          <Button text={isUpdate ? 'Update & Next' : 'Save & Next'} />
         </form>
       </div>
+
       <div className={styles.right}>
         <div className={styles.inputGrid}>
           <input
@@ -268,7 +263,7 @@ const Profile = () => {
               name="gender"
               onClick={() => setIsOpen(prev => !prev)}
               onChange={(e) => {
-                handleSelectChange();
+                setIsOpen(false);
                 handleInputChange(e);
               }}
               value={formData.gender}
