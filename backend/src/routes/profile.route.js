@@ -8,6 +8,6 @@ const router = express.Router();
 router.post("/create", protectRoute, createProfile);
 router.post("/update", protectRoute, updateProfile);
 router.get("/view", protectRoute, getProfile);
-router.get("/:search", protectRoute, searchProfile)
+router.get("/search/:search", protectRoute, searchProfile)
 
 export default router;
