@@ -66,7 +66,6 @@ const Profile = () => {
             twitterUrl: profileData.twitterUrl || '',
             image: profileData.image || '',
           }));
-
           const formatImage = (image) => {
             if (!image || typeof image !== 'string') return DefaultPic;
             if (image.startsWith('data:image')) return image;
@@ -153,8 +152,8 @@ const Profile = () => {
     return (
       <div className={styles.page}>
         <RxCross2
-        className={styles.crossIcon}
-        onClick={() => navigate("/chat")}
+          className={styles.crossIcon}
+          onClick={() => navigate("/chat")}
         />
 
         <div className={styles.left}>
