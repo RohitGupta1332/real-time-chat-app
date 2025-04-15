@@ -51,7 +51,7 @@ const Profile = () => {
       if (!authUser || !isProfileCreated) return;
       if (isView || isUpdate) {
         try {
-          const response = await viewProfile();
+          const response = await viewProfile({ userId: authUser._id });
           const profileData = response.profile;
           setFormData((prev) => ({
             ...prev,

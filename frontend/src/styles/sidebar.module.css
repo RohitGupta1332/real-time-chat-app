@@ -1,0 +1,86 @@
+.sidebar{
+    background-color: #1A1A1A;
+    color: white;
+
+    width: 500px;
+    min-width: 300px;
+    height: 100vh;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.top {
+    width: 95%;
+    margin: 15px;
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.top h2 {
+    margin-left: 10px;
+}
+
+.icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+
+    font-size: 1.2em;
+}
+
+input {
+    width: 90%;
+    height: 40px;
+    padding: 0 15px;
+    margin-bottom: 10px;
+
+    border-radius: 30px;
+    
+    background-color: #2a2a2e;
+    color: white;
+
+    border: none;
+}
+
+input::placeholder {
+    color: #aaa;
+}
+
+.userList {
+    width: 100%;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.userList::-webkit-scrollbar {
+    width: 5px;
+    transition: all 0.3s ease-in;
+}
+  
+.userList::-webkit-scrollbar-track {
+    background: #1A1A1A;
+}
+  
+.userList::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 10px;
+}
+  
+.userList::-webkit-scrollbar-thumb:hover {
+    background: #666;
+    width: 8px;
+}
+
+@media (orientation: portrait), (min-resolution: 200dpi), (max-width: 768px) {
+    .sidebar {
+        width: 100vw;
+    }
+}

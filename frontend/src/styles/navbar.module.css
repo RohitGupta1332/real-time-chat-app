@@ -1,0 +1,39 @@
+.navbar {
+    background-color: #1a1a1a;
+    width: 100%;
+
+    display: flex;
+    justify-content: space-around;
+
+    padding: 10px 0;
+    border-top: 1px solid #333;
+}
+  
+.navItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+
+    color: #aaa;
+    font-size: 0.8em;
+
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+  
+.navItem svg {
+    font-size: 20px;
+}
+  
+.navItem:hover {
+    color: #898787;
+}
+  
+.active {
+    color: #8b5cf6;
+}  
+
+.active:hover {
+    color: #8b5cf6;
+}
