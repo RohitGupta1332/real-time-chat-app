@@ -15,6 +15,7 @@ import buttonStyle from '../styles/button.module.css';
 
 import { FaCamera, FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
 import { FaXTwitter } from "react-icons/fa6";
+import { RxCross2 } from "react-icons/rx";
 
 const Profile = () => {
   const location = useLocation();
@@ -22,7 +23,7 @@ const Profile = () => {
   const fileInputRef = useRef(null);
 
   const [isOpen, setIsOpen] = useState(false);
-  const [profileImage, setProfileImage] = useState(null);
+  const [profileImage, setProfileImage] = useState(DefaultPic);
   const [imageToCrop, setImageToCrop] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
@@ -43,7 +44,6 @@ const Profile = () => {
   const { authUser, isProfileCreated, createProfile, updateProfile, viewProfile, isLoadingProfile, onlineUsers } = useAuthStore();
 
   const isView = location.pathname === '/profile/view';
-  const isCreate = location.pathname === '/profile/create' || location.pathname === '/profile';
   const isUpdate = location.pathname === '/profile/update';
 
   useEffect(() => {
@@ -66,7 +66,14 @@ const Profile = () => {
             twitterUrl: profileData.twitterUrl || '',
             image: profileData.image || '',
           }));
-          setProfileImage(profileData.image || DefaultPic);
+
+          const formatImage = (image) => {
+            if (!image || typeof image !== 'string') return DefaultPic;
+            if (image.startsWith('data:image')) return image;
+            return `data:image/jpeg;base64,${image}`;
+          };
+
+          setProfileImage(formatImage(profileData.image));
         } catch (error) {
           console.error('Failed to fetch profile:', error.message);
         }
@@ -96,7 +103,7 @@ const Profile = () => {
 
   const handleCrop = (croppedImageUrl) => {
     setProfileImage(croppedImageUrl);
-    setFormData((prev) => ({ ...prev, image: croppedImageUrl })); 
+    setFormData((prev) => ({ ...prev, image: croppedImageUrl }));
     setShowCropper(false);
   };
 
@@ -107,9 +114,14 @@ const Profile = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    let imageToSend = profileImage;
+    if (imageToSend && imageToSend.startsWith("blob:")) {
+      imageToSend = await blobToBase64(imageToSend);
+    }
+
     const data = {
       ...formData,
-      image: profileImage === DefaultPic ? null : profileImage
+      image: imageToSend === DefaultPic ? null : imageToSend
     };
 
     if (isUpdate) {
@@ -123,9 +135,28 @@ const Profile = () => {
     fileInputRef.current.click();
   };
 
+  const blobToBase64 = (blobUrl) => {
+    return new Promise((resolve, reject) => {
+      fetch(blobUrl)
+        .then(response => response.blob())
+        .then(blob => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        })
+        .catch(reject);
+    });
+  };
+
   if (isView) {
     return (
       <div className={styles.page}>
+        <RxCross2
+        className={styles.crossIcon}
+        onClick={() => navigate("/chat")}
+        />
+
         <div className={styles.left}>
           <h2>PROFILE</h2>
           <div className={styles.profilePicWrapper}>
@@ -160,7 +191,7 @@ const Profile = () => {
               className={buttonStyle.button}
               onClick={() => navigate("/profile/update")}
             >
-              Update
+              Update Profile
             </button>
           )}
         </div>
@@ -174,7 +205,7 @@ const Profile = () => {
               setFormData((prev) => ({ ...prev, image: null }));
               setShowProfilePicOptions(false);
             }}
-            isViewMode = {true}
+            isViewMode={true}
           />
         )}
       </div>
@@ -235,7 +266,7 @@ const Profile = () => {
             onChange={handleInputChange}
             required
           ></textarea>
-          <Button text={isUpdate ? 'Update & Next' : 'Save & Next'} />
+          <Button text={isUpdate ? 'Update' : 'Save & Next'} />
         </form>
       </div>
 
