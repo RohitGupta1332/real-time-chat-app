@@ -161,10 +161,12 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    viewProfile: async () => {
+    viewProfile: async (data) => {
         try {
             set({ isLoadingProfile : true })
-            const res = await axiosInstance.get("/profile/view");
+            const res = await axiosInstance.get("/profile/view", {
+                params: { userId: data.userId }
+            });
 
             if (res.status === 200) {
                 return res.data;
