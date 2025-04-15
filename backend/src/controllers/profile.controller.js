@@ -88,7 +88,7 @@ export const getProfile = async (req, res) => {
 
 export const searchProfile = async (req, res) => {
     try {
-        const searchProfile = req.query.profile;
+        const searchProfile = req.params.search;
 
         if (!searchProfile) {
             return res.status(400).json({ message: "Search query is missing" });
