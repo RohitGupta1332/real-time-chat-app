@@ -85,3 +85,27 @@ export const getProfile = async (req, res) => {
         return res.status(500).json({ message: "Internal server error", error: error.message });
     }
 }
+
+export const searchProfile = async (req, res) => {
+    try {
+        const searchProfile = req.query.profile;
+
+        if (!searchProfile) {
+            return res.status(400).json({ message: "Search query is missing" });
+        }
+        const profiles = await Profile.find({
+            $or: [
+                { name: { $regex: searchProfile, $options: 'i' } },
+                { username: { $regex: searchProfile, $options: 'i' } }
+            ]
+        });
+
+        if (profiles.length == 0) {
+            return res.status(400).json({ message: "No profile found" });
+        }
+
+        res.status(200).json({ result: profiles });
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error", error: error.message })
+    }
+}
