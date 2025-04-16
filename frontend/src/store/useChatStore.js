@@ -16,7 +16,7 @@ export const useChatStore = create((set, get) => ({
     getUsersForSidebar: async () => {
         set({ isUserLoading: true })
         try {
-            const res = await axiosInstance("/messages/users");
+            const res = await axiosInstance.get("/messages/users");
             set({ users: res.data })
         } catch (error) {
             toast.error(error.response.data.message);
@@ -28,7 +28,7 @@ export const useChatStore = create((set, get) => ({
     getMessages: async (id) => {
         set({ isMessageLoading: true })
         try {
-            const res = await axiosInstance(`/messages/${id}`);
+            const res = await axiosInstance.get(`/messages/${id}`);
             set({ messages: res.data.messages })
         } catch (error) {
             toast.error(error.response.data.message);
@@ -49,12 +49,27 @@ export const useChatStore = create((set, get) => ({
             }
             set({ messages: [...get().messages, newMessage] })
         })
-    }, //add unsubscribeToMessage function
+    },
 
+    unsubscribeMessages: () => {
+        const socket = useAuthStore.getState().socket;
+        socket.off("newMessage");
+    },
+
+    sendMessage: async (message) => {
+        try {
+            const { selectedUser } = get();
+            if (!selectedUser) return;
+            const id = selectedUser._id;
+            const res = await axiosInstance.post(`/messages/send/${id}`, message)
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }
+    },
     getAIMessages: async () => {
         set({ isMessageLoading: true })
         try {
-            const res = await axiosInstance(`/messages/ai/chats`);
+            const res = await axiosInstance.get(`/messages/ai/chats`);
             set({ aiMessages: res.data.messages });
 
         } catch (error) {
