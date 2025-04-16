@@ -89,6 +89,7 @@ export const verifyEmail = async (req, res) => {
     const token = generateToken(newUser);
     res.cookie("token", token, {
       credential: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
     res.status(201).json({ message: "New user added" });
@@ -115,7 +116,9 @@ export const login = async (req, res) => {
     const token = generateToken(user);
     res.cookie("token", token, {
       credential: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000
     });
+
     return res.status(200).json({ message: "Login successful", isProfileCreated: user.isProfileCreated });
   } catch (error) {
     return res
