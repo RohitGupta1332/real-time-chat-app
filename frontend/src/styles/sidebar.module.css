@@ -1,26 +1,35 @@
-.sidebar{
+.sidebar {
     background-color: #1A1A1A;
     color: white;
-
-    width: 500px;
-    min-width: 300px;
+    width: clamp(300px, 30vw, 400px);
     height: 100vh;
-    
     display: flex;
     flex-direction: column;
     align-items: center;
-
     overflow-y: auto;
     overflow-x: hidden;
+    transition: width 0.3s ease;
+}
+
+.shrunk {
+    width: 60px;
+    min-width: 60px;
+    align-items: center;
 }
 
 .top {
     width: 95%;
     margin: 15px;
-
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
+    align-items: center;
+}
+
+.shrunkTop {
+    width: 100%;
+    justify-content: center;
+    margin: 15px 0;
 }
 
 .top h2 {
@@ -32,25 +41,27 @@
     justify-content: center;
     align-items: center;
     gap: 15px;
-
     font-size: 1.2em;
 }
 
-input {
+.shrunkIcons {
+    flex-direction: column-reverse;
+    gap: 20px;
+    font-size: 1.5em;
+}
+
+.search {
     width: 90%;
     height: 40px;
     padding: 0 15px;
     margin-bottom: 10px;
-
     border-radius: 30px;
-    
     background-color: #2a2a2e;
     color: white;
-
     border: none;
 }
 
-input::placeholder {
+.search::placeholder {
     color: #aaa;
 }
 
@@ -64,23 +75,39 @@ input::placeholder {
     width: 5px;
     transition: all 0.3s ease-in;
 }
-  
+
 .userList::-webkit-scrollbar-track {
     background: #1A1A1A;
 }
-  
+
 .userList::-webkit-scrollbar-thumb {
     background: #444;
     border-radius: 10px;
 }
-  
+
 .userList::-webkit-scrollbar-thumb:hover {
     background: #666;
     width: 8px;
 }
 
-@media (orientation: portrait), (min-resolution: 200dpi), (max-width: 768px) {
+@media (max-width: 768px) {
     .sidebar {
         width: 100vw;
+    }
+
+    .shrunk {
+        width: 100vw;
+        min-width: 100vw;
+    }
+
+    .shrunkTop {
+        width: 95%;
+        justify-content: space-between;
+    }
+
+    .shrunkIcons {
+        flex-direction: row;
+        gap: 15px;
+        font-size: 1.2em;
     }
 }
