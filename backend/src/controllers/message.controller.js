@@ -9,12 +9,34 @@ import * as fs from "node:fs";
 export const getUsersForSidebar = async (req, res) => {
     try {
         const loggedInUserId = req.user._id;
-        const users = await User.find({ _id: { $ne: loggedInUserId } }).select("-password");
+
+        const messages = await Message.find({
+            $or: [
+                { senderId: loggedInUserId },
+                { receiverId: loggedInUserId }
+            ]
+        }).select("senderId receiverId");
+
+        const userIds = new Set();
+
+        messages.forEach(msg => {
+            if (msg.senderId.toString() !== loggedInUserId.toString()) {
+                userIds.add(msg.senderId.toString());
+            }
+            if (msg.receiverId.toString() !== loggedInUserId.toString()) {
+                userIds.add(msg.receiverId.toString());
+            }
+        });
+
+        const users = await User.find({ _id: { $in: Array.from(userIds) } }).select("-password");
+
         res.status(200).json(users);
+
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
 }
+
 
 export const getMessages = async (req, res) => {
     try {

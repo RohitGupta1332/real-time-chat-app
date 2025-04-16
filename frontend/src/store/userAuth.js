@@ -13,14 +13,16 @@ export const useAuthStore = create((set, get) => ({
     isCheckingAuth: true,
     isCreatingProfile: false,
     isUpdatingProfile: false,
-    isResending : false,
-    isVerifing : false,
-    isLoadingProfile : false,
+    isResending: false,
+    isVerifing: false,
+    isLoadingProfile: false,
+
+    searchResult: [],
 
     isProfileCreated: false,
     isVerificationCodeSent: false,
 
-    isVerified : false,
+    isVerified: false,
 
     onlineUsers: [],
     socket: null,
@@ -41,9 +43,9 @@ export const useAuthStore = create((set, get) => ({
 
     resendVerification: async () => {
         try {
-            set({ isResending : true })
+            set({ isResending: true })
             const email = localStorage.getItem("email");
-            
+
             if (!email) {
                 toast.error("Some error occured! Please retry");
                 return;
@@ -58,7 +60,7 @@ export const useAuthStore = create((set, get) => ({
         finally {
             set({ isResending: false });
         }
-    },    
+    },
 
     signup: async (data, navigate) => {
         try {
@@ -66,7 +68,7 @@ export const useAuthStore = create((set, get) => ({
             const res = await axiosInstance.post("/auth/signup", data);
 
             localStorage.setItem("email", res.data.email);
-            
+
             toast.success("Verification code sent")
             set({ isVerificationCodeSent: true });
             setTimeout(() => navigate("/otp"), 100);
@@ -107,14 +109,16 @@ export const useAuthStore = create((set, get) => ({
 
     verifyEmail: async (code, navigate) => {
         try {
-            set({ isVerifing : true })
+            set({ isVerifing: true })
             const email = localStorage.getItem('email');
             const res = await axiosInstance.post("/auth/verify", { email, verificationCode: code });
-            
+
             if (res.status === 201) {
-                set({ authUser: res.data,
-                    isVerified : true,
-                    isVerificationCodeSent: false });
+                set({
+                    authUser: res.data,
+                    isVerified: true,
+                    isVerificationCodeSent: false
+                });
 
                 localStorage.setItem("isVerified", true);
                 toast.success("Verification Success");
@@ -126,8 +130,8 @@ export const useAuthStore = create((set, get) => ({
                 error?.response?.data?.message ??
                 error?.message ??
                 "Verification failed"
-              );
-            set({ isVerifing : false })
+            );
+            set({ isVerifing: false })
         } finally {
             localStorage.clear();
         }
@@ -149,7 +153,7 @@ export const useAuthStore = create((set, get) => ({
             if (res.status === 201) {
                 toast.success("Profile created successfully");
                 get().connectSocket();
-                set({isProfileCreated : true})
+                set({ isProfileCreated: true })
                 navigate("/chat");
             } else
                 toast.error(`${error.response?.data?.message}` || "Profile creation failed")
@@ -163,7 +167,7 @@ export const useAuthStore = create((set, get) => ({
 
     viewProfile: async (data) => {
         try {
-            set({ isLoadingProfile : true })
+            set({ isLoadingProfile: true })
             const res = await axiosInstance.get("/profile/view", {
                 params: { userId: data.userId }
             });
@@ -179,13 +183,13 @@ export const useAuthStore = create((set, get) => ({
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Some error occured")
         } finally {
-            set({ isLoadingProfile : false })
+            set({ isLoadingProfile: false })
         }
     },
 
-    updateProfile : async (data, navigate) => {
+    updateProfile: async (data, navigate) => {
         try {
-            set({ isUpdatingProfile : true })
+            set({ isUpdatingProfile: true })
 
             const requiredFields = ['name', 'bio'];
             const missingFields = requiredFields.filter(field => !data[field] || data[field].trim() === '');
@@ -205,10 +209,17 @@ export const useAuthStore = create((set, get) => ({
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Some error occured")
         } finally {
-            set({ isUpdatingProfile : false })
+            set({ isUpdatingProfile: false })
         }
     },
-
+    searchUser: async (searchValue) => {
+        try {
+            const res = await axiosInstance(`/profile/search/${searchValue}`);
+            set({ searchResult: res.result })
+        } catch (error) {
+            toast.error(error.response.data.message);
+        }
+    },
     connectSocket: () => {
         const { authUser, isProfileCreated } = get();
         if (!authUser || !isProfileCreated || get().socket?.connected)

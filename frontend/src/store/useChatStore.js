@@ -1,18 +1,19 @@
 import { create } from "zustand"
 import { axiosInstance } from "../lib/axios"
 import { toast } from "react-toastify"
-import { useState } from "react"
+import { useAuthStore } from "../store/userAuth.js"
 
 export const useChatStore = create((set, get) => ({
     messages: [],
     aiMessages: [],
     users: [],
+    searchResult: [],
     selectedUser: null,
     isMessageLoading: false,
     isUserLoading: false,
     isResponseLoading: false,
 
-    getUsers: async () => {
+    getUsersForSidebar: async () => {
         set({ isUserLoading: true })
         try {
             const res = await axiosInstance("/messages/users");
@@ -28,7 +29,7 @@ export const useChatStore = create((set, get) => ({
         set({ isMessageLoading: true })
         try {
             const res = await axiosInstance(`/messages/${id}`);
-            set({ messages: res.data })
+            set({ messages: res.data.messages })
         } catch (error) {
             toast.error(error.response.data.message);
         } finally {
@@ -36,11 +37,12 @@ export const useChatStore = create((set, get) => ({
         }
     },
 
+
     listenMessages: () => {
         const { selectedUser } = get();
         if (!selectedUser) return;
 
-        const socket = useState.getState().socket;
+        const socket = useAuthStore.getState().socket;
         socket.on("newMessage", (newMessage) => {
             if (newMessage.senderId !== selectedUser._id) {
                 return;
