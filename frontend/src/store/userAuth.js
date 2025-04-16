@@ -17,7 +17,7 @@ export const useAuthStore = create((set, get) => ({
     isVerifing: false,
     isLoadingProfile: false,
 
-    searchResult: [],
+    searchResult: null,
 
     isProfileCreated: false,
     isVerificationCodeSent: false,
@@ -215,9 +215,9 @@ export const useAuthStore = create((set, get) => ({
     searchUser: async (searchValue) => {
         try {
             const res = await axiosInstance(`/profile/search/${searchValue}`);
-            set({ searchResult: res.result })
+            set({ searchResult: res.data.result })
         } catch (error) {
-            toast.error(error.response.data.message);
+            set({ searchResult : null})
         }
     },
     connectSocket: () => {
