@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import styles from '../styles/profilePic.module.css';
-import ProfilePictureViewer from '../pages/ProfilePictureViewer'; // Import the new component
+import ProfilePictureViewer from '../pages/ProfilePictureViewer';
 
-const ProfilePic = ({ fileInputRef, image, onClose, onChange, onRemove, isViewMode }) => {
+const ProfilePic = ({ fileInputRef, image, onClose, onRemove, isViewMode }) => {
   const [showViewer, setShowViewer] = useState(false);
 
   const handleChangeClick = () => {

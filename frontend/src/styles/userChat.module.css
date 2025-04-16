@@ -36,9 +36,14 @@
     margin: 0;
 }
 
-.status {
+.active {
     font-size: 0.9rem;
-    color: #34b7f1;
+    color: #3b82f6;
+}
+
+.inactive {
+    font-size: 0.9rem;
+    color: #a0a0a0;
 }
 
 .messages {

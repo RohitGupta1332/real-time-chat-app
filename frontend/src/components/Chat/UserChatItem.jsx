@@ -1,9 +1,9 @@
 import styles from '../../styles/userChatItem.module.css';
 import DefaultPic from '../../assets/default-profile.png'
 
-const UserChatItem = ({ user, lastMessage, time, isActive, onClick }) => {
+const UserChatItem = ({ user, lastMessage, time, isActive, onUserClick }) => {
   return (
-    <div className={styles.container} onClick={onClick}>
+    <div className={styles.container} onClick={() => onUserClick(user)}>
         <div className={styles.avatarWrapper}>
             <img src={user.profilePic || DefaultPic} alt="Profile" className={styles.avatar} />
             {isActive && <div className={styles.onlineDot} />}
@@ -17,7 +17,6 @@ const UserChatItem = ({ user, lastMessage, time, isActive, onClick }) => {
             <p className={styles.message}>{lastMessage}</p>
         </div>
     </div>
-
   );
 };
 
