@@ -1,4 +1,4 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const messageSchema = new Schema({
     senderId: {
@@ -14,11 +14,11 @@ const messageSchema = new Schema({
     text: {
         type: String
     },
-    image: {
+    media: {
         type: String
     },
-    
-},{timestamps: true}
+
+}, { timestamps: true }
 )
 
 export const Message = mongoose.model('Message', messageSchema);

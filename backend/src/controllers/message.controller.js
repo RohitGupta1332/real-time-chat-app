@@ -8,7 +8,7 @@ import * as fs from "node:fs";
 
 export const getUsersForSidebar = async (req, res) => {
     try {
-        const loggedInUserId = req.user._id;
+        const loggedInUserId = req.user.userId;
 
         const messages = await Message.find({
             $or: [
@@ -41,7 +41,7 @@ export const getUsersForSidebar = async (req, res) => {
 export const getMessages = async (req, res) => {
     try {
         const { id: receiverId } = req.params;
-        const senderId = req.user._id; //loggedIn person
+        const senderId = req.user.userId; //loggedIn person
         const messages = await Message.find({
             $or: [
                 { sender: senderId, receiver: receiverId },
@@ -56,25 +56,21 @@ export const getMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
     try {
-        const { text, image } = req.body;
+        const { text, media } = req.body;
         const { id: receiverId } = req.params;
-        const senderId = req.user._id; //loggedIn person
+        const senderId = req.user.userId; //loggedIn person
 
-        let imageUrl;
-        if (image) {
-            //add file sharing using multer (import upload from utils)
-        }
 
-        const newMessage = Message.create({
+        const newMessage = await Message.create({
             senderId,
             receiverId,
             text,
-            image: imageUrl
+            media
         });
 
         const receiverSocketId = getReceiverSocketId(receiverId);
         io.to(receiverSocketId).emit("newMessage", newMessage);
-
+        res.status(201).json({ message: "Message sent successfully", data: message })
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error })
     }
@@ -88,7 +84,7 @@ export const messageAI = async (req, res) => {
         const { prompt } = req.body;
 
         const result = await model.generateContent(prompt);
-        const newAIMessage = AIMessage.create({
+        const newAIMessage = await AIMessage.create({
             userId: req.user.userId,
             prompt,
             response: result.response.text()
