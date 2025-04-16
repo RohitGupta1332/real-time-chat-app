@@ -7,10 +7,10 @@ const Chat = () => {
   const [selectedUser, setSelectedUser] = useState(null)
   return (
     <div style={{
-      display : "flex"
+      display: "flex"
     }}>
       <Sidebar onUserClick={setSelectedUser} />
-      <UserChat selectedUser={selectedUser} />
+      <UserChat selectedUser={selectedUser} onClose={() => setSelectedUser(null)} />
     </div>
   )
 }

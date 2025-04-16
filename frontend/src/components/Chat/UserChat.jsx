@@ -6,10 +6,15 @@ import DefaultPic from '../../assets/default-profile.png';
 import { GoPaperclip } from "react-icons/go";
 import { MdEmojiEmotions } from "react-icons/md";
 import { IoSend } from "react-icons/io5";
+import { FiX } from "react-icons/fi";
 
-const UserChat = ({ selectedUser }) => {
+import { useChatStore } from '../../store/useChatStore';
+import { useAuthStore } from '../../store/userAuth';
+
+const UserChat = ({ selectedUser, onClose }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const { onlineUsers } = useAuthStore();
 
   const handleSend = () => {
     if (input.trim()) {
@@ -42,8 +47,15 @@ const UserChat = ({ selectedUser }) => {
           />
           <div>
             <h3 className={styles.headerName}>{selectedUser.fullName}</h3>
-            <span className={styles.status}>Online</span>
+            <span className={`${styles.status} ${selectedUser._id && onlineUsers.includes(selectedUser._id) ? styles.active : styles.inactive}`}>
+              {selectedUser._id && onlineUsers.includes(selectedUser._id) ? 'Online' : 'Offline'}
+            </span>
           </div>
+          <FiX
+            className={styles.closeButton}
+            onClick={onClose}
+            style={{ cursor: "pointer", marginLeft: "auto" }}
+          />
         </div>
       ) : ""}
 
@@ -55,9 +67,8 @@ const UserChat = ({ selectedUser }) => {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`${styles.messageWrapper} ${
-              msg.sender === 'user' ? styles.messageUser : styles.messageOther
-            }`}
+            className={`${styles.messageWrapper} ${msg.sender === 'user' ? styles.messageUser : styles.messageOther
+              }`}
           >
             {msg.type === 'image' ? (
               <img src={msg.src} alt="Sent" className={styles.messageImage} />
@@ -71,8 +82,8 @@ const UserChat = ({ selectedUser }) => {
 
       {/* Input Area */}
       {selectedUser ? <div className={styles.inputArea}>
-        <GoPaperclip className={styles.emojiButton}/>
-        <MdEmojiEmotions className={styles.emojiButton}/>
+        <GoPaperclip className={styles.emojiButton} />
+        <MdEmojiEmotions className={styles.emojiButton} />
         <input
           type="text"
           value={input}
@@ -81,12 +92,12 @@ const UserChat = ({ selectedUser }) => {
           placeholder="Type your message..."
           className={styles.input}
         />
-          <IoSend className={styles.sendButton}/>
+        <IoSend className={styles.sendButton} />
       </div> : ""}
 
-      {!selectedUser?<div className={styles.noChatSelected}>
-         <p>Select a Chat to start the conversation</p>
-     </div>:""}
+      {!selectedUser ? <div className={styles.noChatSelected}>
+        <p>Select a Chat to start the conversation</p>
+      </div> : ""}
     </div>
   );
 };

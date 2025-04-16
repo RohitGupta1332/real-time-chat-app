@@ -27,6 +27,7 @@ const Profile = () => {
   const [imageToCrop, setImageToCrop] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
 
   const [formData, setFormData] = useState({
     userID: '',
@@ -41,20 +42,27 @@ const Profile = () => {
     twitterUrl: '',
   });
 
-  const { authUser, isProfileCreated, createProfile, updateProfile, viewProfile, isLoadingProfile, onlineUsers } = useAuthStore();
+  const { authUser, isProfileCreated, createProfile, updateProfile, viewProfile, isLoadingProfile, onlineUsers, checkAuth } = useAuthStore();
 
   const isView = location.pathname === '/profile/view';
   const isUpdate = location.pathname === '/profile/update';
 
   useEffect(() => {
+    const verifyAuth = async () => {
+      await checkAuth();
+      setIsAuthChecked(true);
+    };
+    verifyAuth();
+  }, []);
+
+  useEffect(() => {
     const fetchProfile = async () => {
-      if (!authUser || !isProfileCreated) return;
+      if (!isAuthChecked || !authUser || !authUser._id || !isProfileCreated) return;
       if (isView || isUpdate) {
         try {
           const response = await viewProfile({ userId: authUser._id });
           const profileData = response.profile;
           setFormData((prev) => ({
-            ...prev,
             userID: profileData.userId || '',
             name: profileData.name || '',
             username: profileData.username || '',
@@ -71,7 +79,6 @@ const Profile = () => {
             if (image.startsWith('data:image')) return image;
             return `data:image/jpeg;base64,${image}`;
           };
-
           setProfileImage(formatImage(profileData.image));
         } catch (error) {
           console.error('Failed to fetch profile:', error.message);
@@ -79,7 +86,7 @@ const Profile = () => {
       }
     };
     fetchProfile();
-  }, [authUser, isProfileCreated, isView, isUpdate, viewProfile]);
+  }, [authUser, isAuthChecked, isProfileCreated, isView, isUpdate, viewProfile]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -155,7 +162,6 @@ const Profile = () => {
           className={styles.crossIcon}
           onClick={() => navigate("/chat")}
         />
-
         <div className={styles.left}>
           <h2>PROFILE</h2>
           <div className={styles.profilePicWrapper}>

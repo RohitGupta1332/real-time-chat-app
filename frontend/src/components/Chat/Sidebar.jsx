@@ -13,7 +13,7 @@ import { FiBell, FiX, FiUser, FiMenu } from "react-icons/fi";
 
 import LockTalk from '../../assets/LockTalk.png';
 
-const Sidebar = ({ onProfileClick }) => {
+const Sidebar = ({ onUserClick }) => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("chats");
     const [isShrunk, setIsShrunk] = useState(false);
@@ -36,7 +36,7 @@ const Sidebar = ({ onProfileClick }) => {
 
     useEffect(() => {
         if (searchValue && typeof searchUser === 'function') {
-            searchUser(searchValue);
+            searchUser(searchValue.trim());
         } else if (!searchValue) {
             useAuthStore.setState({ searchResult: null });
         }
@@ -49,12 +49,6 @@ const Sidebar = ({ onProfileClick }) => {
     const handleToggle = () => {
         if (!isMobile) setIsShrunk(!isShrunk);
     };
-
-    const filterSearchResults = (results, authUserId) => {
-        return results?.filter((user) => user.userId !== authUserId) || [];
-    };
-
-    const filteredSearchResults = filterSearchResults(searchResult, authUser?._id);
 
     return (
         <div className={`${styles.sidebar} ${isShrunk && !isMobile ? styles.shrunk : ""}`}>
@@ -101,7 +95,7 @@ const Sidebar = ({ onProfileClick }) => {
                         onChange={handleSearchChange}
                         aria-label="Search for users"
                     />
-                    {searchValue && <SearchResults results={filteredSearchResults} setUserList={setUserList} setSearchValue={setSearchValue} />}
+                    {searchValue && <SearchResults results={searchResult} setUserList={setUserList} setSearchValue={setSearchValue} onUserClick={onUserClick} />}
                     {!searchValue && (
                         <div className={styles.userList}>
                             {usersList.map((item, index) => (
@@ -113,6 +107,7 @@ const Sidebar = ({ onProfileClick }) => {
                                         lastMessage={item.lastMessage}
                                         time={item.time}
                                         isActive={item.isActive}
+                                        onUserClick={onUserClick}
                                     />
                                 ) : null
                             ))}

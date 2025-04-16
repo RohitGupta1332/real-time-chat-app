@@ -71,7 +71,7 @@ export const useAuthStore = create((set, get) => ({
 
             toast.success("Verification code sent")
             set({ isVerificationCodeSent: true });
-            setTimeout(() => navigate("/otp"), 100);
+            navigate("/otp");
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Signup failed");
             console.error(error)
@@ -88,17 +88,14 @@ export const useAuthStore = create((set, get) => ({
 
             get().connectSocket();
 
-            setTimeout(() => {
-                set({ isProfileCreated: res.data.isProfileCreated });
-                set({ authUser: res.data });
+            set({ isProfileCreated: res.data.isProfileCreated });
+            set({ authUser: res.data });
 
-                if (res.data.isProfileCreated) {
-                    navigate("/chat");
-                } else {
-                    navigate("/profile");
-                }
-            }, 10);
-
+            if (res.data.isProfileCreated) {
+                navigate("/chat");
+            } else {
+                navigate("/profile");
+            }
 
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Login failed")
@@ -166,6 +163,7 @@ export const useAuthStore = create((set, get) => ({
     },
 
     viewProfile: async (data) => {
+        // console.log(data)
         try {
             set({ isLoadingProfile: true })
             const res = await axiosInstance.get("/profile/view", {
