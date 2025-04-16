@@ -7,6 +7,8 @@
 
     background-color: #2a2a2e;
     color: #fff;
+
+    overflow: hidden;
 }
 
 .chatHeader {
