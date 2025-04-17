@@ -55,22 +55,25 @@ export const getMessages = async (req, res) => {
 }
 
 export const sendMessage = async (req, res) => {
+    console.log("Hello")
     try {
-        const { text, media } = req.body;
+        const { message, media } = req.body;
         const { id: receiverId } = req.params;
         const senderId = req.user.userId; //loggedIn person
+
+        console.log({message, senderId, receiverId})
 
 
         const newMessage = await Message.create({
             senderId,
             receiverId,
-            text,
+            text : message,
             media
         });
 
         const receiverSocketId = getReceiverSocketId(receiverId);
         io.to(receiverSocketId).emit("newMessage", newMessage);
-        res.status(201).json({ message: "Message sent successfully", data: message })
+        res.status(201).json({ message: "Message sent successfully", data: newMessage })
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error })
     }

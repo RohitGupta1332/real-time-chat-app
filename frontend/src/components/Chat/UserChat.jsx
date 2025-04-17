@@ -12,19 +12,24 @@ import { useChatStore } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/userAuth';
 
 const UserChat = ({ selectedUser, onClose }) => {
-  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const { onlineUsers } = useAuthStore();
+  const { messages, getMessages, listenMessages, unsubscribeMessages, sendMessage } = useChatStore();
+
+  // Fetch messages and set up WebSocket listener when selectedUser changes
+  useEffect(() => {
+    if (selectedUser?._id) {
+      getMessages(selectedUser._id);
+    }
+
+    return () => {
+      unsubscribeMessages();
+    };
+  }, [selectedUser, getMessages, unsubscribeMessages]);
 
   const handleSend = () => {
     if (input.trim()) {
-      const newMessage = {
-        id: messages.length + 1,
-        text: input,
-        sender: 'user',
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toLowerCase(),
-      };
-      setMessages([...messages, newMessage]);
+      sendMessage(selectedUser, input);
       setInput('');
     }
   };
@@ -67,8 +72,7 @@ const UserChat = ({ selectedUser, onClose }) => {
         {messages.map((msg) => (
           <div
             key={msg.id}
-            className={`${styles.messageWrapper} ${msg.sender === 'user' ? styles.messageUser : styles.messageOther
-              }`}
+            className={`${styles.messageWrapper} ${msg.sender === 'user' ? styles.messageUser : styles.messageOther}`}
           >
             {msg.type === 'image' ? (
               <img src={msg.src} alt="Sent" className={styles.messageImage} />

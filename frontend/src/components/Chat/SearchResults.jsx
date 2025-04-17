@@ -13,9 +13,9 @@ const SearchResults = ({ results, setUserList, setSearchValue, onUserClick }) =>
                     className={styles.searchResultItem}
                     onClick={() => {
                         const userItem = {
-                            user: { _id: user.userId, fullName: user.name, profilePic: user.image },
-                            lastMessage: "Nevermind!",
-                            time: "8:40 AM",
+                            user: { _id: user.userId, fullName: user.name, profilePic: user.image, uid : user._id },
+                            lastMessage: "",
+                            time: "",
                             isActive: false,
                         };
                         setUserList((prevList) => [userItem, ...prevList]);

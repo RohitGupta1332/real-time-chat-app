@@ -1,7 +1,7 @@
-import { create } from "zustand"
-import { axiosInstance } from "../lib/axios"
-import { toast } from "react-toastify"
-import { useAuthStore } from "../store/userAuth.js"
+import { create } from "zustand";
+import { axiosInstance } from "../lib/axios";
+import { toast } from "react-toastify";
+import { useAuthStore } from "../store/userAuth.js";
 
 export const useChatStore = create((set, get) => ({
     messages: [],
@@ -14,31 +14,32 @@ export const useChatStore = create((set, get) => ({
     isResponseLoading: false,
 
     getUsersForSidebar: async () => {
-        set({ isUserLoading: true })
+        set({ isUserLoading: true });
         try {
             const res = await axiosInstance.get("/messages/users");
-            set({ users: res.data })
+            set({ users: res.data });
         } catch (error) {
             toast.error(error.response.data.message);
         } finally {
-            set({ isUserLoading: false })
+            set({ isUserLoading: false });
         }
     },
 
     getMessages: async (id) => {
-        set({ isMessageLoading: true })
+        set({ isMessageLoading: true });
         try {
             const res = await axiosInstance.get(`/messages/${id}`);
-            set({ messages: res.data.messages })
+            console.log("Messages loaded:", res.data.messages); // Debug log for loaded messages
+            set({ messages: res.data.messages });
         } catch (error) {
             toast.error(error.response.data.message);
         } finally {
-            set({ isMessageLoading: false })
+            set({ isMessageLoading: false });
         }
     },
 
-
     listenMessages: () => {
+        console.log("Hello")
         const { selectedUser } = get();
         if (!selectedUser) return;
 
@@ -47,8 +48,9 @@ export const useChatStore = create((set, get) => ({
             if (newMessage.senderId !== selectedUser._id) {
                 return;
             }
-            set({ messages: [...get().messages, newMessage] })
-        })
+            console.log("Message received:", newMessage); // Debug log for received message
+            set({ messages: [...get().messages, newMessage] });
+        });
     },
 
     unsubscribeMessages: () => {
@@ -56,42 +58,43 @@ export const useChatStore = create((set, get) => ({
         socket.off("newMessage");
     },
 
-    sendMessage: async (message) => {
+    sendMessage: async (selectedUser, message) => {
         try {
-            const { selectedUser } = get();
             if (!selectedUser) return;
             const id = selectedUser._id;
-            const res = await axiosInstance.post(`/messages/send/${id}`, message)
+            const res = await axiosInstance.post(`/messages/send/${id}`, {
+                message: message, // Wrap the message object
+                media: null // Add media if needed, or null if not used
+            });
         } catch (error) {
-            toast.error(error.response.data.message)
+            toast.error(error.response.data.message);
         }
     },
+
     getAIMessages: async () => {
-        set({ isMessageLoading: true })
+        set({ isMessageLoading: true });
         try {
             const res = await axiosInstance.get(`/messages/ai/chats`);
             set({ aiMessages: res.data.messages });
-
         } catch (error) {
-            toast.error(error.response.data.message)
+            toast.error(error.response.data.message);
         } finally {
-            set({ isMessageLoading: false })
+            set({ isMessageLoading: false });
         }
-
     },
 
     chatWithAI: async (prompt) => {
-        set({ isResponseLoading: true })
+        set({ isResponseLoading: true });
         try {
             const response = await axiosInstance.post("/messages/ai", { prompt });
             const result = response.data;
             set((state) => ({
-                aiMessages: [...state.aiMessages, { prompt, response: result.data }]
+                aiMessages: [...state.aiMessages, { prompt, response: result.data }],
             }));
         } catch (error) {
             toast.error(error?.response?.data?.message || "Something went wrong!");
         } finally {
-            set({ isResponseLoading: false })
+            set({ isResponseLoading: false });
         }
-    }
-}))
+    },
+}));
