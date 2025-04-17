@@ -29,7 +29,7 @@ const Sidebar = ({ onUserClick }) => {
     }, [getUsersForSidebar]);
 
     useEffect(() => {
-        setUserList(users);
+        setUserList([...users]);
     }, [users]);
 
     useEffect(() => {
@@ -119,7 +119,7 @@ const Sidebar = ({ onUserClick }) => {
                             results={searchResult}
                             setSearchValue={setSearchValue}
                             onUserClick={onUserClick}
-                            onAddUserToList={handleAddUserToList} // Pass callback to add user
+                            onAddUserToList={handleAddUserToList}
                         />
                     )}
                     {!searchValue && (
@@ -130,7 +130,7 @@ const Sidebar = ({ onUserClick }) => {
                                 <p>No chats yet</p>
                             ) : (
                                 userList.map((user, index) => {
-                                    (
+                                    return (
                                     <UserChatItem
                                         key={user._id || index}
                                         id={user._id}

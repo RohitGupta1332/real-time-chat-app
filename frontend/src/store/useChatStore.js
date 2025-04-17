@@ -8,7 +8,6 @@ export const useChatStore = create((set, get) => ({
     aiMessages: [],
     users: [],
     searchResult: [],
-    selectedUser: null,
     isMessageLoading: false,
     isUserLoading: false,
     isResponseLoading: false,
@@ -18,7 +17,6 @@ export const useChatStore = create((set, get) => ({
         try {
             const res = await axiosInstance.get("/messages/users");
             set({ users: res.data });
-            console.log(res.data)
         } catch (error) {
             toast.error(error.response.data.message);
         } finally {
@@ -30,7 +28,6 @@ export const useChatStore = create((set, get) => ({
         set({ isMessageLoading: true });
         try {
             const res = await axiosInstance.get(`/messages/${id}`);
-            console.log("Messages loaded:", res.data.messages); // Debug log for loaded messages
             set({ messages: res.data.messages });
         } catch (error) {
             toast.error(error.response.data.message);
@@ -39,38 +36,61 @@ export const useChatStore = create((set, get) => ({
         }
     },
 
-    listenMessages: () => {
-        console.log("Hello")
-        const { selectedUser } = get();
-        if (!selectedUser) return;
-
+    listenMessages: (selected) => {
+        if (!selected) return;
+    
         const socket = useAuthStore.getState().socket;
-        socket.on("newMessage", (newMessage) => {
-            if (newMessage.senderId !== selectedUser._id) {
-                return;
-            }
-            console.log("Message received:", newMessage); // Debug log for received message
-            set({ messages: [...get().messages, newMessage] });
-        });
+    
+        const handleNewMessage = (newMessage) => {
+            if (newMessage.senderId !== selected.userId) return;
+    
+            console.log("Message received:", newMessage);
+    
+            set((state) => {
+                const exists = state.messages.some(m => m._id === newMessage._id);
+                if (exists) return state; // skip if already added
+                return { messages: [...state.messages, newMessage] };
+            });
+        };
+    
+        socket.on("newMessage", handleNewMessage);
+    
+        return () => {
+            socket.off("newMessage", handleNewMessage);
+        };
     },
+    
 
     unsubscribeMessages: () => {
         const socket = useAuthStore.getState().socket;
         socket.off("newMessage");
     },
 
-    sendMessage: async (selectedUser, message) => {
+    sendMessage: async (selected, message) => {
         try {
-            if (!selectedUser) return;
-            const id = selectedUser._id;
-            const res = await axiosInstance.post(`/messages/send/${id}`, {
-                message: message, // Wrap the message object
-                media: null // Add media if needed, or null if not used
+            if (!selected) return;
+            const id = selected.userId;
+    
+            // Optimistic UI update
+            const newMessage = {
+                senderId: useAuthStore.getState().authUser._id,
+                receiverId: id,
+                text: message,
+                type: "text",
+                createdAt: new Date().toISOString()
+            };
+            set((state) => ({ messages: [...state.messages, newMessage] }));
+    
+            // Send to backend
+            await axiosInstance.post(`/messages/send/${id}`, {
+                message: message,
+                media: null
             });
+    
         } catch (error) {
             toast.error(error.response.data.message);
         }
-    },
+    },    
 
     getAIMessages: async () => {
         set({ isMessageLoading: true });
