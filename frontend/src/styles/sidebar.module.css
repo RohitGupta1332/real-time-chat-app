@@ -105,6 +105,14 @@
     width: 8px;
 }
 
+.userList p {
+    position: relative;
+    top: 50%;
+    text-align: center;
+
+    color: #aaa;
+}
+
 .noResults {
     color: #8696a0;
     text-align: center;

@@ -1,20 +1,31 @@
 import styles from '../../styles/userChatItem.module.css';
-import DefaultPic from '../../assets/default-profile.png'
+import DefaultPic from '../../assets/default-profile.png';
 
-const UserChatItem = ({ user, lastMessage, time, isActive, onUserClick }) => {
+const UserChatItem = ({id, name, bio, image, lastMessage, time, isActive, onUserClick }) => {
+  // Reconstruct the user object to pass to onUserClick
+  const user = {
+    id,
+    name,
+    bio,
+    image,
+    lastMessage,
+    time,
+    isActive
+  };
+
   return (
     <div className={styles.container} onClick={() => onUserClick(user)}>
         <div className={styles.avatarWrapper}>
-            <img src={user.profilePic || DefaultPic} alt="Profile" className={styles.avatar} />
-            {isActive && <div className={styles.onlineDot} />}
+            <img src={image || DefaultPic} alt="Profile" className={styles.avatar} />
+            {(isActive || false) && <div className={styles.onlineDot} />}
         </div>
 
         <div className={styles.content}>
             <div className={styles.header}>
-            <span className={styles.name}>{user.fullName}</span>
-            <span className={styles.time}>{time}</span>
+                <span className={styles.name}>{name}</span>
+                <span className={styles.time}>{time || ""}</span>
             </div>
-            <p className={styles.message}>{lastMessage}</p>
+            <p className={styles.message}>{lastMessage || bio}</p>
         </div>
     </div>
   );

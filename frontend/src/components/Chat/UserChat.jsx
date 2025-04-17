@@ -14,18 +14,15 @@ import { useAuthStore } from '../../store/userAuth';
 const UserChat = ({ selectedUser, onClose }) => {
   const [input, setInput] = useState('');
   const { onlineUsers } = useAuthStore();
-  const { messages, getMessages, listenMessages, unsubscribeMessages, sendMessage } = useChatStore();
+  const { messages, getMessages, sendMessage } = useChatStore();
 
-  // Fetch messages and set up WebSocket listener when selectedUser changes
+  console.log(selectedUser)
+
   useEffect(() => {
     if (selectedUser?._id) {
       getMessages(selectedUser._id);
     }
-    
-    return () => {
-      unsubscribeMessages();
-    };
-  }, [selectedUser, getMessages, unsubscribeMessages]);
+  }, [selectedUser, getMessages]);
 
   const handleSend = () => {
     if (input.trim()) {
@@ -46,14 +43,14 @@ const UserChat = ({ selectedUser, onClose }) => {
       {selectedUser ? (
         <div className={styles.chatHeader}>
           <img
-            src={selectedUser.profilePic || DefaultPic}
+            src={selectedUser.image || DefaultPic}
             alt="Profile"
             className={styles.headerAvatar}
           />
           <div>
-            <h3 className={styles.headerName}>{selectedUser.fullName}</h3>
-            <span className={`${styles.status} ${selectedUser._id && onlineUsers.includes(selectedUser._id) ? styles.active : styles.inactive}`}>
-              {selectedUser._id && onlineUsers.includes(selectedUser._id) ? 'Online' : 'Offline'}
+            <h3 className={styles.headerName}>{selectedUser.name}</h3>
+            <span className={`${styles.status} ${selectedUser.id && onlineUsers.includes(selectedUser.id) ? styles.active : styles.inactive}`}>
+              {selectedUser.userId && onlineUsers.includes(selectedUser.userId) ? 'Online' : 'Offline'}
             </span>
           </div>
           <FiX
@@ -92,7 +89,7 @@ const UserChat = ({ selectedUser, onClose }) => {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
+          onKeyDown={handleKeyPress}
           placeholder="Type your message..."
           className={styles.input}
         />

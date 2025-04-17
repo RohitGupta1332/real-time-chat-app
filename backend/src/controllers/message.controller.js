@@ -5,10 +5,12 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 import { GoogleGenAI } from "@google/genai";
 import * as fs from "node:fs";
+import { Profile } from '../models/profile.model.js'
 
 export const getUsersForSidebar = async (req, res) => {
     try {
         const loggedInUserId = req.user.userId;
+        console.log(loggedInUserId);
 
         const messages = await Message.find({
             $or: [
@@ -28,7 +30,7 @@ export const getUsersForSidebar = async (req, res) => {
             }
         });
 
-        const users = await User.find({ _id: { $in: Array.from(userIds) } }).select("-password");
+        const users = await Profile.find({ userId: { $in: Array.from(userIds) } });
 
         res.status(200).json(users);
 
