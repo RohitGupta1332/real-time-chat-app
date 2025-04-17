@@ -2,7 +2,6 @@ import styles from '../../styles/userChatItem.module.css';
 import DefaultPic from '../../assets/default-profile.png';
 
 const UserChatItem = ({id, name, bio, image, lastMessage, time, isActive, onUserClick }) => {
-  // Reconstruct the user object to pass to onUserClick
   const user = {
     id,
     name,

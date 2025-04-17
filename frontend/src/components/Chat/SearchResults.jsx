@@ -8,7 +8,6 @@ const SearchResults = ({ results, setSearchValue, onUserClick, onAddUserToList }
     return (
         <div className={styles.searchResults}>
             {results.map((user) => {
-                // Construct the user object to match UserChatItem's format
                 const userItem = {
                     _id : user._id,
                     userId: user.userId,
@@ -25,13 +24,8 @@ const SearchResults = ({ results, setSearchValue, onUserClick, onAddUserToList }
                         key={user._id}
                         className={styles.searchResultItem}
                         onClick={() => {
-                            // Add the user to the temporary userList in Sidebar
                             onAddUserToList(userItem);
-
-                            // Call onUserClick with the userItem
                             onUserClick(userItem);
-
-                            // Clear the search input
                             setSearchValue("");
                         }}
                     >

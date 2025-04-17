@@ -4,7 +4,7 @@ import DefaultPic from '../../assets/default-profile.png';
 import { GoPaperclip } from 'react-icons/go';
 import { MdEmojiEmotions } from 'react-icons/md';
 import { IoSend } from 'react-icons/io5';
-import { FiX } from 'react-icons/fi';
+import { FiX, FiInfo } from 'react-icons/fi';
 import { useChatStore } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/userAuth';
 
@@ -112,10 +112,10 @@ const UserChat = ({ selectedUser, onClose }) => {
               {onlineUsers.includes(selectedUser.userId) ? 'Online' : 'Offline'}
             </span>
           </div>
+          <FiInfo className={styles.button} />
           <FiX
-            className={styles.closeButton}
+            className={`${styles.button} ${styles.closeButton}`}
             onClick={onClose}
-            style={{ cursor: 'pointer', marginLeft: 'auto' }}
           />
         </div>
       ) : null}

@@ -19,7 +19,7 @@ const Sidebar = ({ onUserClick }) => {
     const [isShrunk, setIsShrunk] = useState(false);
     const [isMobile, setIsMobile] = useState(window.matchMedia("(max-width: 768px)").matches);
     const [searchValue, setSearchValue] = useState("");
-    const [userList, setUserList] = useState([]); // Local state for temporary user list
+    const [userList, setUserList] = useState([]);
 
     const { searchUser, searchResult, onlineUsers } = useAuthStore();
     const { users, getUsersForSidebar, isUserLoading } = useChatStore();
@@ -58,10 +58,8 @@ const Sidebar = ({ onUserClick }) => {
         if (!isMobile) setIsShrunk(!isShrunk);
     };
 
-    // Callback to add a searched user to the top of userList
     const handleAddUserToList = (newUser) => {
         setUserList((prevList) => {
-            // Avoid duplicates by checking _id
             if (prevList.some(user => user._id === newUser._id)) {
                 return prevList;
             }
