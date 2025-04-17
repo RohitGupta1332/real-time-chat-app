@@ -40,6 +40,7 @@ export const useChatStore = create((set, get) => ({
         if (!selected) return;
     
         const socket = useAuthStore.getState().socket;
+        if (!socket) return;
     
         const handleNewMessage = (newMessage) => {
             if (newMessage.senderId !== selected.userId) return;
@@ -48,7 +49,7 @@ export const useChatStore = create((set, get) => ({
     
             set((state) => {
                 const exists = state.messages.some(m => m._id === newMessage._id);
-                if (exists) return state; // skip if already added
+                if (exists) return state;
                 return { messages: [...state.messages, newMessage] };
             });
         };
@@ -71,7 +72,6 @@ export const useChatStore = create((set, get) => ({
             if (!selected) return;
             const id = selected.userId;
     
-            // Optimistic UI update
             const newMessage = {
                 senderId: useAuthStore.getState().authUser._id,
                 receiverId: id,
@@ -81,7 +81,6 @@ export const useChatStore = create((set, get) => ({
             };
             set((state) => ({ messages: [...state.messages, newMessage] }));
     
-            // Send to backend
             await axiosInstance.post(`/messages/send/${id}`, {
                 message: message,
                 media: null
