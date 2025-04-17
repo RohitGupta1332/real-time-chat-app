@@ -10,7 +10,6 @@ import { Profile } from '../models/profile.model.js'
 export const getUsersForSidebar = async (req, res) => {
     try {
         const loggedInUserId = req.user.userId;
-        console.log(loggedInUserId);
 
         const messages = await Message.find({
             $or: [
@@ -57,13 +56,11 @@ export const getMessages = async (req, res) => {
 }
 
 export const sendMessage = async (req, res) => {
-    console.log("Hello")
     try {
         const { message, media } = req.body;
         const { id: receiverId } = req.params;
         const senderId = req.user.userId; //loggedIn person
 
-        console.log({ message, senderId, receiverId })
 
 
         const newMessage = await Message.create({
