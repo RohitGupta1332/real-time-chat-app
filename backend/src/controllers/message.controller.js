@@ -44,10 +44,10 @@ export const getMessages = async (req, res) => {
         const senderId = req.user.userId; //loggedIn person
         const messages = await Message.find({
             $or: [
-                { sender: senderId, receiver: receiverId },
-                { sender: receiverId, receiver: senderId }
+                { senderId, receiverId },
+                { senderId: receiverId, receiverId: senderId }
             ]
-        });
+        }).sort({ createdAt: 1 });
         res.status(200).json({ messages: messages });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
@@ -61,18 +61,19 @@ export const sendMessage = async (req, res) => {
         const { id: receiverId } = req.params;
         const senderId = req.user.userId; //loggedIn person
 
-        console.log({message, senderId, receiverId})
+        console.log({ message, senderId, receiverId })
 
 
         const newMessage = await Message.create({
             senderId,
             receiverId,
-            text : message,
+            text: message,
             media
         });
 
         const receiverSocketId = getReceiverSocketId(receiverId);
-        io.to(receiverSocketId).emit("newMessage", newMessage);
+        if (receiverSocketId)
+            io.to(receiverSocketId).emit("newMessage", newMessage);
         res.status(201).json({ message: "Message sent successfully", data: newMessage })
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error })
