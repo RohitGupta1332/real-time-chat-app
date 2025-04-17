@@ -19,10 +19,18 @@ const Sidebar = ({ onUserClick }) => {
     const [isShrunk, setIsShrunk] = useState(false);
     const [isMobile, setIsMobile] = useState(window.matchMedia("(max-width: 768px)").matches);
     const [searchValue, setSearchValue] = useState("");
-    const [usersList, setUserList] = useState([])
+    const [userList, setUserList] = useState([]); // Local state for temporary user list
 
-    const { searchUser, searchResult, authUser } = useAuthStore();
-    const { users, getUsersForSidebar, selectUser, getMessages, isUserLoading } = useChatStore();
+    const { searchUser, searchResult, onlineUsers } = useAuthStore();
+    const { users, getUsersForSidebar, isUserLoading } = useChatStore();
+
+    useEffect(() => {
+        getUsersForSidebar();
+    }, [getUsersForSidebar]);
+
+    useEffect(() => {
+        setUserList(users);
+    }, [users]);
 
     useEffect(() => {
         const mediaQuery = window.matchMedia("(max-width: 768px)");
@@ -48,6 +56,17 @@ const Sidebar = ({ onUserClick }) => {
 
     const handleToggle = () => {
         if (!isMobile) setIsShrunk(!isShrunk);
+    };
+
+    // Callback to add a searched user to the top of userList
+    const handleAddUserToList = (newUser) => {
+        setUserList((prevList) => {
+            // Avoid duplicates by checking _id
+            if (prevList.some(user => user._id === newUser._id)) {
+                return prevList;
+            }
+            return [newUser, ...prevList];
+        });
     };
 
     return (
@@ -95,22 +114,34 @@ const Sidebar = ({ onUserClick }) => {
                         onChange={handleSearchChange}
                         aria-label="Search for users"
                     />
-                    {searchValue && <SearchResults results={searchResult} setUserList={setUserList} setSearchValue={setSearchValue} onUserClick={onUserClick} />}
+                    {searchValue && (
+                        <SearchResults
+                            results={searchResult}
+                            setSearchValue={setSearchValue}
+                            onUserClick={onUserClick}
+                            onAddUserToList={handleAddUserToList} // Pass callback to add user
+                        />
+                    )}
                     {!searchValue && (
                         <div className={styles.userList}>
-                            {usersList.map((item, index) => (
-                                item.user && item.user.fullName ? (
+                            {isUserLoading ? (
+                                <p>Loading users...</p>
+                            ) : userList.length === 0 ? (
+                                <p>No chats yet</p>
+                            ) : (
+                                userList.map((user, index) => {
+                                    (
                                     <UserChatItem
-                                        key={index}
-                                        user={item.user}
-                                        fullName={item.user.fullName}
-                                        lastMessage={item.lastMessage}
-                                        time={item.time}
-                                        isActive={item.isActive}
-                                        onUserClick={onUserClick}
+                                        key={user._id || index}
+                                        id={user._id}
+                                        name={user.name}
+                                        image={user.image}
+                                        bio={user.bio}
+                                        isActive={onlineUsers.includes(user._id)}
+                                        onUserClick={() => onUserClick(user)}
                                     />
-                                ) : null
-                            ))}
+                                )})
+                            )}
                         </div>
                     )}
                 </>
