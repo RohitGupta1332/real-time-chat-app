@@ -21,7 +21,7 @@ const UserChat = ({ selectedUser, onClose }) => {
     if (selectedUser?._id) {
       getMessages(selectedUser._id);
     }
-
+    
     return () => {
       unsubscribeMessages();
     };
