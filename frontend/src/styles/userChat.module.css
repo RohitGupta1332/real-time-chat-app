@@ -120,7 +120,6 @@
     margin-top: 0.25rem;
 }
 
-/* Updated Input Area */
 .inputArea {
     display: flex;
     align-items: center;
@@ -146,8 +145,15 @@
     flex: 1;
     border: none;
     outline: none;
+
     font-size: 1rem;
     margin-bottom: 0;
+    border-radius: 30px;
+    height: 51px;
+    padding: 0 20px;
+
+    background-color: #1A1A1A;
+    color: white;
 }
 
 .input::placeholder {
@@ -171,6 +177,10 @@
 }
 .noChatSelected p {
     font-size: 1.1rem;
+}
+
+.closeButton {
+    font-size: 1.2em;
 }
 
 
