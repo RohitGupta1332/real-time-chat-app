@@ -227,7 +227,7 @@
 
 @media (orientation: portrait) and (min-resolution: 200dpi) and (max-width: 768px) {
     .chatContainer {
-        width: 0;
+        width: auto;
     }
 
     .noChatSelected {

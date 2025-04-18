@@ -61,7 +61,7 @@ img {
         display: none;
     }
 
-    img {
+    img[alt="Error 404 | Page Not Found"] {
         width: auto;
         margin: 0 70px;
     }
