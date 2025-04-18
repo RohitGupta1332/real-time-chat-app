@@ -1,7 +1,7 @@
 .sidebar {
     background-color: #1A1A1A;
     color: white;
-    width: clamp(300px, 30vw, 400px);
+    width: clamp(400px, 40vw, 800px);
     height: 100vh;
     display: flex;
     flex-direction: column;
@@ -165,7 +165,7 @@
     color: #8696a0;
 }
 
-@media (max-width: 768px) {
+@media (orientation: portrait) and (max-width: 768px) {
     .sidebar {
         width: 100vw;
     }
