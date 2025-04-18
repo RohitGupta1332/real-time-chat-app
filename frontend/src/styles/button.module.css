@@ -21,7 +21,7 @@
     background-color: #5942c4;
 }
 
-@media screen {
+@media (orientation: portrait), (min-resolution: 200dpi), (max-width: 768px) {
     .button {
         font-size: 0.9em;
         padding: 12px 20px;
