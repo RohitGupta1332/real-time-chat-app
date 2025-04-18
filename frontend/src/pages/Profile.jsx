@@ -6,16 +6,14 @@ import { useAuthStore } from '../store/userAuth';
 import Crop from '../components/Crop';
 import ProfilePic from '../components/ProfilePic';
 import Button from '../components/Button';
+import ProfileView from '../components/ProfileView';
 
 import DownArrow from '../assets/DownArrow.svg';
 import DefaultPic from '../assets/default-profile.png';
 
 import styles from '../styles/profile.module.css';
-import buttonStyle from '../styles/button.module.css';
 
-import { FaCamera, FaInstagram, FaFacebook, FaYoutube } from "react-icons/fa";
-import { FaXTwitter } from "react-icons/fa6";
-import { RxCross2 } from "react-icons/rx";
+import { FaCamera} from "react-icons/fa";
 
 const Profile = () => {
   const location = useLocation();
@@ -137,10 +135,6 @@ const Profile = () => {
     }
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current.click();
-  };
-
   const blobToBase64 = (blobUrl) => {
     return new Promise((resolve, reject) => {
       fetch(blobUrl)
@@ -157,63 +151,13 @@ const Profile = () => {
 
   if (isView) {
     return (
-      <div className={styles.page}>
-        <RxCross2
-          className={styles.crossIcon}
-          onClick={() => navigate("/chat")}
-        />
-        <div className={styles.left}>
-          <h2>PROFILE</h2>
-          <div className={styles.profilePicWrapper}>
-            <img
-              src={profileImage || DefaultPic}
-              alt="Profile"
-              className={styles.profilePic}
-              onClick={() => setShowProfilePicOptions(true)}
-            />
-            <div
-              className={`${styles.statusDot} ${(onlineUsers.indexOf(formData.userID) !== -1) ? styles.online : styles.offline}`}
-            />
-          </div>
-          {isLoadingProfile && <div>Loading profile...</div>}
-          <div className={styles.bio}>
-            <p>{formData.bio || 'No bio available'}</p>
-          </div>
-        </div>
-        <div className={styles.rightData}>
-          <div className={styles.profileInfo}>
-            <h3>{formData.name || 'No Name'}</h3>
-            <p>{formData.username || 'No Username'}</p>
-          </div>
-          <div className={styles.socialIcons}>
-            {formData.instagramUrl && <a href={formData.instagramUrl} target='_blank' rel="noreferrer"><FaInstagram /></a>}
-            {formData.facebookUrl && <a href={formData.facebookUrl} target='_blank' rel="noreferrer"><FaFacebook /></a>}
-            {formData.youtubeUrl && <a href={formData.youtubeUrl} target='_blank' rel="noreferrer"><FaYoutube /></a>}
-            {formData.twitterUrl && <a href={formData.twitterUrl} target='_blank' rel="noreferrer"><FaXTwitter /></a>}
-          </div>
-          {authUser?._id === formData.userID && (
-            <button
-              className={buttonStyle.button}
-              onClick={() => navigate("/profile/update")}
-            >
-              Update Profile
-            </button>
-          )}
-        </div>
-        {showProfilePicOptions && (
-          <ProfilePic
-            fileInputRef={fileInputRef}
-            image={profileImage}
-            onClose={() => setShowProfilePicOptions(false)}
-            onRemove={() => {
-              setProfileImage(DefaultPic);
-              setFormData((prev) => ({ ...prev, image: null }));
-              setShowProfilePicOptions(false);
-            }}
-            isViewMode={true}
-          />
-        )}
-      </div>
+      <ProfileView
+        formData={formData}
+        fileInputRef={fileInputRef}
+        showProfilePicOptions={showProfilePicOptions}
+        setShowProfilePicOptions={setShowProfilePicOptions}
+        onClose={() => navigate("/chat")}
+      />
     );
   }
 

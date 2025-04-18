@@ -13,7 +13,6 @@ const Chat = () => {
 
   const showSidebar = !isCompactMobile || (isCompactMobile && selectedUser === null);
   const showUserChat = !isCompactMobile || (isCompactMobile && selectedUser !== null);
-  console.log(showSidebar, showUserChat)
 
   const handleClose = () => {
     if (isCompactMobile) {

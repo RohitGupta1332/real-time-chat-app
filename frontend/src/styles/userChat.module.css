@@ -170,7 +170,7 @@
     color: #7e7e7e;
     cursor: pointer;
     margin-right: 0.7rem;
-    font-size: 1.2em;
+    font-size: 1.5em;
 }
 
 .emojiButton:hover {
@@ -178,10 +178,9 @@
 }
 
 .sendButton {
-    background: none;
-    border: none;
     cursor: pointer;
     margin-left: 0.7rem;
+    width: 50px;
 }
 
 .noChatSelected {

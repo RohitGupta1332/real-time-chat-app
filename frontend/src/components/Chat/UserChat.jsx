@@ -1,15 +1,23 @@
 import { useState, useEffect } from 'react';
+
 import styles from '../../styles/userChat.module.css';
+
 import DefaultPic from '../../assets/default-profile.png';
+import SendButton from '../../assets/Send.svg'
+
+import ProfileView from '../ProfileView.jsx'
+
 import { GoPaperclip } from 'react-icons/go';
 import { MdEmojiEmotions } from 'react-icons/md';
-import { IoSend } from 'react-icons/io5';
 import { FiX, FiInfo } from 'react-icons/fi';
 import { useChatStore } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/userAuth';
 
 const UserChat = ({ selectedUser, onClose }) => {
   const [input, setInput] = useState('');
+  const [showProfileView, setShowProfileView] = useState(false);
+  const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
+  
   const { onlineUsers } = useAuthStore();
   const { messages, getMessages, sendMessage, listenMessages } = useChatStore();
 
@@ -42,12 +50,6 @@ const UserChat = ({ selectedUser, onClose }) => {
     if (input.trim()) {
       sendMessage(selectedUser, input);
       setInput('');
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      handleSend();
     }
   };
 
@@ -92,6 +94,26 @@ const UserChat = ({ selectedUser, onClose }) => {
     });
   };
 
+  if(showProfileView) {
+    return <ProfileView
+              formData={{
+              userID : selectedUser.userId,
+              name : selectedUser.name,
+              username : selectedUser.username,
+              gender : selectedUser.gender,
+              bio : selectedUser.bio,
+              instagramUrl : selectedUser.instagramUrl,
+              youtubeUrl : selectedUser.youtubeUrl,
+              facebookUrl : selectedUser.facebookUrl,
+              twitterUrl : selectedUser.twitterUrl,
+              image : selectedUser.image
+            }}
+            showProfilePicOptions = {showProfilePicOptions}
+            setShowProfilePicOptions={setShowProfilePicOptions}
+            onClose={() => setShowProfileView(false)}
+            />
+  }
+
   return (
     <div className={styles.chatContainer}>
       {selectedUser ? (
@@ -112,7 +134,10 @@ const UserChat = ({ selectedUser, onClose }) => {
               {onlineUsers.includes(selectedUser.userId) ? 'Online' : 'Offline'}
             </span>
           </div>
-          <FiInfo className={styles.button} />
+          <FiInfo 
+            className={styles.button} 
+            onClick={() => {setShowProfileView(true)}}
+          />
           <FiX
             className={`${styles.button} ${styles.closeButton}`}
             onClick={onClose}
@@ -172,15 +197,15 @@ const UserChat = ({ selectedUser, onClose }) => {
                 handleSend();
               }
             }}
-            placeholder="Type your message..."
+            placeholder="Type message"
             className={styles.textarea}
           />
 
-          <IoSend className={styles.sendButton} onClick={handleSend} />
+          <img src={SendButton} alt="send" className={styles.sendButton} onClick={handleSend}/>
         </div>
       ) : (
         <div className={styles.noChatSelected}>
-          <p>Select a Chat to start the conversation</p>
+          <p>Select a chat to start the conversation</p>
         </div>
       )}
     </div>
