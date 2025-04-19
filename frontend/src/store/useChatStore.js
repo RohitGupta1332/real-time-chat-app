@@ -8,16 +8,19 @@ export const useChatStore = create((set, get) => ({
     aiMessages: [],
     users: [],
     searchResult: [],
+    unreadMessages: [],
 
     isMessageLoading: false,
     isUserLoading: false,
     isResponseLoading: false,
     isUserTyping: false,
 
+
     getUsersForSidebar: async () => {
         set({ isUserLoading: true });
         try {
             const res = await axiosInstance.get("/messages/users");
+            console.log(res);
             set({ users: res.data });
         } catch (error) {
             toast.error(error.response.data.message);
@@ -39,36 +42,35 @@ export const useChatStore = create((set, get) => ({
     },
 
     listenMessages: (selected) => {
-        if (!selected) return;
-    
         const socket = useAuthStore.getState().socket;
         if (!socket) return;
-    
+
         const handleNewMessage = (newMessage) => {
-            if (newMessage.senderId !== selected.userId) return;
-    
+            if (newMessage.senderId !== selected?.userId)
+                set({ unreadMessages: [...get().unreadMessages, newMessage] });
+
             set((state) => {
                 const exists = state.messages.some(m => m._id === newMessage._id);
                 if (exists) return state;
                 return { messages: [...state.messages, newMessage] };
             });
         };
-    
+
         const handleTyping = ({ senderId, typing }) => {
             if (senderId === selected.userId) {
                 set({ isUserTyping: typing });
             }
         };
-    
+
         socket.on("newMessage", handleNewMessage);
         socket.on("typing", handleTyping);
-    
+
         return () => {
             socket.off("newMessage", handleNewMessage);
             socket.off("typing", handleTyping);
         };
     },
-    
+
     sendTypingStatus: async (receiverId, typing) => {
         try {
             await axiosInstance.post("/messages/typing", {
@@ -78,19 +80,13 @@ export const useChatStore = create((set, get) => ({
         } catch (error) {
             console.error("Typing status error:", error.response?.data?.message || error.message);
         }
-    },    
-    
-
-    unsubscribeMessages: () => {
-        const socket = useAuthStore.getState().socket;
-        socket.off("newMessage");
     },
 
     sendMessage: async (selected, message) => {
         try {
             if (!selected) return;
             const id = selected.userId;
-    
+
             const newMessage = {
                 senderId: useAuthStore.getState().authUser._id,
                 receiverId: id,
@@ -99,16 +95,16 @@ export const useChatStore = create((set, get) => ({
                 createdAt: new Date().toISOString()
             };
             set((state) => ({ messages: [...state.messages, newMessage] }));
-    
+
             await axiosInstance.post(`/messages/send/${id}`, {
                 message: message,
                 media: null
             });
-    
+
         } catch (error) {
             toast.error(error.response.data.message);
         }
-    },    
+    },
 
     getAIMessages: async () => {
         set({ isMessageLoading: true });
