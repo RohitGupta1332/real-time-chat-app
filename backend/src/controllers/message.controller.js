@@ -61,8 +61,6 @@ export const sendMessage = async (req, res) => {
         const { id: receiverId } = req.params;
         const senderId = req.user.userId; //loggedIn person
 
-
-
         const newMessage = await Message.create({
             senderId,
             receiverId,
@@ -135,5 +133,21 @@ export const getMessagesWithAi = async (req, res) => {
         res.status(200).json({ messages });
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message })
+    }
+}
+
+export const isTyping = async (req, res) => {
+    try {
+        const senderId = req.user.userId;
+        const { receiverId, typing } = req.body;
+        const receiverSocketId = getReceiverSocketId(receiverId);
+
+        if (receiverSocketId) {
+            io.to(receiverSocketId).emit("typing", { senderId, typing });
+        }
+        res.status(200).json({ message: "Typing status sent" });
+
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error", error: error.message })
     }
 }
