@@ -8,9 +8,11 @@ export const useChatStore = create((set, get) => ({
     aiMessages: [],
     users: [],
     searchResult: [],
+
     isMessageLoading: false,
     isUserLoading: false,
     isResponseLoading: false,
+    isUserTyping: false,
 
     getUsersForSidebar: async () => {
         set({ isUserLoading: true });
@@ -45,8 +47,6 @@ export const useChatStore = create((set, get) => ({
         const handleNewMessage = (newMessage) => {
             if (newMessage.senderId !== selected.userId) return;
     
-            console.log("Message received:", newMessage);
-    
             set((state) => {
                 const exists = state.messages.some(m => m._id === newMessage._id);
                 if (exists) return state;
@@ -54,12 +54,31 @@ export const useChatStore = create((set, get) => ({
             });
         };
     
+        const handleTyping = ({ senderId, typing }) => {
+            if (senderId === selected.userId) {
+                set({ isUserTyping: typing });
+            }
+        };
+    
         socket.on("newMessage", handleNewMessage);
+        socket.on("typing", handleTyping);
     
         return () => {
             socket.off("newMessage", handleNewMessage);
+            socket.off("typing", handleTyping);
         };
     },
+    
+    sendTypingStatus: async (receiverId, typing) => {
+        try {
+            await axiosInstance.post("/messages/typing", {
+                receiverId,
+                typing,
+            });
+        } catch (error) {
+            console.error("Typing status error:", error.response?.data?.message || error.message);
+        }
+    },    
     
 
     unsubscribeMessages: () => {
