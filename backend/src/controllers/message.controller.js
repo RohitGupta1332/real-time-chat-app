@@ -16,27 +16,38 @@ export const getUsersForSidebar = async (req, res) => {
                 { senderId: loggedInUserId },
                 { receiverId: loggedInUserId }
             ]
-        }).select("senderId receiverId");
+        }).select("senderId receiverId createdAt");
 
-        const userIds = new Set();
+        const userLastMessageMap = new Map();
 
         messages.forEach(msg => {
-            if (msg.senderId.toString() !== loggedInUserId.toString()) {
-                userIds.add(msg.senderId.toString());
-            }
-            if (msg.receiverId.toString() !== loggedInUserId.toString()) {
-                userIds.add(msg.receiverId.toString());
+            const otherUserId = msg.senderId.toString() === loggedInUserId.toString()
+                ? msg.receiverId.toString()
+                : msg.senderId.toString();
+
+            const existing = userLastMessageMap.get(otherUserId);
+            if (!existing || new Date(existing.createdAt) < new Date(msg.createdAt)) {
+                userLastMessageMap.set(otherUserId, { ...msg._doc });
             }
         });
 
-        const users = await Profile.find({ userId: { $in: Array.from(userIds) } });
+        const sortedUserEntries = Array.from(userLastMessageMap.entries())
+            .sort((a, b) => new Date(b[1].createdAt) - new Date(a[1].createdAt));
 
-        res.status(200).json(users);
+        const sortedUserIds = sortedUserEntries.map(([userId]) => userId);
+
+        const profiles = await Profile.find({ userId: { $in: sortedUserIds } });
+
+        const profileMap = new Map(profiles.map(profile => [profile.userId.toString(), profile]));
+        const sortedProfiles = sortedUserIds.map(id => profileMap.get(id)).filter(Boolean);
+
+        res.status(200).json(sortedProfiles);
 
     } catch (error) {
         return res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
-}
+};
+
 
 
 export const getMessages = async (req, res) => {
@@ -48,7 +59,7 @@ export const getMessages = async (req, res) => {
                 { senderId, receiverId },
                 { senderId: receiverId, receiverId: senderId }
             ]
-        }).sort({ createdAt: 1 });
+        })
         res.status(200).json({ messages: messages });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });

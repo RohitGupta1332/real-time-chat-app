@@ -23,11 +23,11 @@ const Sidebar = ({ onUserClick }) => {
     const [userList, setUserList] = useState([]);
 
     const { searchUser, searchResult, onlineUsers } = useAuthStore();
-    const { users, getUsersForSidebar, isUserLoading, messages } = useChatStore();
+    const { users, getUsersForSidebar, unreadMessages, isUserLoading, messages } = useChatStore();
 
     useEffect(() => {
         getUsersForSidebar();
-    }, [getUsersForSidebar, messages]);
+    }, [getUsersForSidebar, messages, unreadMessages]);
 
     useEffect(() => {
         setUserList([...users]);
@@ -71,7 +71,7 @@ const Sidebar = ({ onUserClick }) => {
     return (
         <div className={`${styles.sidebar} ${isShrunk && !isMobile ? styles.shrunk : ""}`}>
             <div className={`${styles.top} ${isShrunk && !isMobile ? styles.shrunkTop : ""}`}>
-                {!isShrunk? (
+                {!isShrunk ? (
                     <h2>
                         <img
                             src={LockTalk}
@@ -80,8 +80,8 @@ const Sidebar = ({ onUserClick }) => {
                         />
                     </h2>
                 ) : <h2>
-                        <img src={Logo} alt="Logo" />
-                    </h2>}
+                    <img src={Logo} alt="Logo" />
+                </h2>}
                 <div className={`${styles.icons} ${isShrunk && !isMobile ? styles.shrunkIcons : ""}`}>
                     <FiUser
                         style={{ cursor: "pointer" }}
@@ -132,16 +132,17 @@ const Sidebar = ({ onUserClick }) => {
                             ) : (
                                 userList.map((user, index) => {
                                     return (
-                                    <UserChatItem
-                                        key={user._id || index}
-                                        id={user._id}
-                                        name={user.name}
-                                        image={user.image}
-                                        bio={user.bio}
-                                        isActive={onlineUsers.includes(user._id)}
-                                        onUserClick={() => onUserClick(user)}
-                                    />
-                                )})
+                                        <UserChatItem
+                                            key={user._id || index}
+                                            id={user._id}
+                                            name={user.name}
+                                            image={user.image}
+                                            bio={user.bio}
+                                            isActive={onlineUsers.includes(user._id)}
+                                            onUserClick={() => onUserClick(user)}
+                                        />
+                                    )
+                                })
                             )}
                         </div>
                     )}

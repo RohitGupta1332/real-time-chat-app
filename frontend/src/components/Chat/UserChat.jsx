@@ -25,18 +25,18 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
-  
+
     sendTypingStatus(selectedUser.userId, true);
-  
+
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-  
+
     typingTimeoutRef.current = setTimeout(() => {
       sendTypingStatus(selectedUser.userId, false);
     }, 500);
   };
-  
+
 
 
   useEffect(() => {
@@ -91,6 +91,7 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
     }
   };
 
+  console.log(messages);
   const formatTime = (createdAt) => {
     const msgDate = createdAt ? new Date(createdAt) : null;
     if (!msgDate || isNaN(msgDate)) return 'Just now';
@@ -167,10 +168,10 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
             {/* 🧠 Add this: dynamic status with typing check */}
             <span
               className={`${styles.status} ${isUserTyping
-                  ? styles.typing
-                  : onlineUsers.includes(selectedUser.userId)
-                    ? styles.active
-                    : styles.inactive
+                ? styles.typing
+                : onlineUsers.includes(selectedUser.userId)
+                  ? styles.active
+                  : styles.inactive
                 }`}
             >
               {isUserTyping
@@ -212,7 +213,6 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
                     <span>{formatDate(msg.createdAt)}</span>
                   </div>
                 )}
-
                 <div
                   className={`${styles.messageWrapper} ${isUserMessage ? styles.messageUser : styles.messageOther} ${index === messages.length - 1 ? styles.newMessage : ''}`}
                 >
