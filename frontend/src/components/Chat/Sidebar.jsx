@@ -23,11 +23,11 @@ const Sidebar = ({ onUserClick }) => {
     const [userList, setUserList] = useState([]);
 
     const { searchUser, searchResult, onlineUsers } = useAuthStore();
-    const { users, getUsersForSidebar, isUserLoading } = useChatStore();
+    const { users, getUsersForSidebar, isUserLoading, messages } = useChatStore();
 
     useEffect(() => {
         getUsersForSidebar();
-    }, [getUsersForSidebar]);
+    }, [getUsersForSidebar, messages]);
 
     useEffect(() => {
         setUserList([...users]);

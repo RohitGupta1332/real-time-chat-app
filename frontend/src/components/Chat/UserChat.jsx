@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import styles from '../../styles/userChat.module.css';
 
@@ -17,9 +17,27 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
   const [input, setInput] = useState('');
   const [showProfileView, setShowProfileView] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
-  
+
   const { onlineUsers } = useAuthStore();
-  const { messages, getMessages, sendMessage, listenMessages } = useChatStore();
+  const { messages, getMessages, sendMessage, listenMessages, sendTypingStatus, isUserTyping } = useChatStore();
+
+  const typingTimeoutRef = useRef(null);
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  
+    sendTypingStatus(selectedUser.userId, true);
+  
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+  
+    typingTimeoutRef.current = setTimeout(() => {
+      sendTypingStatus(selectedUser.userId, false);
+    }, 500);
+  };
+  
+
 
   useEffect(() => {
     if (!selectedUser?.userId) return;
@@ -43,15 +61,15 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
         }
       }
     };
-  
+
     window.addEventListener('keydown', handleKeyDown);
-  
+
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedUser, showProfileView]);
-  
-  
+
+
 
   useEffect(() => {
     if (selectedUser?.userId) {
@@ -114,24 +132,24 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
     });
   };
 
-  if(showProfileView) {
+  if (showProfileView) {
     return <ProfileView
-              formData={{
-              userID : selectedUser?.userId,
-              name : selectedUser?.name,
-              username : selectedUser?.username,
-              gender : selectedUser?.gender,
-              bio : selectedUser?.bio,
-              instagramUrl : selectedUser?.instagramUrl,
-              youtubeUrl : selectedUser?.youtubeUrl,
-              facebookUrl : selectedUser?.facebookUrl,
-              twitterUrl : selectedUser?.twitterUrl,
-              image : selectedUser?.image
-            }}
-            showProfilePicOptions = {showProfilePicOptions}
-            setShowProfilePicOptions={setShowProfilePicOptions}
-            onClose={() => setShowProfileView(false)}
-            />
+      formData={{
+        userID: selectedUser?.userId,
+        name: selectedUser?.name,
+        username: selectedUser?.username,
+        gender: selectedUser?.gender,
+        bio: selectedUser?.bio,
+        instagramUrl: selectedUser?.instagramUrl,
+        youtubeUrl: selectedUser?.youtubeUrl,
+        facebookUrl: selectedUser?.facebookUrl,
+        twitterUrl: selectedUser?.twitterUrl,
+        image: selectedUser?.image
+      }}
+      showProfilePicOptions={showProfilePicOptions}
+      setShowProfilePicOptions={setShowProfilePicOptions}
+      onClose={() => setShowProfileView(false)}
+    />
   }
 
   return (
@@ -145,18 +163,29 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
           />
           <div>
             <h3 className={styles.headerName}>{selectedUser.name}</h3>
+
+            {/* 🧠 Add this: dynamic status with typing check */}
             <span
-              className={`${styles.status} ${onlineUsers.includes(selectedUser.userId)
-                ? styles.active
-                : styles.inactive
+              className={`${styles.status} ${isUserTyping
+                  ? styles.typing
+                  : onlineUsers.includes(selectedUser.userId)
+                    ? styles.active
+                    : styles.inactive
                 }`}
             >
-              {onlineUsers.includes(selectedUser.userId) ? 'Online' : 'Offline'}
+              {isUserTyping
+                ? 'Typing...'
+                : onlineUsers.includes(selectedUser.userId)
+                  ? 'Online'
+                  : 'Offline'}
             </span>
           </div>
-          <FiInfo 
-            className={styles.button} 
-            onClick={() => {setShowProfileView(true)}}
+
+          <FiInfo
+            className={styles.button}
+            onClick={() => {
+              setShowProfileView(true);
+            }}
           />
           <FiX
             className={`${styles.button} ${styles.closeButton}`}
@@ -164,6 +193,7 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
           />
         </div>
       ) : null}
+
 
       {selectedUser ? (
         <div className={styles.messages}>
@@ -210,7 +240,7 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
           <MdEmojiEmotions className={styles.emojiButton} />
           <textarea
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={handleInputChange}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -221,7 +251,7 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
             className={styles.textarea}
           />
 
-          <img src={SendButton} alt="send" className={styles.sendButton} onClick={handleSend}/>
+          <img src={SendButton} alt="send" className={styles.sendButton} onClick={handleSend} />
         </div>
       ) : (
         <div className={styles.noChatSelected}>

@@ -40,6 +40,13 @@
     color: #a0a0a0;
 }
 
+.typing {
+    font-size: 0.8em;
+    color: #3b82f6;
+    font-style: italic;
+}
+
+
 .messages {
     flex: 1;
     padding: 1rem;
@@ -100,7 +107,7 @@
     position: relative;
     display: inline-block;
     word-wrap: break-word;
-    max-width: 800px;
+    max-width: min(800px, 20%);
 
     white-space: pre-wrap;
     word-break: break-word;
@@ -112,12 +119,12 @@
     background-color: #6d4ff2;
     align-self: flex-end;
     min-width: 130px;
-    max-width: 600px;
+    max-width: min(600px, 60%);
 }
 
 .messageOther .messageText {
     min-width: 130px;
-    max-width: 600px;
+    max-width: min(600px, 60%);
     align-self: flex-start;
 }
 
