@@ -13,7 +13,7 @@ import { FiX, FiInfo } from 'react-icons/fi';
 import { useChatStore } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/userAuth';
 
-const UserChat = ({ selectedUser, onClose }) => {
+const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
   const [input, setInput] = useState('');
   const [showProfileView, setShowProfileView] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
@@ -34,6 +34,26 @@ const UserChat = ({ selectedUser, onClose }) => {
   }, [selectedUser]);
 
   useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showProfileView) {
+          setShowProfileView(false);
+        } else if (selectedUser) {
+          setSelectedUser(null);
+        }
+      }
+    };
+  
+    window.addEventListener('keydown', handleKeyDown);
+  
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedUser, showProfileView]);
+  
+  
+
+  useEffect(() => {
     if (selectedUser?.userId) {
       getMessages(selectedUser.userId);
     }
@@ -44,7 +64,7 @@ const UserChat = ({ selectedUser, onClose }) => {
     if (messagesContainer) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, showProfileView]);
 
   const handleSend = () => {
     if (input.trim()) {
@@ -97,16 +117,16 @@ const UserChat = ({ selectedUser, onClose }) => {
   if(showProfileView) {
     return <ProfileView
               formData={{
-              userID : selectedUser.userId,
-              name : selectedUser.name,
-              username : selectedUser.username,
-              gender : selectedUser.gender,
-              bio : selectedUser.bio,
-              instagramUrl : selectedUser.instagramUrl,
-              youtubeUrl : selectedUser.youtubeUrl,
-              facebookUrl : selectedUser.facebookUrl,
-              twitterUrl : selectedUser.twitterUrl,
-              image : selectedUser.image
+              userID : selectedUser?.userId,
+              name : selectedUser?.name,
+              username : selectedUser?.username,
+              gender : selectedUser?.gender,
+              bio : selectedUser?.bio,
+              instagramUrl : selectedUser?.instagramUrl,
+              youtubeUrl : selectedUser?.youtubeUrl,
+              facebookUrl : selectedUser?.facebookUrl,
+              twitterUrl : selectedUser?.twitterUrl,
+              image : selectedUser?.image
             }}
             showProfilePicOptions = {showProfilePicOptions}
             setShowProfilePicOptions={setShowProfilePicOptions}

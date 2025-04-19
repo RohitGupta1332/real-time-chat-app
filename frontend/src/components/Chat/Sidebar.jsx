@@ -12,6 +12,7 @@ import SearchResults from "./SearchResults";
 import { FiBell, FiX, FiUser, FiMenu } from "react-icons/fi";
 
 import LockTalk from '../../assets/LockTalk.png';
+import Logo from '../../assets/Logo.png'
 
 const Sidebar = ({ onUserClick }) => {
     const navigate = useNavigate();
@@ -70,7 +71,7 @@ const Sidebar = ({ onUserClick }) => {
     return (
         <div className={`${styles.sidebar} ${isShrunk && !isMobile ? styles.shrunk : ""}`}>
             <div className={`${styles.top} ${isShrunk && !isMobile ? styles.shrunkTop : ""}`}>
-                {!isShrunk && (
+                {!isShrunk? (
                     <h2>
                         <img
                             src={LockTalk}
@@ -78,7 +79,9 @@ const Sidebar = ({ onUserClick }) => {
                             style={{ width: "100px" }}
                         />
                     </h2>
-                )}
+                ) : <h2>
+                        <img src={Logo} alt="Logo" />
+                    </h2>}
                 <div className={`${styles.icons} ${isShrunk && !isMobile ? styles.shrunkIcons : ""}`}>
                     <FiUser
                         style={{ cursor: "pointer" }}

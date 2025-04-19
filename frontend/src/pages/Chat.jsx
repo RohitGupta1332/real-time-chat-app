@@ -33,11 +33,11 @@ const Chat = () => {
   }, [isExiting]);
 
   return (
-    <div style={{ display: 'flex', width: '100%', height: '100vh' }}>
+    <div style={{ display: 'flex', width: '100%', height: '100vh', overflow : 'hidden'}}>
       {showSidebar && <Sidebar onUserClick={setSelectedUser} />}
       {showUserChat && (
         <div className={`${styles.userChatWrapper} ${isCompactMobile ? (isExiting ? styles.exitMobile : styles.mobile) : ''}`}>
-          <UserChat selectedUser={selectedUser} onClose={handleClose} />
+          <UserChat selectedUser={selectedUser} setSelectedUser={setSelectedUser} onClose={handleClose} />
         </div>
       )}
     </div>
