@@ -14,7 +14,7 @@ input:-webkit-autofill {
 .inputWrapper input {
     width: 100%;
     height: min(60px, 15vw);
-    padding: 0 2.5rem; /* Adjust padding to work with icons */
+    padding: 0 2.5rem;
 
     background-color: #1A1A1A;
     color: #fff;
@@ -25,6 +25,8 @@ input:-webkit-autofill {
     outline: none;
 
     transition: all 0.2s ease-in-out;
+
+    cursor: text;
 }
 
 .inputIcon {

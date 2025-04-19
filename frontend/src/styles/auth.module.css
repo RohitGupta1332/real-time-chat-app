@@ -99,7 +99,7 @@ input:focus, textarea:focus, select:focus {
     overflow: hidden;
 }
 
-img {
+img[alt="Smiling woman using a tablet with text 'Fast. Simple. Secure.'"] {
     height: auto;
     max-height: 80vh;
 }
