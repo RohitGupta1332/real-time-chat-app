@@ -37,6 +37,12 @@
     margin-left: 10px;
 }
 
+.top h2 img[alt="Logo"] {
+    width: 30px;
+    transform: translateX(-28%);
+    margin-bottom: 10px;
+}
+
 .icons {
     display: flex;
     justify-content: center;

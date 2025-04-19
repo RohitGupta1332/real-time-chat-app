@@ -40,7 +40,7 @@ const Profile = () => {
     twitterUrl: '',
   });
 
-  const { authUser, isProfileCreated, createProfile, updateProfile, viewProfile, isLoadingProfile, onlineUsers, checkAuth } = useAuthStore();
+  const { authUser, isProfileCreated, createProfile, updateProfile, viewProfile, checkAuth } = useAuthStore();
 
   const isView = location.pathname === '/profile/view';
   const isUpdate = location.pathname === '/profile/update';
@@ -148,6 +148,21 @@ const Profile = () => {
         .catch(reject);
     });
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && location.pathname.startsWith('/profile')) {
+        navigate('/chat');
+      }
+    };
+  
+    window.addEventListener('keydown', handleKeyDown);
+  
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [location, navigate]);
+  
 
   if (isView) {
     return (
