@@ -116,10 +116,10 @@ const Sidebar = ({ onUserClick }) => {
                   <UserChatItem
                     key={user._id || index}
                     id={user._id}
+                    userId={user.userId}
                     name={user.name}
                     image={user.image}
                     bio={user.bio}
-                    isActive={onlineUsers.includes(user._id)}
                     onUserClick={() => onUserClick(user)}
                   />
                 ))

@@ -1,7 +1,21 @@
 import styles from '../../styles/userChatItem.module.css';
 import DefaultPic from '../../assets/default-profile.png';
+import { useChatStore } from '../../store/useChatStore';
+import { useAuthStore } from '../../store/userAuth';
+import { useState, useEffect } from 'react';
 
-const UserChatItem = ({id, name, bio, image, lastMessage, time, isActive, onUserClick }) => {
+const UserChatItem = ({id, userId, name, bio, image, lastMessage, time, onUserClick }) => {
+  const {unreadMessages} = useChatStore();
+  const {onlineUsers} = useAuthStore();
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    const exists = unreadMessages.some(msg => msg.senderId === userId);
+    setHasUnread(exists);
+  }, [unreadMessages, userId]);
+
+  const isActive = onlineUsers.includes(userId);
+
   const user = {
     id,
     name,
@@ -16,7 +30,7 @@ const UserChatItem = ({id, name, bio, image, lastMessage, time, isActive, onUser
     <div className={styles.container} onClick={() => onUserClick(user)}>
         <div className={styles.avatarWrapper}>
             <img src={image || DefaultPic} alt="Profile" className={styles.avatar} />
-            {(isActive || false) && <div className={styles.onlineDot} />}
+            {(isActive) && <div className={styles.onlineDot} />}
         </div>
 
         <div className={styles.content}>
@@ -26,6 +40,7 @@ const UserChatItem = ({id, name, bio, image, lastMessage, time, isActive, onUser
             </div>
             <p className={styles.message}>{lastMessage || bio}</p>
         </div>
+        {hasUnread && <div className={styles.unreadDot} />}
     </div>
   );
 };

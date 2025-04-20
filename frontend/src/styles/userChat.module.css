@@ -92,6 +92,20 @@
     border-radius: 5px;
 }
 
+.unreadDivider {
+    text-align: center;
+    margin: 15px 0px;
+    background-color: #1a1a1a77;
+    padding: 0.2rem 0.5rem;
+}
+
+.unreadDivider span {
+    background-color: #000;
+    padding: 6px 20px;
+    border-radius: 20px;
+    color: #8696a0;
+}
+
 .messageWrapper {
     display: flex;
     flex-direction: column;

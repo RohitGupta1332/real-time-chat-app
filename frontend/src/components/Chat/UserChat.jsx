@@ -11,14 +11,15 @@ import styles from '../../styles/userChat.module.css';
 const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
   const [showProfileView, setShowProfileView] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
-  const { getMessages, listenMessages } = useChatStore();
+  const { getMessages, listenMessages, unreadMessages } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
   useEffect(() => {
     if (!onlineUsers || onlineUsers.length === 0) return;
   
     const unsubscribeFunctions = [];
-    onlineUsers.forEach((userId) => {
+    let CurrentUsers = onlineUsers.filter((userId) => userId !== selectedUser?.userId);
+    CurrentUsers.forEach((userId) => {
       const unsubscribe = listenMessages({ userId });
       if (typeof unsubscribe === 'function') {
         unsubscribeFunctions.push(unsubscribe);
@@ -30,7 +31,7 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
         unsubscribe();
       });
     };
-  }, [onlineUsers, listenMessages]);
+  }, [onlineUsers, listenMessages, selectedUser]);
 
   useEffect(() => {
     if (!selectedUser?.userId) return;

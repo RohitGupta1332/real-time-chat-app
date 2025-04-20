@@ -40,23 +40,36 @@ export const useChatStore = create((set, get) => ({
         }
     },
 
-    listenMessages: (selected) => {
+    listenMessages: (user) => {
         const socket = useAuthStore.getState().socket;
         if (!socket) return;
 
         const handleNewMessage = (newMessage) => {
-            if (newMessage.senderId !== selected?.userId)
-                set({ unreadMessages: [...get().unreadMessages, newMessage] });
-
             set((state) => {
-                const exists = state.messages.some(m => m._id === newMessage._id);
-                if (exists) return state;
-                return { messages: [...state.messages, newMessage] };
+                const alreadyExists = state.messages.some((m) => m._id === newMessage._id);
+
+                const updatedMessages = alreadyExists
+                    ? state.messages
+                    : [...state.messages, newMessage];
+
+                const isFromOtherUser = newMessage.senderId !== user?.userId;
+                const alreadyInUnread = state.unreadMessages.some(
+                    (msg) => msg._id === newMessage._id
+                );
+
+                const updatedUnread = isFromOtherUser && !alreadyInUnread
+                    ? [...state.unreadMessages, newMessage]
+                    : state.unreadMessages;
+
+                return {
+                    messages: updatedMessages,
+                    unreadMessages: updatedUnread,
+                };
             });
         };
 
         const handleTyping = ({ senderId, typing }) => {
-            if (senderId === selected.userId) {
+            if (senderId === user.userId) {
                 set({ isUserTyping: typing });
             }
         };
