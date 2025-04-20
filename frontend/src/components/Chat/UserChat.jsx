@@ -11,7 +11,7 @@ import styles from '../../styles/userChat.module.css';
 const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
   const [showProfileView, setShowProfileView] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
-  const { getMessages, listenMessages, unreadMessages } = useChatStore();
+  const { getMessages, listenMessages } = useChatStore();
   const { onlineUsers } = useAuthStore();
 
   useEffect(() => {

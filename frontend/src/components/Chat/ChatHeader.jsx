@@ -34,7 +34,7 @@ const ChatHeader = ({ selectedUser, onInfoClick, onClose }) => {
                 </span>
             </div>
             <FiInfo className={styles.button} onClick={onInfoClick} />
-            <FiX className={`${styles.button} ${styles.closeButton}`} onClick={onClose} />
+            <FiX className={`${styles.button} ${styles.closeChat}`} onClick={onClose} />
         </div>
     );
 };

@@ -50,19 +50,15 @@ const MessageList = ({ selectedUser }) => {
     useEffect(() => {
 
         if (selectedUser?.userId) {
-            // Check if the latest message is sent by authUser
             const latestMessage = userMessages[userMessages.length - 1];
             const isLatestMessageSentByAuthUser =
                 latestMessage && latestMessage.senderId === authUser?._id;
 
             if (isLatestMessageSentByAuthUser) {
-                // Clear divider if authUser sent a message
                 setUnreadIndex(null);
                 setUnreadCount(0);
                 initialUnreadMessagesRef.current = [];
             } else {
-                // Update initialUnreadMessagesRef with new unread messages
-                // Only append new messages that aren't already in initialUnreadMessagesRef
                 const existingMessageIds = new Set(initialUnreadMessagesRef.current.map(msg => msg._id));
                 const newUnreadMessages = unreadMessages.filter(
                     msg => !existingMessageIds.has(msg._id) && 
@@ -71,25 +67,22 @@ const MessageList = ({ selectedUser }) => {
                 );
                 initialUnreadMessagesRef.current = [...initialUnreadMessagesRef.current, ...newUnreadMessages];
 
-                // Count unread messages for the selected user
                 const unreadCountForUser = initialUnreadMessagesRef.current.length;
                 setUnreadCount(unreadCountForUser);
 
-                // Find the first unread message in userMessages
                 const firstUnreadMessageId = initialUnreadMessagesRef.current[0]?._id;
 
                 const index = userMessages.findIndex((msg) => msg._id === firstUnreadMessageId);
                 setUnreadIndex(index !== -1 ? index : null);
             }
         } else {
-            // Reset when no user is selected
             initialUnreadMessagesRef.current = [];
             setUnreadIndex(null);
             setUnreadCount(0);
         }
 
         prevSelectedUserRef.current = selectedUser;
-    }, [selectedUser, userMessages, authUser, unreadMessages]); // Added unreadMessages to dependencies
+    }, [selectedUser, userMessages, authUser, unreadMessages]);
 
     return (
         <div className={styles.messages} ref={messagesContainerRef}>
