@@ -48,7 +48,6 @@ const MessageList = ({ selectedUser }) => {
     }, [userMessages, selectedUser]);
 
     useEffect(() => {
-        console.log('useEffect running. selectedUser:', selectedUser, 'unreadMessages:', unreadMessages, 'userMessages:', userMessages);
 
         if (selectedUser?.userId) {
             // Check if the latest message is sent by authUser
@@ -61,7 +60,6 @@ const MessageList = ({ selectedUser }) => {
                 setUnreadIndex(null);
                 setUnreadCount(0);
                 initialUnreadMessagesRef.current = [];
-                console.log('Cleared unread divider: authUser sent a message');
             } else {
                 // Update initialUnreadMessagesRef with new unread messages
                 // Only append new messages that aren't already in initialUnreadMessagesRef
@@ -72,19 +70,15 @@ const MessageList = ({ selectedUser }) => {
                            msg.receiverId === authUser?._id
                 );
                 initialUnreadMessagesRef.current = [...initialUnreadMessagesRef.current, ...newUnreadMessages];
-                console.log('Updated initialUnreadMessagesRef:', initialUnreadMessagesRef.current);
 
                 // Count unread messages for the selected user
                 const unreadCountForUser = initialUnreadMessagesRef.current.length;
                 setUnreadCount(unreadCountForUser);
-                console.log('unreadCount set to:', unreadCountForUser);
 
                 // Find the first unread message in userMessages
                 const firstUnreadMessageId = initialUnreadMessagesRef.current[0]?._id;
-                console.log('firstUnreadMessageId:', firstUnreadMessageId);
 
                 const index = userMessages.findIndex((msg) => msg._id === firstUnreadMessageId);
-                console.log('unreadIndex set to:', index);
                 setUnreadIndex(index !== -1 ? index : null);
             }
         } else {
@@ -92,7 +86,6 @@ const MessageList = ({ selectedUser }) => {
             initialUnreadMessagesRef.current = [];
             setUnreadIndex(null);
             setUnreadCount(0);
-            console.log('Reset: no selectedUser');
         }
 
         prevSelectedUserRef.current = selectedUser;

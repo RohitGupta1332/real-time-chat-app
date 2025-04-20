@@ -52,6 +52,8 @@ export const useChatStore = create((set, get) => ({
                     ? state.messages
                     : [...state.messages, newMessage];
 
+                console.log(user);
+
                 const isFromOtherUser = newMessage.senderId !== user?.userId;
                 const alreadyInUnread = state.unreadMessages.some(
                     (msg) => msg._id === newMessage._id
@@ -77,6 +79,7 @@ export const useChatStore = create((set, get) => ({
         socket.on("newMessage", handleNewMessage);
         socket.on("typing", handleTyping);
 
+
         return () => {
             socket.off("newMessage", handleNewMessage);
             socket.off("typing", handleTyping);
@@ -98,20 +101,12 @@ export const useChatStore = create((set, get) => ({
         try {
             if (!selected) return;
             const id = selected.userId;
-
-            const newMessage = {
-                senderId: useAuthStore.getState().authUser._id,
-                receiverId: id,
-                text: message,
-                type: "text",
-                createdAt: new Date().toISOString()
-            };
-            set((state) => ({ messages: [...state.messages, newMessage] }));
-
-            await axiosInstance.post(`/messages/send/${id}`, {
+            
+            const newMessage = await axiosInstance.post(`/messages/send/${id}`, {
                 message: message,
                 media: null
             });
+            set((state) => ({ messages: [...state.messages, newMessage.data.data]}));
 
         } catch (error) {
             toast.error(error.response.data.message);
