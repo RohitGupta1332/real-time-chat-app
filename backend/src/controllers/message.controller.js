@@ -71,20 +71,25 @@ export const sendMessage = async (req, res) => {
         const { message } = req.body;
         const { id: receiverId } = req.params;
         const senderId = req.user.userId; //loggedIn person
-
+        
+        
         const uploadImage = () => {
             return new Promise((resolve, reject) => {
+                console.log("SendMessage is called!")
                 upload.single("media")(req, res, (err) => {
                     if (err) {
-                        reject(err);
+                        console.error('File upload error:', err); // Log error for debugging
+                        reject(err); // Reject the promise if there's an error
                     } else {
                         resolve(req.file ? req.file.filename : "");
                     }
                 });
             });
-        };
-
+        };        
+        
         const mediaUrl = await uploadImage();
+        console.log(message);
+        console.log(mediaUrl);
 
         const newMessage = await Message.create({
             senderId,
