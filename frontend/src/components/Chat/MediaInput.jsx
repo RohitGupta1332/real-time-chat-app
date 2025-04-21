@@ -15,9 +15,11 @@ const MediaInput = ({ onMediaSelect }) => {
   const handleFileChange = (e, type) => {
     const file = e.target.files[0];
     if (file) {
-      onMediaSelect(file)
+      console.log('Selected file type:', type);
+      onMediaSelect(file);
     }
   };
+  
 
   const handleCapturedData = (data) => {
     if (data instanceof Blob) {
@@ -27,7 +29,7 @@ const MediaInput = ({ onMediaSelect }) => {
   };
 
   return (
-    <div className={styles.mediaInput}>
+    <form className={styles.mediaInput} encType="multipart/form-data" method="post" >
       <ul>
         <li onClick={() => photoInputRef.current.click()}>
           <IoMdPhotos /> Photos & Videos
@@ -70,7 +72,7 @@ const MediaInput = ({ onMediaSelect }) => {
           onClose={() => setShowCamera(false)}
         />
       )}
-    </div>
+    </form>
   );
 };
 

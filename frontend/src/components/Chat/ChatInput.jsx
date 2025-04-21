@@ -9,6 +9,7 @@ import MediaInput from './MediaInput.jsx';
 const ChatInput = ({ selectedUser }) => {
   const [input, setInput] = useState('');
   const [isMediaSelected, setMediaSelected] = useState(false);
+  const [file, setFile] = useState(null); // State to store the selected file
   const { sendMessage, sendTypingStatus, chatWithAI } = useChatStore();
   const typingTimeoutRef = useRef(null);
 
@@ -31,26 +32,22 @@ const ChatInput = ({ selectedUser }) => {
   };
 
   const handleSend = () => {
-    if (input.trim()) {
+    if (input.trim() || file) {
+      // Send either the message or the file (or both)
       if (isAI) {
-        chatWithAI(input);
+        chatWithAI(input); // Handle AI-specific messages
       } else {
-        sendMessage(selectedUser, input, null);
+        sendMessage(selectedUser, input, file); // Pass the message or file
       }
-      setInput('');
+      setInput(''); // Clear the text input field after sending
+      setFile(null); // Reset the file after sending
     }
   };
 
-  const handleMediaSelect = (blob) => {
-    if (blob instanceof Blob) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Data = reader.result;
-        sendMessage(selectedUser, input, base64Data);
-        setInput('');
-        setMediaSelected(false);
-      };
-      reader.readAsDataURL(blob);
+  const handleMediaSelect = (selectedFile) => {
+    if (selectedFile instanceof Blob) {
+      setFile(selectedFile); // Set the selected file to the state
+      setMediaSelected(false); // Close the media input once a file is selected
     }
   };
 
@@ -69,7 +66,7 @@ const ChatInput = ({ selectedUser }) => {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              handleSend();
+              handleSend(); // Trigger send on Enter key (without Shift)
             }
           }}
           placeholder="Type message"
@@ -79,7 +76,7 @@ const ChatInput = ({ selectedUser }) => {
           src={SendButton}
           alt="send"
           className={styles.sendButton}
-          onClick={handleSend}
+          onClick={handleSend} // Trigger send when the send button is clicked
         />
       </div>
     </>

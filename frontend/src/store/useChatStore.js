@@ -52,8 +52,6 @@ export const useChatStore = create((set, get) => ({
                     ? state.messages
                     : [...state.messages, newMessage];
 
-                console.log(user);
-
                 const isFromOtherUser = newMessage.senderId !== user?.userId;
                 const alreadyInUnread = state.unreadMessages.some(
                     (msg) => msg._id === newMessage._id
@@ -97,21 +95,46 @@ export const useChatStore = create((set, get) => ({
         }
     },
 
-    sendMessage: async (selected, message, media) => {
+    // sendMessage: async (selected, message) => {
+    //     try {
+    //         if (!selected) return;
+    //         const id = selected.userId;
+
+    //         const newMessage = await axiosInstance.post(`/messages/send/${id}`, {
+    //             message: message,
+    //         });
+    //         set((state) => ({ messages: [...state.messages, newMessage.data.data]}));
+
+    //     } catch (error) {
+    //         toast.error(error.response.data.message);
+    //     }
+    // },
+
+
+    sendMessage: async (selected, message, file) => {
         try {
             if (!selected) return;
+    
             const id = selected.userId;
-            
-            const newMessage = await axiosInstance.post(`/messages/send/${id}`, {
-                message: message,
-                media: media
-            });
-            set((state) => ({ messages: [...state.messages, newMessage.data.data]}));
-
+    
+            const formData = new FormData();
+            formData.append('message', message);
+    
+            if (file) {
+                formData.append('media', file);
+            }
+    
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+              }
+            const newMessage = await axiosInstance.post(`/messages/send/${id}`, formData);
+    
+            set((state) => ({ messages: [...state.messages, newMessage.data.data] }));
+    
         } catch (error) {
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message || error.message || "An error occurred");
         }
-    },
+    },    
 
     getAIMessages: async () => {
         set({ isMessageLoading: true });
