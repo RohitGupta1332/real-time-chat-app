@@ -148,7 +148,7 @@
     background-color: #6b7280;
     color: #fff;
     padding: 1rem;
-    padding-bottom: 1.2rem;
+    padding-bottom: 0.2rem;
     border-radius: 0.75rem;
     position: relative;
     display: inline-block;
@@ -184,10 +184,26 @@
     opacity: 0.8;
 }
 
-.messageImage {
-    max-width: 200px;
-    border-radius: 0.75rem;
+.messageImage,
+.messageVideo,
+.messageAudio,
+.messageDocument {
+    max-width: 600px;
+    max-height: 600px;
     margin: 0;
+    padding: 5px;
+    margin-bottom: 0.5rem;
+    border-radius: 10px;
+}
+
+.messageDocument {
+    text-decoration: none;
+    color: #fff;
+    font-size: 1.2em;
+    padding: 10px;
+    border-radius: 0.3rem;
+    background-color: #1a1a1a;
+    display: inline-block;
 }
 
 .inputArea {
@@ -304,14 +320,14 @@
 .mediaInput ul {
     list-style: none;
     margin: 0;
-    padding: 8px 0;
+    padding: 0;
 }
 
 .mediaInput li {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 12px 16px;
+    padding: 8px 0;
     cursor: pointer;
     font-size: 0.9em;
     color: #e5e5e5;
@@ -402,6 +418,115 @@
     background: #681ceb;
 }
 
+.mediaPreviewContainer {
+    position: absolute;
+    bottom: 70px;
+    left: 20px;
+    background-color: #0000008c;
+    border-radius: 8px;
+    z-index: 1000;
+    padding: 20px;
+    max-width: 600px;
+    max-height: 500px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.mediaImagePreview,
+.mediaVideoPreview,
+.mediaDocumentIcon,
+.mediaAudioPreview {
+    max-width: 100%;
+    max-height: 450px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.removeButton {
+    position: absolute;
+    top: 0;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 5px 9px;
+    cursor: pointer;
+    border-radius: 50%;
+}
+
+.removeButton:hover {
+    background: rgba(0, 0, 0, 0.137);
+}
+
+.mediaFileName {
+    font-size: 14px;
+    color: #fff;
+    margin-top: 8px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    max-width: 250px;
+    text-align: center;
+}
+
+.mediaDocumentIcon {
+    font-size: 40px;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.audioPlayerContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: #1e1e1e;
+    border-radius: 5px;
+    padding: 10px 12px;
+    width: 350px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.audioButton {
+    background-color: #333;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.audioButton:hover {
+    background-color: #555;
+}
+
+.audioTrackWrapper {
+    height: 6px;
+    background: #1a1a1a;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.audioProgress {
+    height: 100%;
+    background-color: #6d4ff2;
+    width: 0;
+    transition: width 0.2s ease;
+    border-radius: 4px 0 0 4px;
+}
+
+.audioTime {
+    font-size: 0.8rem;
+    color: #555;
+    text-align: right;
+}
+
+
 
 @keyframes slideUp {
     from {
@@ -445,5 +570,16 @@
     .messageUser .messageText,
     .messageOther .messageText {
         max-width: 80%;
+    }
+
+    .mediaPreviewContainer {
+        max-height: 680px;
+    }
+
+    .mediaImagePreview,
+    .mediaVideoPreview,
+    .mediaDocumentIcon,
+    .mediaAudioPreview {
+        max-height: 640px;
     }
 }
