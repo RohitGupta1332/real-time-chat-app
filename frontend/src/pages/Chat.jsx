@@ -1,3 +1,4 @@
+// src/pages/Chat.jsx
 import Sidebar from "../components/Chat/Sidebar";
 import UserChat from "../components/Chat/UserChat";
 import { useState, useEffect } from "react";
@@ -6,6 +7,7 @@ import styles from "../styles/chat.module.css";
 
 const Chat = () => {
   const [selectedUser, setSelectedUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('chats');
   const [isExiting, setIsExiting] = useState(false);
   const isCompactMobile = useMediaQuery(
     '(orientation: portrait) and (max-width: 768px)'
@@ -14,11 +16,17 @@ const Chat = () => {
   const showSidebar = !isCompactMobile || (isCompactMobile && selectedUser === null);
   const showUserChat = !isCompactMobile || (isCompactMobile && selectedUser !== null);
 
+  const handleUserClick = (user) => {
+    setSelectedUser(user);
+    setActiveTab('chats');
+  };
+
   const handleClose = () => {
     if (isCompactMobile) {
       setIsExiting(true);
     } else {
       setSelectedUser(null);
+      setActiveTab('chats');
     }
   };
 
@@ -27,17 +35,33 @@ const Chat = () => {
       const timer = setTimeout(() => {
         setSelectedUser(null);
         setIsExiting(false);
+        setActiveTab('chats');
       }, 300);
       return () => clearTimeout(timer);
     }
   }, [isExiting]);
 
   return (
-    <div style={{ display: 'flex', width: '100%', height: '100vh', overflow : 'hidden'}}>
-      {showSidebar && <Sidebar onUserClick={setSelectedUser} />}
+    <div style={{ display: 'flex', width: '100%', height: '100vh', overflow: 'hidden' }}>
+      {showSidebar && (
+        <Sidebar
+          onUserClick={handleUserClick}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+      )}
       {showUserChat && (
-        <div className={`${styles.userChatWrapper} ${isCompactMobile ? (isExiting ? styles.exitMobile : styles.mobile) : ''}`}>
-          <UserChat selectedUser={selectedUser} setSelectedUser={setSelectedUser} onClose={handleClose} />
+        <div
+          className={`${styles.userChatWrapper} ${
+            isCompactMobile ? (isExiting ? styles.exitMobile : styles.mobile) : ''
+          }`}
+        >
+          <UserChat
+            selectedUser={selectedUser}
+            setSelectedUser={setSelectedUser}
+            onClose={handleClose}
+            activeTab={activeTab}
+          />
         </div>
       )}
     </div>

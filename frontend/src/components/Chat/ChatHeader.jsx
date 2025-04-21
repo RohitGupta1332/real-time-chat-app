@@ -1,42 +1,56 @@
+// src/components/Chat/ChatHeader.jsx
 import { FiInfo, FiX } from 'react-icons/fi';
 import { useChatStore } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/userAuth';
 import DefaultPic from '../../assets/default-profile.png';
 import styles from '../../styles/userChat.module.css';
 
-const ChatHeader = ({ selectedUser, onInfoClick, onClose }) => {
-    const { isUserTyping } = useChatStore();
-    const { onlineUsers } = useAuthStore();
+const AI_BOT_USER_ID = 'ai-bot-uuid-1234567890';
 
-    return (
-        <div className={styles.chatHeader}>
-            <img
-                src={selectedUser.image || DefaultPic}
-                alt="Profile"
-                className={styles.headerAvatar}
-                onClick={onInfoClick}
-            />
-            <div>
-                <h3 className={styles.headerName}>{selectedUser.name}</h3>
-                <span
-                    className={`${styles.status} ${isUserTyping
-                            ? styles.typing
-                            : onlineUsers.includes(selectedUser.userId)
-                                ? styles.active
-                                : styles.inactive
-                        }`}
-                >
-                    {isUserTyping
-                        ? 'Typing...'
-                        : onlineUsers.includes(selectedUser.userId)
-                            ? 'Online'
-                            : 'Offline'}
-                </span>
-            </div>
-            <FiInfo className={styles.button} onClick={onInfoClick} />
-            <FiX className={`${styles.button} ${styles.closeChat}`} onClick={onClose} />
+const ChatHeader = ({ selectedUser, onInfoClick, onClose }) => {
+  const { isUserTyping } = useChatStore();
+  const { onlineUsers } = useAuthStore();
+
+  const isAiBot = selectedUser?.userId === AI_BOT_USER_ID;
+
+  return (
+    <div className={styles.chatHeader}>
+      <div className={styles.userInfo}>
+        <img
+          src={selectedUser.image || DefaultPic}
+          alt="Profile"
+          className={styles.headerAvatar}
+          onClick={isAiBot ? undefined : onInfoClick}
+        />
+        <div>
+          <h3 className={styles.headerName}>{selectedUser.name}</h3>
+          <span
+            className={`${styles.status} ${
+              isAiBot
+                ? styles.active
+                : isUserTyping
+                  ? styles.typing
+                  : onlineUsers.includes(selectedUser.userId)
+                    ? styles.active
+                    : styles.inactive
+            }`}
+          >
+            {isAiBot
+              ? 'Online'
+              : isUserTyping
+                ? 'Typing...'
+                : onlineUsers.includes(selectedUser.userId)
+                  ? 'Online'
+                  : 'Offline'}
+          </span>
         </div>
-    );
+      </div>
+      <div className={styles.buttonsContainer}>
+        {!isAiBot && <FiInfo className={styles.button} onClick={onInfoClick} />}
+        <FiX className={`${styles.button} ${styles.closeChat}`} onClick={onClose} />
+      </div>
+    </div>
+  );
 };
 
 export default ChatHeader;
