@@ -9,25 +9,34 @@ import MediaInput from './MediaInput.jsx';
 const ChatInput = ({ selectedUser }) => {
   const [input, setInput] = useState('');
   const [isMediaSelected, setMediaSelected] = useState(false);
-  const { sendMessage, sendTypingStatus } = useChatStore();
+  const { sendMessage, sendTypingStatus, chatWithAI } = useChatStore();
   const typingTimeoutRef = useRef(null);
+
+  const isAI = selectedUser?.userId === 'ai-bot-uuid-1234567890';
 
   const handleInputChange = (e) => {
     setInput(e.target.value);
-    sendTypingStatus(selectedUser.userId, true);
 
-    if (typingTimeoutRef.current) {
-      clearTimeout(typingTimeoutRef.current);
+    if (!isAI) {
+      sendTypingStatus(selectedUser.userId, true);
+
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      typingTimeoutRef.current = setTimeout(() => {
+        sendTypingStatus(selectedUser.userId, false);
+      }, 500);
     }
-
-    typingTimeoutRef.current = setTimeout(() => {
-      sendTypingStatus(selectedUser.userId, false);
-    }, 500);
   };
 
   const handleSend = () => {
     if (input.trim()) {
-      sendMessage(selectedUser, input, null);
+      if (isAI) {
+        chatWithAI(input);
+      } else {
+        sendMessage(selectedUser, input, null);
+      }
       setInput('');
     }
   };

@@ -1,4 +1,4 @@
-// src/components/UserChat.jsx
+// src/components/Chat/UserChat.jsx
 import { useState, useEffect } from 'react';
 import { useChatStore } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/userAuth';
@@ -7,8 +7,9 @@ import ChatHeader from './ChatHeader.jsx';
 import MessageList from './MessageList.jsx';
 import ChatInput from './ChatInput.jsx';
 import styles from '../../styles/userChat.module.css';
+import AiPage from '../AiPage.jsx';
 
-const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
+const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
   const [showProfileView, setShowProfileView] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
   const { getMessages, listenMessages } = useChatStore();
@@ -16,7 +17,7 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
 
   useEffect(() => {
     if (!onlineUsers || onlineUsers.length === 0) return;
-  
+
     const unsubscribeFunctions = [];
     let CurrentUsers = onlineUsers.filter((userId) => userId !== selectedUser?.userId);
     CurrentUsers.forEach((userId) => {
@@ -25,7 +26,7 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
         unsubscribeFunctions.push(unsubscribe);
       }
     });
-  
+
     return () => {
       unsubscribeFunctions.forEach((unsubscribe) => {
         unsubscribe();
@@ -44,7 +45,6 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
       }
     };
   }, [selectedUser]);
-
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -96,7 +96,9 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose }) => {
 
   return (
     <div className={styles.chatContainer}>
-      {selectedUser ? (
+      {activeTab === 'ai' ? (
+        <AiPage onClose={onClose} />
+      ) : selectedUser ? (
         <>
           <ChatHeader
             selectedUser={selectedUser}

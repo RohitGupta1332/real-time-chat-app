@@ -10,15 +10,14 @@ import LockTalk from '../../assets/LockTalk.png';
 import Logo from '../../assets/Logo.png';
 import styles from '../../styles/sidebar.module.css';
 
-const Sidebar = ({ onUserClick }) => {
+const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('chats');
   const [isShrunk, setIsShrunk] = useState(false);
   const [isMobile, setIsMobile] = useState(window.matchMedia('(max-width: 768px)').matches);
   const [searchValue, setSearchValue] = useState('');
   const [userList, setUserList] = useState([]);
 
-  const { searchUser, searchResult, onlineUsers } = useAuthStore();
+  const { searchUser, searchResult } = useAuthStore();
   const { users, getUsersForSidebar, isUserLoading, messages, unreadMessages } = useChatStore();
 
   useEffect(() => {

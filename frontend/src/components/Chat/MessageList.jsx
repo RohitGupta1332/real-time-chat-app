@@ -5,13 +5,16 @@ import styles from '../../styles/userChat.module.css';
 import { useEffect, useRef, useState } from 'react';
 
 const MessageList = ({ selectedUser }) => {
-    const { messages, unreadMessages } = useChatStore();
+    const { messages, aiMessages, unreadMessages, getMessages, getAIMessages } = useChatStore();
     const { authUser } = useAuthStore();
     const messagesContainerRef = useRef(null);
     const [unreadIndex, setUnreadIndex] = useState(null);
     const [unreadCount, setUnreadCount] = useState(0);
     const initialUnreadMessagesRef = useRef([]);
     const prevSelectedUserRef = useRef(null);
+    const isAI = selectedUser?.userId === 'ai-bot-uuid-1234567890';
+
+    const hasFetchedMessagesRef = useRef(false);
 
     const formatDate = (createdAt) => {
         const msgDate = createdAt ? new Date(createdAt) : null;
@@ -40,65 +43,90 @@ const MessageList = ({ selectedUser }) => {
             (msg.receiverId === selectedUser?.userId && msg.senderId === authUser?._id)
     );
 
+    const aiFormattedMessages = aiMessages.map((msg, i) => ({
+        ...msg,
+        _id: `ai-${i}`,
+        senderId: 'ai-bot-uuid-1234567890',
+        receiverId: authUser?._id,
+    }));
+
+    const displayMessages = isAI ? aiFormattedMessages : userMessages;
+
+    useEffect(() => {
+        if (isAI) {
+            if (!hasFetchedMessagesRef.current) {
+                getAIMessages();
+                hasFetchedMessagesRef.current = true;
+            }
+        } else {
+            if (selectedUser?.userId && !hasFetchedMessagesRef.current) {
+                getMessages(selectedUser.userId);
+                hasFetchedMessagesRef.current = true;
+            }
+        }
+    }, [selectedUser, isAI, getMessages, getAIMessages]);
+
     useEffect(() => {
         const messagesContainer = messagesContainerRef.current;
         if (messagesContainer) {
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-    }, [userMessages, selectedUser]);
+    }, [displayMessages, selectedUser]);
 
     useEffect(() => {
-
-        if (selectedUser?.userId) {
-            const latestMessage = userMessages[userMessages.length - 1];
-            const isLatestMessageSentByAuthUser =
-                latestMessage && latestMessage.senderId === authUser?._id;
-
-            if (isLatestMessageSentByAuthUser) {
-                setUnreadIndex(null);
-                setUnreadCount(0);
-                initialUnreadMessagesRef.current = [];
-            } else {
-                const existingMessageIds = new Set(initialUnreadMessagesRef.current.map(msg => msg._id));
-                const newUnreadMessages = unreadMessages.filter(
-                    msg => !existingMessageIds.has(msg._id) && 
-                           msg.senderId === selectedUser?.userId && 
-                           msg.receiverId === authUser?._id
-                );
-                initialUnreadMessagesRef.current = [...initialUnreadMessagesRef.current, ...newUnreadMessages];
-
-                const unreadCountForUser = initialUnreadMessagesRef.current.length;
-                setUnreadCount(unreadCountForUser);
-
-                const firstUnreadMessageId = initialUnreadMessagesRef.current[0]?._id;
-
-                const index = userMessages.findIndex((msg) => msg._id === firstUnreadMessageId);
-                setUnreadIndex(index !== -1 ? index : null);
-            }
-        } else {
+        if (isAI || !selectedUser?.userId) {
             initialUnreadMessagesRef.current = [];
             setUnreadIndex(null);
             setUnreadCount(0);
+            return;
+        }
+
+        const latestMessage = userMessages[userMessages.length - 1];
+        const isLatestMessageSentByAuthUser =
+            latestMessage && latestMessage.senderId === authUser?._id;
+
+        if (isLatestMessageSentByAuthUser) {
+            setUnreadIndex(null);
+            setUnreadCount(0);
+            initialUnreadMessagesRef.current = [];
+        } else {
+            const existingMessageIds = new Set(initialUnreadMessagesRef.current.map(msg => msg._id));
+            const newUnreadMessages = unreadMessages.filter(
+                msg => !existingMessageIds.has(msg._id) &&
+                    msg.senderId === selectedUser?.userId &&
+                    msg.receiverId === authUser?._id
+            );
+            initialUnreadMessagesRef.current = [...initialUnreadMessagesRef.current, ...newUnreadMessages];
+
+            const unreadCountForUser = initialUnreadMessagesRef.current.length;
+            setUnreadCount(unreadCountForUser);
+
+            const firstUnreadMessageId = initialUnreadMessagesRef.current[0]?._id;
+            const index = userMessages.findIndex((msg) => msg._id === firstUnreadMessageId);
+            setUnreadIndex(index !== -1 ? index : null);
         }
 
         prevSelectedUserRef.current = selectedUser;
-    }, [selectedUser, userMessages, authUser, unreadMessages]);
+    }, [selectedUser, userMessages, authUser, unreadMessages, isAI]);
 
     return (
         <div className={styles.messages} ref={messagesContainerRef}>
-            {userMessages.map((msg, index) => {
+            {displayMessages.map((msg, index) => {
                 const currentDate = new Date(msg.createdAt);
-                const previousDate = index > 0 ? new Date(userMessages[index - 1].createdAt) : null;
+                const previousDate = index > 0 ? new Date(displayMessages[index - 1].createdAt) : null;
                 const isNewDate =
                     !previousDate || currentDate.toDateString() !== previousDate.toDateString();
-                const isUserMessage = msg.receiverId === selectedUser?.userId;
-                const isLastMessage = index === userMessages.length - 1;
+                const isUserMessage = msg.receiverId === selectedUser?.userId && !isAI;
+                const isLastMessage = index === displayMessages.length - 1;
 
                 const showUnreadDividerForMessage =
-                    unreadIndex !== null && index === unreadIndex && msg.receiverId === authUser?._id;
+                    !isAI &&
+                    unreadIndex !== null &&
+                    index === unreadIndex &&
+                    msg.receiverId === authUser?._id;
 
                 return (
-                    <div key={index}>
+                    <div key={msg._id}>
                         {isNewDate && (
                             <div className={styles.dateDivider}>
                                 <span>{formatDate(msg.createdAt)}</span>
@@ -109,11 +137,35 @@ const MessageList = ({ selectedUser }) => {
                                 <span>{unreadCount} new message{unreadCount !== 1 ? 's' : ''}</span>
                             </div>
                         )}
-                        <Message
-                            message={msg}
-                            isUserMessage={isUserMessage}
-                            isLastMessage={isLastMessage}
-                        />
+                        {isAI && (
+                            <>
+                                <Message
+                                    message={{
+                                        _id: `prompt-${msg._id}`,
+                                        text: msg.prompt,
+                                        createdAt: msg.createdAt,
+                                    }}
+                                    isUserMessage={true}
+                                    isLastMessage={false}
+                                />
+                                <Message
+                                    message={{
+                                        _id: `response-${msg._id}`,
+                                        text: msg.response,
+                                        createdAt: msg.createdAt,
+                                    }}
+                                    isUserMessage={false}
+                                    isLastMessage={false}
+                                />
+                            </>
+                        )}
+                        {!isAI && (
+                            <Message
+                                message={msg}
+                                isUserMessage={isUserMessage}
+                                isLastMessage={isLastMessage}
+                            />
+                        )}
                     </div>
                 );
             })}
