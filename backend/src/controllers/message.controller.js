@@ -72,11 +72,25 @@ export const sendMessage = async (req, res) => {
         const { id: receiverId } = req.params;
         const senderId = req.user.userId; //loggedIn person
 
+        const uploadImage = () => {
+            return new Promise((resolve, reject) => {
+                upload.single("media")(req, res, (err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(req.file ? req.file.filename : "");
+                    }
+                });
+            });
+        };
+
+        const mediaUrl = await uploadImage();
+
         const newMessage = await Message.create({
             senderId,
             receiverId,
             text: message,
-            media
+            media: mediaUrl
         });
 
         const receiverSocketId = getReceiverSocketId(receiverId);
