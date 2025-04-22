@@ -23,6 +23,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute)
 app.use("/api/messages", messageRoute);
+app.use('/uploads', express.static('public/uploads'));
 
 server.listen(3000, () => {
     console.log("Server is running on port 3000");

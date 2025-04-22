@@ -5,11 +5,12 @@ import { useChatStore } from '../../store/useChatStore';
 import SendButton from '../../assets/Send.svg';
 import styles from '../../styles/userChat.module.css';
 import MediaInput from './MediaInput.jsx';
+import MediaPreview from './MediaPreview.jsx';
 
 const ChatInput = ({ selectedUser }) => {
   const [input, setInput] = useState('');
   const [isMediaSelected, setMediaSelected] = useState(false);
-  const [file, setFile] = useState(null); // State to store the selected file
+  const [file, setFile] = useState(null);
   const { sendMessage, sendTypingStatus, chatWithAI } = useChatStore();
   const typingTimeoutRef = useRef(null);
 
@@ -33,27 +34,36 @@ const ChatInput = ({ selectedUser }) => {
 
   const handleSend = () => {
     if (input.trim() || file) {
-      // Send either the message or the file (or both)
       if (isAI) {
-        chatWithAI(input); // Handle AI-specific messages
+        chatWithAI(input);
       } else {
-        sendMessage(selectedUser, input, file); // Pass the message or file
+        sendMessage(selectedUser, input, file);
       }
-      setInput(''); // Clear the text input field after sending
-      setFile(null); // Reset the file after sending
+      setInput('');
+      setFile(null);
     }
   };
 
   const handleMediaSelect = (selectedFile) => {
     if (selectedFile instanceof Blob) {
-      setFile(selectedFile); // Set the selected file to the state
-      setMediaSelected(false); // Close the media input once a file is selected
+      setFile(selectedFile);
+      setMediaSelected(false);
     }
+  };
+
+  const handleRemoveMedia = () => {
+    setFile(null);
+    setMediaSelected(false);
   };
 
   return (
     <>
+      {file && (
+        <MediaPreview file={file} onRemove={handleRemoveMedia} />
+      )}
+
       {isMediaSelected && <MediaInput onMediaSelect={handleMediaSelect} />}
+
       <div className={styles.inputArea}>
         <MdEmojiEmotions className={styles.emojiButton} />
         <GoPaperclip
@@ -66,17 +76,18 @@ const ChatInput = ({ selectedUser }) => {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              handleSend(); // Trigger send on Enter key (without Shift)
+              handleSend();
             }
           }}
           placeholder="Type message"
           className={styles.textarea}
         />
+
         <img
           src={SendButton}
           alt="send"
           className={styles.sendButton}
-          onClick={handleSend} // Trigger send when the send button is clicked
+          onClick={handleSend}
         />
       </div>
     </>
