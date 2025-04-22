@@ -527,6 +527,24 @@
     text-align: right;
 }
 
+.messageText table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.messageText th,
+.messageText td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.messageText th {
+    font-weight: bold;
+}
+
 .fullscreenOverlay {
     position: fixed;
     top: 0;

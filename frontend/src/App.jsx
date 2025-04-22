@@ -26,38 +26,61 @@ function App() {
       <Route path="/" element={<RootLayout />}>
         <Route index element={<ProtectedRoute>
           <AuthPage />
-        </ProtectedRoute>}/>
+        </ProtectedRoute>} />
 
-        <Route path="otp" element={<ProtectedRoute>
-          <Otp />
-        </ProtectedRoute>}/>
+        <Route path="otp" element={
+          <ProtectedRoute>
+            <Otp />
+          </ProtectedRoute>} />
 
-        <Route path="profile" element={<ProtectedRoute />}/>
+        <Route path="profile" element={<ProtectedRoute />} />
 
-        <Route path="profile/view" element={<ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>}/>
+        <Route path="profile/view" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>} />
 
-        <Route path="profile/update" element={<ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>}/>
+        <Route path="profile/update" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>} />
 
-        <Route path="profile/create" element={<ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>}/>
+        <Route path="profile/create" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>} />
 
-        <Route path="chat" element={<ProtectedRoute>
+        <Route path="chat" element={
+          <ProtectedRoute>
             <Chat />
-          </ProtectedRoute>}/>
+          </ProtectedRoute>} />
 
-        <Route path="*" element={<NotFound />}/>
+        <Route path='groups' element={
+          <ProtectedRoute> 
+            <Chat />
+          </ProtectedRoute>
+        } />
+
+        <Route path='meetings' element={
+          <ProtectedRoute> 
+            <Chat />
+          </ProtectedRoute>
+        } />
+
+        <Route path='ai' element={
+          <ProtectedRoute> 
+            <Chat />
+          </ProtectedRoute>
+        } />
+
+        <Route path="*" element={<NotFound />} />
       </Route>
     ));
-  
+
   return (
     <>
       <ToastContainer />
-      <RouterProvider router={route}/>
+      <RouterProvider router={route} />
     </>
   );
 }

@@ -5,7 +5,7 @@ import { useChatStore } from '../../store/useChatStore';
 import BottomNavbar from './Navbar';
 import UserChatItem from './UserChatItem';
 import SearchResults from './SearchResults';
-import {FiX, FiUser, FiMenu } from 'react-icons/fi';
+import { FiX, FiUser, FiMenu } from 'react-icons/fi';
 import LockTalk from '../../assets/LockTalk.png';
 import Logo from '../../assets/Logo.png';
 import styles from '../../styles/sidebar.module.css';
@@ -86,7 +86,7 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
           )}
         </div>
       </div>
-      {!isShrunk && (
+      {!isShrunk && activeTab === 'chats' && (
         <>
           <input
             type="search"
@@ -127,6 +127,80 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
           )}
         </>
       )}
+      {!isShrunk && activeTab === 'ai' &&
+        <>
+          <input
+            type="search"
+            placeholder="Search users..."
+            className={styles.search}
+            value={searchValue}
+            onChange={handleSearchChange}
+            aria-label="Search for users"
+          />
+          {searchValue && (
+            <SearchResults
+              results={searchResult}
+              setSearchValue={setSearchValue}
+              onUserClick={onUserClick}
+              onAddUserToList={handleAddUserToList}
+            />
+          )}
+          <div className={styles.userList}>
+            <UserChatItem
+              id={"ai-bot-id-001"}
+              userId={"ai-bot-uuid-1234567890"}
+              name={"Astra"}
+              image={""}
+              bio={"Heyy, I'm Astra"}
+              onUserClick={() => {}}
+            />
+          </div>
+        </>
+      }
+      {!isShrunk && activeTab === 'groups' &&
+        <>
+          <input
+            type="search"
+            placeholder="Search users..."
+            className={styles.search}
+            value={searchValue}
+            onChange={handleSearchChange}
+            aria-label="Search for users"
+          />
+          {searchValue && (
+            <SearchResults
+              results={searchResult}
+              setSearchValue={setSearchValue}
+              onUserClick={onUserClick}
+              onAddUserToList={handleAddUserToList}
+            />
+          )}
+          <div className={styles.userList}>
+          </div>
+        </>
+      }
+      {!isShrunk && activeTab === 'meetings' &&
+        <>
+          <input
+            type="search"
+            placeholder="Search users..."
+            className={styles.search}
+            value={searchValue}
+            onChange={handleSearchChange}
+            aria-label="Search for users"
+          />
+          {searchValue && (
+            <SearchResults
+              results={searchResult}
+              setSearchValue={setSearchValue}
+              onUserClick={onUserClick}
+              onAddUserToList={handleAddUserToList}
+            />
+          )}
+          <div className={styles.userList}>
+          </div>
+        </>
+      }
       <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} isShrunk={isShrunk && !isMobile} />
     </div>
   );

@@ -9,7 +9,7 @@ const AiPage = ({ onClose }) => {
         userId: 'ai-bot-uuid-1234567890',
         name: 'Astra',
         image: '',
-        bio: "Heyy, I'm an AI assistent",
+        bio: "Heyy, I'm Astra",
         lastMessage: '',
         time: '',
         isActive: true,

@@ -1,9 +1,10 @@
-// src/pages/Chat.jsx
+// Chat.jsx
+import { useState, useEffect } from "react";
 import Sidebar from "../components/Chat/Sidebar";
 import UserChat from "../components/Chat/UserChat";
-import { useState, useEffect } from "react";
 import { useMediaQuery } from '@react-hook/media-query';
 import styles from "../styles/chat.module.css";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Chat = () => {
   const [selectedUser, setSelectedUser] = useState(null);
@@ -12,6 +13,17 @@ const Chat = () => {
   const isCompactMobile = useMediaQuery(
     '(orientation: portrait) and (max-width: 768px)'
   );
+
+  const location = useLocation();
+  const navigate = useNavigate();
+  const currentPath = location.pathname;
+
+  useEffect(() => {
+    if (currentPath === "/ai") setActiveTab("ai");
+    else if (currentPath === "/groups") setActiveTab("groups");
+    else if (currentPath === "/meetings") setActiveTab("meetings");
+    else setActiveTab("chats");
+  }, [currentPath]);
 
   const showSidebar = !isCompactMobile || (isCompactMobile && selectedUser === null);
   const showUserChat = !isCompactMobile || (isCompactMobile && selectedUser !== null);
@@ -27,19 +39,26 @@ const Chat = () => {
     } else {
       setSelectedUser(null);
       setActiveTab('chats');
+      window.history.pushState(null, "", "/chat");
     }
   };
 
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+  };
+
   useEffect(() => {
-    if (isExiting) {
-      const timer = setTimeout(() => {
-        setSelectedUser(null);
-        setIsExiting(false);
-        setActiveTab('chats');
-      }, 300);
-      return () => clearTimeout(timer);
+    let path = '/chat';
+    if (activeTab === 'ai') path = '/ai';
+    else if (activeTab === 'groups') path = '/groups';
+    else if (activeTab === 'meetings') path = '/meetings';
+
+    setSelectedUser(null)
+  
+    if (window.location.pathname !== path) {
+      navigate(path, {replace : true})
     }
-  }, [isExiting]);
+  }, [activeTab]);
 
   return (
     <div style={{ display: 'flex', width: '100%', height: '100vh', overflow: 'hidden' }}>
@@ -47,14 +66,13 @@ const Chat = () => {
         <Sidebar
           onUserClick={handleUserClick}
           activeTab={activeTab}
-          setActiveTab={setActiveTab}
+          setActiveTab={handleTabChange}
         />
       )}
       {showUserChat && (
         <div
-          className={`${styles.userChatWrapper} ${
-            isCompactMobile ? (isExiting ? styles.exitMobile : styles.mobile) : ''
-          }`}
+          className={`${styles.userChatWrapper} ${isCompactMobile ? (isExiting ? styles.exitMobile : styles.mobile) : ''
+            }`}
         >
           <UserChat
             selectedUser={selectedUser}

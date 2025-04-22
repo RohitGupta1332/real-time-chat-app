@@ -38,9 +38,12 @@ const ProtectedRoute = ({ children }) => {
   }
 
   const allowedPaths = [
-    "/chat",
-    "/profile/view",
     "/profile/update",
+    "/profile/view",
+    '/meetings',
+    "/groups",
+    "/chat",
+    "/ai",
   ];
 
   if (authUser && isProfileCreated && !allowedPaths.includes(currentPath) && !currentPath.startsWith("/profile/")) {

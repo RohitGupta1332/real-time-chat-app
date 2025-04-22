@@ -4,7 +4,13 @@ import { useState } from 'react';
 
 import AudioPlayer from '../AudioPlayer';
 
+// Import the MarkdownView component from react-showdown
+import MarkdownView from 'react-showdown';
+
 const Message = ({ message, isUserMessage, isLastMessage }) => {
+    // Remove the require and new showdown.Converter() lines
+    // const showdown = require('showdown');
+    // const converter = new showdown.Converter();
 
     const [fullImageUrl, setFullImageUrl] = useState(null);
 
@@ -15,39 +21,8 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
         setFullImageUrl(null);
     };
 
-    const markdownToHTML = (markdown) => {
-        if (!markdown) return "";
-
-        markdown = markdown.replace(/```(\w*)\n([\s\S]*?)```/g, (match, lang, code) => {
-            const escapedCode = code.replace(/</g, '<').replace(/>/g, '>');
-            return `<pre><code class="language-${lang}">${escapedCode}</code></pre>`;
-        });
-        markdown = markdown.replace(/`([^`]+)`/g, '<code>$1</code>');
-        markdown = markdown.replace(/(\*\*|__)(.*?)\1/g, '<strong>$2</strong>');
-        markdown = markdown.replace(/(\*|_)(.*?)\1/g, '<em>$2</em>');
-        markdown = markdown.replace(/\[([^\[]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
-        markdown = markdown.replace(/^>\s+(.*)$/gm, '<blockquote>$1</blockquote>');
-        markdown = markdown.replace(/(?:^|\n)(\d+\..+(?:\n\d+\..+)*)/g, (match) => {
-            const items = match.trim().split('\n').map(line => line.replace(/^\d+\.\s+/, '<li>') + '</li>').join('');
-            return `<ol>${items}</ol>`;
-        });
-        markdown = markdown.replace(/(?:^|\n)([*+-].+(?:\n[*+-].+)*)/g, (match) => {
-            const items = match.trim().split('\n').map(line => line.replace(/^[*+-]\s+/, '<li>') + '</li>').join('');
-            return `<ul>${items}</ul>`;
-        });
-        markdown = markdown
-            .split(/\n{2,}/)
-            .map(para => {
-                const trimmed = para.trim();
-                if (/^<\/?(ul|ol|li|pre|code|blockquote|h\d|a|strong|em|p)/.test(trimmed)) {
-                    return trimmed;
-                }
-                return `<p>${trimmed}</p>`;
-            })
-            .join('');
-
-        return markdown;
-    };
+    // Remove your custom markdownToHTML function
+    // const markdownToHTML = (markdown) => { ... };
 
     const formatTime = (createdAt) => {
         const msgDate = createdAt ? new Date(createdAt) : null;
@@ -69,7 +44,10 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
         });
     };
 
-    const formattedText = markdownToHTML(message.text || '');
+    // You no longer need to manually convert the text here
+    // const formattedText = converter.makeHtml(message.text || '');
+    // const formattedText = markdownToHTML(message.text || ''); // Also remove this
+
     const fileName = message.media;
     const fileUrl = fileName ? `http://localhost:3000/uploads/${fileName}` : '';
 
@@ -104,7 +82,10 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
                     </div>
                 )}
                 {message.text && (
-                    <span dangerouslySetInnerHTML={{ __html: formattedText }} />
+                    <MarkdownView
+                        markdown={message.text}
+                        options={{ tables: true, emoji: true }}
+                    />
                 )}
 
                 <span className={styles.messageTime}>{formatTime(message.createdAt)}</span>
@@ -118,7 +99,7 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
                             closeImage();
                         }}
                     >
-                        &times;
+                        ×
                     </button>
                     <img src={fullImageUrl} className={styles.fullscreenImage} alt="Full Preview" />
                 </div>
