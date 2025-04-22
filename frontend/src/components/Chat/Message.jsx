@@ -1,9 +1,20 @@
 import styles from '../../styles/userChat.module.css';
 import { IoDocumentTextSharp } from 'react-icons/io5';
+import { useState } from 'react';
 
 import AudioPlayer from '../AudioPlayer';
 
 const Message = ({ message, isUserMessage, isLastMessage }) => {
+
+    const [fullImageUrl, setFullImageUrl] = useState(null);
+
+    const openImage = (url) => {
+        setFullImageUrl(url);
+    };
+    const closeImage = () => {
+        setFullImageUrl(null);
+    };
+
     const markdownToHTML = (markdown) => {
         if (!markdown) return "";
 
@@ -74,7 +85,7 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
                 {message.media && (
                     <div className={styles.mediaContainer}>
                         {['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'heic', 'heif', 'raw', 'psd', 'ai', 'eps'].includes(ext) && (
-                            <img src={fileUrl} alt="Sent" className={styles.messageImage} />
+                            <img src={fileUrl} alt="Sent" className={styles.messageImage} onClick={() => openImage(fileUrl)} />
                         )}
 
                         {['mp4', 'webm', 'ogg', 'mov', 'mkv', 'avi', 'wmv', 'flv', '3gp', 'mpeg'].includes(ext) && (
@@ -98,6 +109,20 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
 
                 <span className={styles.messageTime}>{formatTime(message.createdAt)}</span>
             </div>
+            {fullImageUrl && (
+                <div className={styles.fullscreenOverlay} onClick={closeImage}>
+                    <button
+                        className={styles.closeButton}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            closeImage();
+                        }}
+                    >
+                        &times;
+                    </button>
+                    <img src={fullImageUrl} className={styles.fullscreenImage} alt="Full Preview" />
+                </div>
+            )}
         </div>
     );
 };

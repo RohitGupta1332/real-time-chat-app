@@ -15,7 +15,6 @@ const MediaInput = ({ onMediaSelect }) => {
   const handleFileChange = (e, type) => {
     const file = e.target.files[0];
     if (file) {
-      console.log('Selected file type:', type);
       onMediaSelect(file);
     }
   };
@@ -29,7 +28,7 @@ const MediaInput = ({ onMediaSelect }) => {
   };
 
   return (
-    <form className={styles.mediaInput} encType="multipart/form-data" method="post" >
+    <form className={styles.mediaInput} encType="multipart/form-data" method="post" onSubmit={(e) => e.preventDefault()} >
       <ul>
         <li onClick={() => photoInputRef.current.click()}>
           <IoMdPhotos /> Photos & Videos

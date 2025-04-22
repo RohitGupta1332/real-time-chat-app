@@ -107,10 +107,7 @@ export const useChatStore = create((set, get) => ({
             if (file) {
                 formData.append('media', file);
             }
-    
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-              }
+
             const newMessage = await axiosInstance.post(`/messages/send/${id}`, formData);
     
             set((state) => ({ messages: [...state.messages, newMessage.data.data] }));

@@ -15,20 +15,22 @@ const MediaPreview = ({ file, onRemove }) => {
                     <video src={URL.createObjectURL(file)} controls className={styles.mediaVideoPreview} />
                 )}
                 {file.type.startsWith('audio') && (
-                    <AudioPlayer src={URL.createObjectURL(file)}/>
+                    <AudioPlayer src={URL.createObjectURL(file)} />
                 )}
-                {(file.type === 'application/pdf' || file.name.endsWith('.pdf')) && (
+                {(file.type === 'application/pdf' || (file.name?.endsWith('.pdf'))) && (
                     <>
                         <IoDocumentTextSharp className={styles.mediaDocumentIcon} />
-                        <div className={styles.mediaFileName}>{file.name}</div>
+                        <div className={styles.mediaFileName}>{file.name ?? 'Unnamed file'}</div>
                     </>
                 )}
-                {file.type === 'application/msword' || file.name.endsWith('.docx') && (
+
+                {(file.type === 'application/msword' || file.name?.endsWith('.docx')) && (
                     <>
                         <IoDocumentTextSharp className={styles.mediaDocumentIcon} />
-                        <div className={styles.mediaFileName}>{file.name}</div>
+                        <div className={styles.mediaFileName}>{file.name ?? 'Unnamed file'}</div>
                     </>
                 )}
+
 
 
                 <button className={styles.removeButton} onClick={onRemove}>

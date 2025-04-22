@@ -46,10 +46,11 @@ const CameraCapture = ({ onCapture, onClose }) => {
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0);
 
-            // Convert canvas to Blob instead of dataURL
             canvas.toBlob((blob) => {
                 if (blob) {
-                    onCapture(blob); // Send image as Blob
+                    const fileName = `photo_${Date.now()}_${Math.floor(Math.random() * 10000)}.png`;
+                    const file = new File([blob], fileName, { type: blob.type });
+                    onCapture(file);
                 } else {
                     console.error('Failed to create image Blob');
                 }
@@ -79,11 +80,13 @@ const CameraCapture = ({ onCapture, onClose }) => {
                 alert('No recording data available!');
                 return;
             }
-
-            const blob = new Blob(chunks, { type: 'video/webm' });
-            onCapture(blob); // Video is already sent as Blob
+        
+            const videoBlob = new Blob(chunks, { type: 'video/webm' });
+            const fileName = `video_${Date.now()}_${Math.floor(Math.random() * 10000)}.webm`;
+            const file = new File([videoBlob], fileName, { type: videoBlob.type });
+            onCapture(file);
             setRecordedChunks([]);
-        };
+        };        
 
         recorder.start(1000);
         setMediaRecorder(recorder);
@@ -116,7 +119,6 @@ const CameraCapture = ({ onCapture, onClose }) => {
                     autoPlay
                     muted
                     className={styles.videoFeed}
-                    style={{ transform: 'scaleX(-1)' }}
                 />
                 <canvas ref={canvasRef} style={{ display: 'none' }} />
 
