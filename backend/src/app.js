@@ -5,6 +5,7 @@ import databaseConn from "./lib/db.js";
 import authRoute from "./routes/auth.route.js";
 import messageRoute from "./routes/message.route.js";
 import profileRoute from "./routes/profile.route.js";
+import groupRoute from "./routes/group.route.js";
 import cors from "cors";
 import { app, server } from "./lib/socket.js";
 
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute)
 app.use("/api/messages", messageRoute);
+app.use("/api/group", groupRoute);
 app.use('/uploads', express.static('public/uploads'));
 
 server.listen(3000, () => {

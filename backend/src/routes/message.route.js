@@ -12,7 +12,6 @@ const router = express.Router();
 
 router.get("/users", protectRoute, getUsersForSidebar);
 router.get("/:id", protectRoute, getMessages);
-// router.post("/send/:id", protectRoute, sendMessage);
 router.post("/send/:id", protectRoute, upload.single("media"), sendMessage);
 router.post("/ai", protectRoute, messageAI);
 router.get("/ai/chats", protectRoute, getMessagesWithAi)
