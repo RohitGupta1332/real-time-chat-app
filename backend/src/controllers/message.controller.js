@@ -48,8 +48,6 @@ export const getUsersForSidebar = async (req, res) => {
     }
 };
 
-
-
 export const getMessages = async (req, res) => {
     try {
         const { id: receiverId } = req.params;
@@ -71,10 +69,7 @@ export const sendMessage = async (req, res) => {
         const { message } = req.body;
         const { id: receiverId } = req.params;
         const senderId = req.user.userId; //loggedIn person
-        let mediaUrl = "";
-        if (req.file && req.file.filename) {
-            mediaUrl = req.file.filename;
-        }
+        let mediaUrl = req.file?.filename || "";
 
         const newMessage = await Message.create({
             senderId,

@@ -19,13 +19,18 @@ export function getReceiverSocketId(userId) {
     return userSocketMap[userId];
 }
 
-io.on("connection", (socket) => {
+io.on("connection", async (socket) => {
     console.log("A new user connected ", socket.id);
 
     const userId = socket.handshake.query.userId;
 
     if (userId) {
         userSocketMap[userId] = socket.id;
+
+        const memberships = await GroupMember.find({ user_id: userId }).select("group_id");
+        memberships.forEach(member => {
+            socket.join(member.group_id.toString()); 
+        });
     }
     io.emit("getOnlineUsers", Object.keys(userSocketMap));
     socket.on("disconnect", () => {

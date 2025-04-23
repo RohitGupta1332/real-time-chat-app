@@ -14,7 +14,7 @@ const groupMessageSchema = new Schema({
     text: {
         type: String,
     },
-    image: {
+    media: {
         type: String
     }
 }, {timestamps: true});
