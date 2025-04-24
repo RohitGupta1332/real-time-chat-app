@@ -11,11 +11,10 @@ const RootLayout = () => {
     isUpdatingProfile,
     isResending,
     isVerifing,
-    isLoadingProfile
   } = useAuthStore(); 
 
 
-  if (isCheckingAuth || isSigningIn || isLoggingIn || isCreatingProfile || isUpdatingProfile || isResending || isVerifing || isLoadingProfile) {
+  if (isCheckingAuth || isSigningIn || isLoggingIn || isCreatingProfile || isUpdatingProfile || isResending || isVerifing) {
     return (
       <>
         <Outlet />

@@ -1,0 +1,172 @@
+/* Overlay to make the modal appear in front */
+.groupAddOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Dark transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    /* Ensures it's on top */
+}
+
+/* Container for the group creation modal */
+.groupAddContainer {
+    background-color: #2a2a2e;
+    color: #fff;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 900px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Header styles */
+.groupAddHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.groupAddHeader h2 {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 2rem;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.closeButton:hover {
+    color: #ff4d4f;
+}
+
+/* Input fields */
+.groupAddInput {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.groupAddInput input {
+    padding: 0.8rem;
+    border-radius: 8px;
+    border: none;
+    background-color: #1a1a1a;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+}
+
+/* Content layout */
+.groupAddContent {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+/* Users section (left side) */
+.usersSection {
+    flex: 1;
+}
+
+.usersListContainer {
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* Selected members section (right side) */
+.selectedMembersSection {
+    flex: 1;
+}
+
+.selectedMembersList {
+    max-height: 300px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.selectedMemberItem {
+    color: white;
+    border-radius: 5px;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.selectedMemberItem button {
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+/* Footer section */
+.groupAddFooter {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+}
+
+.createGroupButton {
+    background-color: #6d4ff2;
+    color: white;
+    border: none;
+    padding: 1rem;
+    font-size: 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.createGroupButton:hover {
+    background-color: #681ceb;
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+    .groupAddContainer {
+        width: 90%;
+        padding: 1.5rem;
+    }
+
+    .groupAddHeader h2 {
+        font-size: 1.3rem;
+    }
+
+    .createGroupButton {
+        font-size: 1rem;
+    }
+
+    .groupAddContent {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .usersSection,
+    .selectedMembersSection {
+        flex: none;
+    }
+
+    .usersListContainer,
+    .selectedMembersList {
+        max-height: 200px;
+    }
+}

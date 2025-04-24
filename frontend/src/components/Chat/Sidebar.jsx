@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { useAuthStore } from '../../store/userAuth';
 import { useChatStore } from '../../store/useChatStore';
+
 import BottomNavbar from './Navbar';
 import UserChatItem from './UserChatItem';
 import SearchResults from './SearchResults';
+import GroupAdd from './GroupAdd';
+
 import { FiX, FiUser, FiMenu } from 'react-icons/fi';
+import { MdGroupAdd } from "react-icons/md";
+
 import LockTalk from '../../assets/LockTalk.png';
 import Logo from '../../assets/Logo.png';
+
 import styles from '../../styles/sidebar.module.css';
 
 const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
@@ -16,6 +23,7 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
   const [isMobile, setIsMobile] = useState(window.matchMedia('(max-width: 768px)').matches);
   const [searchValue, setSearchValue] = useState('');
   const [userList, setUserList] = useState([]);
+  const [showGroupAdd, setShowGroupAdd] = useState(false);
 
   const { searchUser, searchResult } = useAuthStore();
   const { users, getUsersForSidebar, isUserLoading, messages, unreadMessages } = useChatStore();
@@ -64,145 +72,155 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
   };
 
   return (
-    <div className={`${styles.sidebar} ${isShrunk && !isMobile ? styles.shrunk : ''}`}>
-      <div className={`${styles.top} ${isShrunk && !isMobile ? styles.shrunkTop : ''}`}>
-        {!isShrunk ? (
-          <h2>
-            <img src={LockTalk} alt="LockTalk" style={{ width: '100px' }} />
-          </h2>
-        ) : (
-          <h2>
-            <img src={Logo} alt="Logo" />
-          </h2>
-        )}
-        <div className={`${styles.icons} ${isShrunk && !isMobile ? styles.shrunkIcons : ''}`}>
-          <FiUser style={{ cursor: 'pointer' }} onClick={() => navigate('/profile/view')} />
-          {!isMobile && (
-            isShrunk ? (
-              <FiMenu style={{ cursor: 'pointer' }} onClick={handleToggle} aria-label="Expand sidebar" />
-            ) : (
-              <FiX style={{ cursor: 'pointer' }} onClick={handleToggle} aria-label="Shrink sidebar" />
-            )
-          )}
-        </div>
-      </div>
-      {!isShrunk && activeTab === 'chats' && (
-        <>
-          <input
-            type="search"
-            placeholder="Search users..."
-            className={styles.search}
-            value={searchValue}
-            onChange={handleSearchChange}
-            aria-label="Search for users"
-          />
-          {searchValue && (
-            <SearchResults
-              results={searchResult}
-              setSearchValue={setSearchValue}
-              onUserClick={onUserClick}
-              onAddUserToList={handleAddUserToList}
-            />
-          )}
-          {!searchValue && (
-            <div className={styles.userList}>
-              {isUserLoading ? (
-                <p>Loading users...</p>
-              ) : userList.length === 0 ? (
-                <p>No chats yet</p>
-              ) : (
-                userList.map((user, index) => (
-                  <UserChatItem
-                    key={user._id || index}
-                    id={user._id}
-                    userId={user.userId}
-                    name={user.name}
-                    image={user.image}
-                    bio={user.bio}
-                    onUserClick={() => onUserClick(user)}
-                  />
-                ))
-              )}
-            </div>
-          )}
-        </>
+    <>
+      {showGroupAdd && (
+          <GroupAdd users={userList} onClose={() => setShowGroupAdd(false)}/>
       )}
-      {!isShrunk && activeTab === 'ai' &&
-        <>
-          <input
-            type="search"
-            placeholder="Search users..."
-            className={styles.search}
-            value={searchValue}
-            onChange={handleSearchChange}
-            aria-label="Search for users"
-          />
-          {searchValue && (
-            <SearchResults
-              results={searchResult}
-              setSearchValue={setSearchValue}
-              onUserClick={onUserClick}
-              onAddUserToList={handleAddUserToList}
-            />
+
+      <div className={`${styles.sidebar} ${isShrunk && !isMobile ? styles.shrunk : ''}`}>
+        <div className={`${styles.top} ${isShrunk && !isMobile ? styles.shrunkTop : ''}`}>
+          {!isShrunk ? (
+            <h2>
+              <img src={LockTalk} alt="LockTalk" style={{ width: '100px' }} />
+            </h2>
+          ) : (
+            <h2>
+              <img src={Logo} alt="Logo" />
+            </h2>
           )}
-          <div className={styles.userList}>
-            <UserChatItem
-              id={"ai-bot-id-001"}
-              userId={"ai-bot-uuid-1234567890"}
-              name={"Astra"}
-              image={""}
-              bio={"Heyy, I'm Astra"}
-              onUserClick={() => {}}
-            />
+          <div className={`${styles.icons} ${isShrunk && !isMobile ? styles.shrunkIcons : ''}`}>
+            <FiUser style={{ cursor: 'pointer' }} onClick={() => navigate('/profile/view')} />
+            <MdGroupAdd style={{ cursor: 'pointer' }} onClick={() => {
+              navigate('/groups')
+              setShowGroupAdd(true)
+            }} />
+            {!isMobile && (
+              isShrunk ? (
+                <FiMenu style={{ cursor: 'pointer' }} onClick={handleToggle} aria-label="Expand sidebar" />
+              ) : (
+                <FiX style={{ cursor: 'pointer' }} onClick={handleToggle} aria-label="Shrink sidebar" />
+              )
+            )}
           </div>
-        </>
-      }
-      {!isShrunk && activeTab === 'groups' &&
-        <>
-          <input
-            type="search"
-            placeholder="Search users..."
-            className={styles.search}
-            value={searchValue}
-            onChange={handleSearchChange}
-            aria-label="Search for users"
-          />
-          {searchValue && (
-            <SearchResults
-              results={searchResult}
-              setSearchValue={setSearchValue}
-              onUserClick={onUserClick}
-              onAddUserToList={handleAddUserToList}
+        </div>
+        {!isShrunk && activeTab === 'chats' && (
+          <>
+            <input
+              type="search"
+              placeholder="Search users..."
+              className={styles.search}
+              value={searchValue}
+              onChange={handleSearchChange}
+              aria-label="Search for users"
             />
-          )}
-          <div className={styles.userList}>
-          </div>
-        </>
-      }
-      {!isShrunk && activeTab === 'meetings' &&
-        <>
-          <input
-            type="search"
-            placeholder="Search users..."
-            className={styles.search}
-            value={searchValue}
-            onChange={handleSearchChange}
-            aria-label="Search for users"
-          />
-          {searchValue && (
-            <SearchResults
-              results={searchResult}
-              setSearchValue={setSearchValue}
-              onUserClick={onUserClick}
-              onAddUserToList={handleAddUserToList}
+            {searchValue && (
+              <SearchResults
+                results={searchResult}
+                setSearchValue={setSearchValue}
+                onUserClick={onUserClick}
+                onAddUserToList={handleAddUserToList}
+              />
+            )}
+            {!searchValue && (
+              <div className={styles.userList}>
+                {isUserLoading ? (
+                  <p>Loading users...</p>
+                ) : userList.length === 0 ? (
+                  <p>No chats yet</p>
+                ) : (
+                  userList.map((user, index) => (
+                    <UserChatItem
+                      key={user._id || index}
+                      id={user._id}
+                      userId={user.userId}
+                      name={user.name}
+                      image={user.image}
+                      bio={user.bio}
+                      onUserClick={() => onUserClick(user)}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+          </>
+        )}
+        {!isShrunk && activeTab === 'ai' &&
+          <>
+            <input
+              type="search"
+              placeholder="Search users..."
+              className={styles.search}
+              value={searchValue}
+              onChange={handleSearchChange}
+              aria-label="Search for users"
             />
-          )}
-          <div className={styles.userList}>
-          </div>
-        </>
-      }
-      <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} isShrunk={isShrunk && !isMobile} />
-    </div>
+            {searchValue && (
+              <SearchResults
+                results={searchResult}
+                setSearchValue={setSearchValue}
+                onUserClick={onUserClick}
+                onAddUserToList={handleAddUserToList}
+              />
+            )}
+            <div className={styles.userList}>
+              <UserChatItem
+                id={"ai-bot-id-001"}
+                userId={"ai-bot-uuid-1234567890"}
+                name={"Astra"}
+                image={""}
+                bio={"Heyy, I'm Astra"}
+                onUserClick={() => { }}
+              />
+            </div>
+          </>
+        }
+        {!isShrunk && activeTab === 'groups' &&
+          <>
+            <input
+              type="search"
+              placeholder="Search users..."
+              className={styles.search}
+              value={searchValue}
+              onChange={handleSearchChange}
+              aria-label="Search for users"
+            />
+            {searchValue && (
+              <SearchResults
+                results={searchResult}
+                setSearchValue={setSearchValue}
+                onUserClick={onUserClick}
+                onAddUserToList={handleAddUserToList}
+              />
+            )}
+            <div className={styles.userList}>
+            </div>
+          </>
+        }
+        {!isShrunk && activeTab === 'meetings' &&
+          <>
+            <input
+              type="search"
+              placeholder="Search users..."
+              className={styles.search}
+              value={searchValue}
+              onChange={handleSearchChange}
+              aria-label="Search for users"
+            />
+            {searchValue && (
+              <SearchResults
+                results={searchResult}
+                setSearchValue={setSearchValue}
+                onUserClick={onUserClick}
+                onAddUserToList={handleAddUserToList}
+              />
+            )}
+            <div className={styles.userList}>
+            </div>
+          </>
+        }
+        <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} isShrunk={isShrunk && !isMobile} />
+      </div>
+    </>
   );
 };
 
