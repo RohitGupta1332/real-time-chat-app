@@ -1,6 +1,7 @@
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
+import { GroupMember } from "../models/groupMember.model.js";
 
 const app = express();
 const server = http.createServer(app);
