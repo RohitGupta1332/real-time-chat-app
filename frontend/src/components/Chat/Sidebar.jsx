@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { useAuthStore } from '../../store/userAuth';
 import { useChatStore } from '../../store/useChatStore';
+import { useGroupStore } from '../../store/useGroupStore';
 
 import BottomNavbar from './Navbar';
 import UserChatItem from './UserChatItem';
@@ -27,9 +28,18 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
 
   const { searchUser, searchResult } = useAuthStore();
   const { users, getUsersForSidebar, isUserLoading, messages, unreadMessages } = useChatStore();
+  const { groups, fetchGroups } = useGroupStore();
 
   useEffect(() => {
-    getUsersForSidebar();
+      fetchGroups();
+  }, [fetchGroups]);
+
+  console.log(groups)
+
+  console.log(groups)
+
+  useEffect(() => {
+      getUsersForSidebar();
   }, [getUsersForSidebar, unreadMessages, messages]);
 
   useEffect(() => {
@@ -74,7 +84,7 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
   return (
     <>
       {showGroupAdd && (
-          <GroupAdd users={userList} onClose={() => setShowGroupAdd(false)}/>
+        <GroupAdd users={userList} onClose={() => setShowGroupAdd(false)} />
       )}
 
       <div className={`${styles.sidebar} ${isShrunk && !isMobile ? styles.shrunk : ''}`}>
@@ -193,6 +203,20 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
               />
             )}
             <div className={styles.userList}>
+              {groups.map(groupMembership => {
+                const group = groupMembership.group_id;
+                return (
+                  <UserChatItem
+                    key={group._id}
+                    id={group._id}
+                    name={group.group_name}
+                    image={group.group_icon || ""}
+                    bio={group.description || "Group chat"}
+                    onUserClick={() => onUserClick(group)}
+                  />
+                );
+              })
+              }
             </div>
           </>
         }

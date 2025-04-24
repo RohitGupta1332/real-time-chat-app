@@ -17,7 +17,7 @@ export const useGroupStore = create((set, get) => ({
   fetchGroups: async () => {
     set({ isGroupsLoading: true });
     try {
-      const res = await axiosInstance.get("/groups/get-groups");
+      const res = await axiosInstance.get("/group/get-groups");
       set({ groups: res.data.memberships });
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to fetch groups");
@@ -29,7 +29,7 @@ export const useGroupStore = create((set, get) => ({
   fetchGroupMessages: async (group_id) => {
     set({ isGroupMessagesLoading: true });
     try {
-      const res = await axiosInstance.get(`/groups/messages/${group_id}`);
+      const res = await axiosInstance.get(`/group/messages/${group_id}`);
       set({ groupMessages: res.data.messages });
     } catch (error) {
       toast.error(error?.response?.data?.message || "Could not fetch group messages");
@@ -46,7 +46,7 @@ export const useGroupStore = create((set, get) => ({
       formData.append("text", text);
       if (file) formData.append("media", file);
 
-      const res = await axiosInstance.post("/groups/send", formData);
+      const res = await axiosInstance.post("/group/send", formData);
       set((state) => ({
         groupMessages: [...state.groupMessages, res.data.newMessage],
       }));
@@ -57,19 +57,25 @@ export const useGroupStore = create((set, get) => ({
     }
   },
 
-  createGroup: async (group_name) => {
+  createGroup: async (group_name, user_ids = []) => {
     try {
-      const res = await axiosInstance.post("/groups/create", { group_name });
+      const res = await axiosInstance.post("/group/create", { group_name });
       toast.success("Group created successfully");
+      const group_id = res.data.group._id;
+      if (user_ids.length > 0) {
+        await get().addGroupMembers(group_id, user_ids);
+      }
+  
       get().fetchGroups();
     } catch (error) {
       toast.error(error?.response?.data?.message || "Failed to create group");
     }
   },
+  
 
   deleteGroup: async (group_id) => {
     try {
-      await axiosInstance.delete(`/groups/delete/${group_id}`);
+      await axiosInstance.delete(`/group/delete/${group_id}`);
       toast.success("Group deleted");
       get().fetchGroups();
     } catch (error) {
@@ -80,7 +86,7 @@ export const useGroupStore = create((set, get) => ({
   fetchGroupMembers: async (group_id) => {
     set({ isFetchingMembers: true });
     try {
-      const res = await axiosInstance.get("/groups/get-members", {
+      const res = await axiosInstance.get("/group/get-members", {
         params: { group_id },
       });
       set({ groupMembers: res.data.groupDetail });
@@ -93,7 +99,7 @@ export const useGroupStore = create((set, get) => ({
 
   addGroupMembers: async (group_id, user_ids) => {
     try {
-      const res = await axiosInstance.post("/groups/add-members", {
+      const res = await axiosInstance.post("/group/add-members", {
         group_id,
         user_ids,
       });
@@ -106,7 +112,7 @@ export const useGroupStore = create((set, get) => ({
 
   removeGroupMember: async (group_id, user_id) => {
     try {
-      await axiosInstance.delete("/groups/remove", {
+      await axiosInstance.delete("/group/remove", {
         data: { group_id, user_id },
       });
       toast.success("Member removed");

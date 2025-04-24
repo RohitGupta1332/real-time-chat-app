@@ -1,4 +1,3 @@
-// Chat.jsx
 import { useState, useEffect } from "react";
 import Sidebar from "../components/Chat/Sidebar";
 import UserChat from "../components/Chat/UserChat";
@@ -10,9 +9,7 @@ const Chat = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [activeTab, setActiveTab] = useState('chats');
   const [isExiting, setIsExiting] = useState(false);
-  const isCompactMobile = useMediaQuery(
-    '(orientation: portrait) and (max-width: 768px)'
-  );
+  const isCompactMobile = useMediaQuery('(orientation: portrait) and (max-width: 768px)');
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -28,9 +25,8 @@ const Chat = () => {
   const showSidebar = !isCompactMobile || (isCompactMobile && selectedUser === null);
   const showUserChat = !isCompactMobile || (isCompactMobile && selectedUser !== null);
 
-  const handleUserClick = (user) => {
-    setSelectedUser(user);
-    setActiveTab('chats');
+  const handleChatItemClick = (item) => {
+    setSelectedUser(item); // could be a user OR group
   };
 
   const handleClose = () => {
@@ -54,9 +50,9 @@ const Chat = () => {
     else if (activeTab === 'meetings') path = '/meetings';
 
     setSelectedUser(null)
-  
+
     if (window.location.pathname !== path) {
-      navigate(path, {replace : true})
+      navigate(path, { replace: true })
     }
   }, [activeTab]);
 
@@ -64,15 +60,14 @@ const Chat = () => {
     <div style={{ display: 'flex', width: '100%', height: '100vh', overflow: 'hidden' }}>
       {showSidebar && (
         <Sidebar
-          onUserClick={handleUserClick}
+          onUserClick={handleChatItemClick}
           activeTab={activeTab}
           setActiveTab={handleTabChange}
         />
       )}
       {showUserChat && (
         <div
-          className={`${styles.userChatWrapper} ${isCompactMobile ? (isExiting ? styles.exitMobile : styles.mobile) : ''
-            }`}
+          className={`${styles.userChatWrapper} ${isCompactMobile ? (isExiting ? styles.exitMobile : styles.mobile) : ''}`}
         >
           <UserChat
             selectedUser={selectedUser}
