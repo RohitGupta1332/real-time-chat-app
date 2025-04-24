@@ -1,0 +1,119 @@
+.fullPage {
+    height: 100vh;
+    width: 100%;
+    max-width: 400px;
+    background-color: #1a1a1a;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    border-left: 0.5px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Top Header with Close Icon */
+.topHeader {
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px 20px;
+}
+
+.closeIcon {
+    margin-top: 10px;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+/* Header Section */
+.header {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    width: 100%;
+}
+
+.groupIcon {
+    width: 60px;
+    height: 60px;
+    background-color: #333;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.groupDetails h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.groupDetails p {
+    margin: 5px 0 0;
+    font-size: 14px;
+    color: #aaa;
+}
+
+/* Options Section */
+.options {
+    width: 100%;
+    padding: 0 20px;
+}
+
+.optionButton {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 10px 0;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.optionButton .icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+}
+
+/* Tabs Section */
+.tabs {
+    margin-top: 20px;
+    display: flex;
+    width: 100%;
+    padding: 10px 20px;
+    border-bottom: 1px solid #333;
+    justify-content: flex-start;
+}
+
+/* Members List */
+.membersList {
+    width: 100%;
+    /* padding: 10px 20px; */
+    flex: 1;
+    overflow-y: auto;
+}
+
+.member {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.memberIcon {
+    width: 40px;
+    height: 40px;
+    background-color: #333;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.adminBadge {
+    margin-left: auto;
+    background-color: #4a00e0;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+}

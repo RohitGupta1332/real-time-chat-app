@@ -131,7 +131,7 @@ export const sendMessage = async (req, res) => {
 
 export const fetchGroupMembers = async (req, res) => {
     try {
-        const { group_id } = req.body;
+        const { group_id } = req.query;
         const groupDetail = await GroupMember.find({ group_id }).populate("group_id");
         if (!groupDetail) {
             return res.status(404).json({ message: "Group not found" });
