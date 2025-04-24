@@ -15,6 +15,7 @@ import { MdGroupAdd } from "react-icons/md";
 
 import LockTalk from '../../assets/LockTalk.png';
 import Logo from '../../assets/Logo.png';
+import AiImage from '../../assets/Ai.jpg'
 
 import styles from '../../styles/sidebar.module.css';
 
@@ -80,7 +81,7 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
   return (
     <>
       {showGroupAdd && (
-        <GroupAdd users={userList} onClose={() => setShowGroupAdd(false)} />
+        <GroupAdd users={userList} setShowGroupAdd={setShowGroupAdd}/>
       )}
 
       <div className={`${styles.sidebar} ${isShrunk && !isMobile ? styles.shrunk : ''}`}>
@@ -142,6 +143,7 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
                       name={user.name}
                       image={user.image}
                       bio={user.bio}
+                      time={""}
                       onUserClick={() => onUserClick(user)}
                     />
                   ))
@@ -173,8 +175,9 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
                 id={"ai-bot-id-001"}
                 userId={"ai-bot-uuid-1234567890"}
                 name={"Astra"}
-                image={""}
+                image={AiImage}
                 bio={"Heyy, I'm Astra"}
+                time={""}
                 onUserClick={() => { }}
               />
             </div>
@@ -209,6 +212,7 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
                     name={group.group_name}
                     image={icon || ""}
                     bio={group.description || "Group chat"}
+                    time={""}
                     onUserClick={() => onUserClick(group)}
                   />
                 );

@@ -6,19 +6,18 @@ import Crop from "../Crop";
 import styles from '../../styles/groupAdd.module.css';
 import DefaultImage from '../../assets/default-profile.png'
 
-const GroupAdd = ({ users, onClose }) => {
+const GroupAdd = ({ users, setShowGroupAdd}) => {
   const [groupName, setGroupName] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [groupDescription, setGroupDescription] = useState("");
   const [imageToCrop, setImageToCrop] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null); // For previewing the image
+  const [imagePreview, setImagePreview] = useState(null);
 
   const { searchUser, searchResult } = useAuthStore();
   const { createGroup } = useGroupStore();
 
-  // Hidden file input ref
   const fileInputRef = React.useRef(null);
 
   useEffect(() => {
@@ -51,6 +50,7 @@ const GroupAdd = ({ users, onClose }) => {
 
     const user_ids = selectedMembers.map((u) => u.userId);
     createGroup(groupName, user_ids, groupDescription, croppedImage);
+    setShowGroupAdd(false);
   };
 
   const filteredUsers = searchTerm ? getFilteredUsers(searchResult) : getFilteredUsers(users);
@@ -76,12 +76,11 @@ const GroupAdd = ({ users, onClose }) => {
       .then((blob) => {
         const file = new File([blob], "group-icon.jpg", { type: "image/jpeg" });
         setCroppedImage(file);
-        setImagePreview(croppedImageUrl); // Update preview with cropped image
+        setImagePreview(croppedImageUrl);
         setImageToCrop(null);
       });
   };
 
-  // Trigger file input click when circle is clicked
   const handleCircleClick = () => {
     fileInputRef.current.click();
   };
@@ -91,11 +90,10 @@ const GroupAdd = ({ users, onClose }) => {
       <div className={styles.groupAddContainer}>
         <div className={styles.groupAddHeader}>
           <h2>Create a New Group</h2>
-          <button className={styles.closeButton} onClick={onClose}>×</button>
+          <button className={styles.closeButton} onClick={() => setShowGroupAdd(false)}>×</button>
         </div>
 
         <div className={styles.groupAddInput}>
-          {/* Circular Image Preview */}
           <div
             className={styles.groupIconCircle}
             onClick={handleCircleClick}
@@ -105,13 +103,12 @@ const GroupAdd = ({ users, onClose }) => {
               backgroundPosition: 'center',
             }}
           />
-          {/* Hidden File Input */}
           <input
             type="file"
             accept="image/*"
             onChange={handleImageChange}
             ref={fileInputRef}
-            style={{ display: 'none' }} // Hidden input
+            style={{ display: 'none' }}
           />
           <input
             type="text"
@@ -132,7 +129,6 @@ const GroupAdd = ({ users, onClose }) => {
         />
         </div>
 
-        {/* Show the cropping modal if an image is selected */}
         {imageToCrop && (
           <Crop
             imageToCrop={imageToCrop}

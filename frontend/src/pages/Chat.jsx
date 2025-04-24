@@ -34,6 +34,10 @@ const Chat = () => {
   const handleClose = () => {
     if (isCompactMobile) {
       setIsExiting(true);
+      setTimeout(() => {
+        setSelectedUser(null);
+        setIsExiting(false);
+      }, 200);
     } else {
       setSelectedUser(null);
       if (selectedUser?.isGroup) {

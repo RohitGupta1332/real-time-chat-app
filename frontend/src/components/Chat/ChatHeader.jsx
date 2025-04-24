@@ -35,7 +35,7 @@ const ChatHeader = ({ selectedUser, onInfoClick, onClose }) => {
               }`}
           >
             {selectedUser?.isGroup
-              ? selectedUser.group_description || 'Group'
+              ? selectedUser.description || 'Group'
               : isAiBot
                 ? 'Online'
                 : isUserTyping

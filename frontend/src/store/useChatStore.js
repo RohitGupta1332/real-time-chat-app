@@ -131,16 +131,33 @@ export const useChatStore = create((set, get) => ({
 
     chatWithAI: async (prompt) => {
         set({ isResponseLoading: true });
+    
+        const tempId = `ai-${Date.now()}`;
+        const placeholder = { _id: tempId, prompt, response: null, createdAt: new Date().toISOString() };
+    
+        set((state) => ({
+            aiMessages: [...state.aiMessages, placeholder],
+        }));
+    
         try {
             const response = await axiosInstance.post("/messages/ai", { prompt });
             const result = response.data;
+    
             set((state) => ({
-                aiMessages: [...state.aiMessages, { prompt, response: result.data }],
+                aiMessages: state.aiMessages.map((msg) =>
+                    msg._id === tempId
+                        ? {
+                            ...msg,
+                            response: result.data,
+                            createdAt: result.createdAt || msg.createdAt,
+                        }
+                        : msg
+                ),
             }));
         } catch (error) {
             toast.error(error?.response?.data?.message || "Something went wrong!");
         } finally {
             set({ isResponseLoading: false });
         }
-    },
+    }    
 }));

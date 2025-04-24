@@ -27,11 +27,14 @@ export const useGroupStore = create((set, get) => ({
   },
 
   fetchGroupMessages: async (group_id) => {
+    console.log('Fetching messages for group:', group_id);
     set({ isGroupMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/group/messages/${group_id}`);
+      console.log('Messages received:', res.data.messages);
       set({ groupMessages: res.data.messages });
     } catch (error) {
+      console.error('Fetch error:', error.response?.data || error.message);
       toast.error(error?.response?.data?.message || "Could not fetch group messages");
     } finally {
       set({ isGroupMessagesLoading: false });
@@ -39,13 +42,16 @@ export const useGroupStore = create((set, get) => ({
   },
 
   sendGroupMessage: async (group_id, text, file) => {
+    if (!group_id) {
+      toast.error("Invalid group ID");
+      return;
+    }
     set({ isSendingGroupMessage: true });
     try {
       const formData = new FormData();
       formData.append("group_id", group_id);
       formData.append("text", text);
       if (file) formData.append("media", file);
-
       const res = await axiosInstance.post("/group/send", formData);
       set((state) => ({
         groupMessages: [...state.groupMessages, res.data.newMessage],

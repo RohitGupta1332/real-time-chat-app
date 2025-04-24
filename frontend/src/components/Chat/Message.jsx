@@ -1,16 +1,12 @@
 import styles from '../../styles/userChat.module.css';
 import { IoDocumentTextSharp } from 'react-icons/io5';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import AudioPlayer from '../AudioPlayer';
 
-// Import the MarkdownView component from react-showdown
 import MarkdownView from 'react-showdown';
 
 const Message = ({ message, isUserMessage, isLastMessage }) => {
-    // Remove the require and new showdown.Converter() lines
-    // const showdown = require('showdown');
-    // const converter = new showdown.Converter();
 
     const [fullImageUrl, setFullImageUrl] = useState(null);
 
@@ -21,8 +17,16 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
         setFullImageUrl(null);
     };
 
-    // Remove your custom markdownToHTML function
-    // const markdownToHTML = (markdown) => { ... };
+    const [_, setCurrentTime] = useState(Date.now());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentTime(Date.now());
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, []);
+
 
     const formatTime = (createdAt) => {
         const msgDate = createdAt ? new Date(createdAt) : null;
@@ -43,10 +47,6 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
             minute: '2-digit',
         });
     };
-
-    // You no longer need to manually convert the text here
-    // const formattedText = converter.makeHtml(message.text || '');
-    // const formattedText = markdownToHTML(message.text || ''); // Also remove this
 
     const fileName = message.media;
     const fileUrl = fileName ? `http://localhost:3000/uploads/${fileName}` : '';

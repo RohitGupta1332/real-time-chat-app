@@ -1,7 +1,7 @@
-// src/components/Chat/UserChat.jsx
 import { useState, useEffect } from 'react';
 import { useChatStore } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/userAuth';
+import { useGroupStore } from '../../store/useGroupStore'; // Add import
 import ProfileView from '../ProfileView.jsx';
 import ChatHeader from './ChatHeader.jsx';
 import MessageList from './MessageList.jsx';
@@ -14,11 +14,12 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
   const [showProfileView, setShowProfileView] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
   const { getMessages, listenMessages } = useChatStore();
+  const { listenGroupMessages } = useGroupStore(); // Add hook
   const { onlineUsers } = useAuthStore();
+  const isGroup = selectedUser?.isGroup; // Check if group
 
   useEffect(() => {
     if (!onlineUsers || onlineUsers.length === 0) return;
-
     const unsubscribeFunctions = [];
     let CurrentUsers = onlineUsers.filter((userId) => userId !== selectedUser?.userId);
     CurrentUsers.forEach((userId) => {
@@ -27,7 +28,6 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
         unsubscribeFunctions.push(unsubscribe);
       }
     });
-
     return () => {
       unsubscribeFunctions.forEach((unsubscribe) => {
         unsubscribe();
@@ -36,16 +36,19 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
   }, [onlineUsers, listenMessages, selectedUser]);
 
   useEffect(() => {
-    if (!selectedUser?.userId) return;
-
-    const unsubscribe = listenMessages(selectedUser);
-
+    if (!selectedUser?.userId && !isGroup) return;
+    let unsubscribe;
+    if (isGroup) {
+      unsubscribe = listenGroupMessages(selectedUser.groupId); // Listen for group messages
+    } else {
+      unsubscribe = listenMessages(selectedUser);
+    }
     return () => {
       if (typeof unsubscribe === 'function') {
         unsubscribe();
       }
     };
-  }, [selectedUser]);
+  }, [selectedUser, isGroup, listenMessages, listenGroupMessages]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -57,7 +60,6 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
         }
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -65,13 +67,13 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
   }, [selectedUser, showProfileView, setSelectedUser]);
 
   useEffect(() => {
-    if (selectedUser?.userId) {
+    if (selectedUser?.userId && !isGroup) {
       getMessages(selectedUser.userId);
       useChatStore.setState((state) => ({
         unreadMessages: state.unreadMessages.filter((msg) => msg.senderId !== selectedUser.userId),
       }));
     }
-  }, [selectedUser, getMessages]);
+  }, [selectedUser, getMessages, isGroup]);
 
   if (showProfileView) {
     return (
@@ -95,7 +97,7 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
     );
   }
 
-  if (selectedUser?.isGroup) {
+  if (isGroup) {
     return <GroupChatView group={selectedUser} onClose={onClose} />;
   }
 
