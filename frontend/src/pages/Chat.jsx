@@ -26,18 +26,26 @@ const Chat = () => {
   const showUserChat = !isCompactMobile || (isCompactMobile && selectedUser !== null);
 
   const handleChatItemClick = (item) => {
-    setSelectedUser(item); // could be a user OR group
+    const isGroup = !!item.group_name; 
+    setSelectedUser({ ...item, isGroup });
   };
+
 
   const handleClose = () => {
     if (isCompactMobile) {
       setIsExiting(true);
     } else {
       setSelectedUser(null);
-      setActiveTab('chats');
-      window.history.pushState(null, "", "/chat");
+      if (selectedUser?.isGroup) {
+        setActiveTab('groups');
+        navigate('/groups');
+      } else {
+        setActiveTab('chats');
+        navigate('/chat');
+      }
     }
   };
+  
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -49,10 +57,10 @@ const Chat = () => {
     else if (activeTab === 'groups') path = '/groups';
     else if (activeTab === 'meetings') path = '/meetings';
 
-    setSelectedUser(null)
+    setSelectedUser(null);
 
     if (window.location.pathname !== path) {
-      navigate(path, { replace: true })
+      navigate(path, { replace: true });
     }
   }, [activeTab]);
 

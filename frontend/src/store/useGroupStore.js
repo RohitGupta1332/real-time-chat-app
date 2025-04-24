@@ -57,20 +57,49 @@ export const useGroupStore = create((set, get) => ({
     }
   },
 
-  createGroup: async (group_name, user_ids = []) => {
+  createGroup: async (group_name, user_ids = [], group_description, group_icon) => {
     try {
-      const res = await axiosInstance.post("/group/create", { group_name });
+      const formData = new FormData();
+      formData.append("group_name", group_name);
+      formData.append("description", group_description);
+  
+      if (group_icon) {
+        formData.append("group_icon", group_icon);
+      }
+
+      const response = await axiosInstance.post("/group/create", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      const group = response?.data?.group;
+  
+      if (!group || !group._id) {
+        throw new Error("Invalid group data received from the server");
+      }
       toast.success("Group created successfully");
-      const group_id = res.data.group._id;
+  
       if (user_ids.length > 0) {
-        await get().addGroupMembers(group_id, user_ids);
+        try {
+          await get().addGroupMembers(group._id, user_ids);
+        } catch (memberError) {
+          toast.error("Failed to add group members");
+          console.error("Add group members error:", memberError);
+        }
       }
   
-      get().fetchGroups();
+      await get().fetchGroups();
+  
+      return group;
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to create group");
+      const errorMessage = error?.response?.data?.message || "Failed to create group";
+      toast.error(errorMessage);
+      console.error("Create group error:", error);
+      throw error;
     }
-  },
+  }, 
+  
   
 
   deleteGroup: async (group_id) => {

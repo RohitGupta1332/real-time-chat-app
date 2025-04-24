@@ -8,6 +8,7 @@ import MessageList from './MessageList.jsx';
 import ChatInput from './ChatInput.jsx';
 import styles from '../../styles/userChat.module.css';
 import AiPage from '../AiPage.jsx';
+import GroupChatView from './GroupChatView.jsx';
 
 const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
   const [showProfileView, setShowProfileView] = useState(false);
@@ -92,6 +93,10 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
         onClose={() => setShowProfileView(false)}
       />
     );
+  }
+
+  if (selectedUser?.isGroup) {
+    return <GroupChatView group={selectedUser} onClose={onClose} />;
   }
 
   return (

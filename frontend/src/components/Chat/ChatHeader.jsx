@@ -17,31 +17,33 @@ const ChatHeader = ({ selectedUser, onInfoClick, onClose }) => {
     <div className={styles.chatHeader}>
       <div className={styles.userInfo}>
         <img
-          src={selectedUser.image || DefaultPic}
+          src={selectedUser.image || `http://localhost:3000/uploads/${selectedUser.group_icon}` || DefaultPic}
           alt="Profile"
           className={styles.headerAvatar}
           onClick={isAiBot ? undefined : onInfoClick}
         />
         <div>
-          <h3 className={styles.headerName}>{selectedUser.name}</h3>
+          <h3 className={styles.headerName}>{selectedUser.name || selectedUser.group_name}</h3>
           <span
-            className={`${styles.status} ${
-              isAiBot
+            className={`${styles.status} ${isAiBot
                 ? styles.active
                 : isUserTyping
                   ? styles.typing
                   : onlineUsers.includes(selectedUser.userId)
                     ? styles.active
                     : styles.inactive
-            }`}
+              }`}
           >
-            {isAiBot
-              ? 'Online'
-              : isUserTyping
-                ? 'Typing...'
-                : onlineUsers.includes(selectedUser.userId)
-                  ? 'Online'
-                  : 'Offline'}
+            {selectedUser?.isGroup
+              ? selectedUser.group_description || 'Group'
+              : isAiBot
+                ? 'Online'
+                : isUserTyping
+                  ? 'Typing...'
+                  : onlineUsers.includes(selectedUser.userId)
+                    ? 'Online'
+                    : 'Offline'}
+
           </span>
         </div>
       </div>

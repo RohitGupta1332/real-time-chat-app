@@ -32,11 +32,7 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
 
   useEffect(() => {
       fetchGroups();
-  }, [fetchGroups]);
-
-  console.log(groups)
-
-  console.log(groups)
+  }, [fetchGroups, activeTab]);
 
   useEffect(() => {
       getUsersForSidebar();
@@ -101,8 +97,8 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
           <div className={`${styles.icons} ${isShrunk && !isMobile ? styles.shrunkIcons : ''}`}>
             <FiUser style={{ cursor: 'pointer' }} onClick={() => navigate('/profile/view')} />
             <MdGroupAdd style={{ cursor: 'pointer' }} onClick={() => {
-              navigate('/groups')
-              setShowGroupAdd(true)
+              navigate('/groups');
+              setShowGroupAdd(true);
             }} />
             {!isMobile && (
               isShrunk ? (
@@ -138,7 +134,7 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
                 ) : userList.length === 0 ? (
                   <p>No chats yet</p>
                 ) : (
-                  userList.map((user, index) => (
+                  userList.filter(user => user !== null && user !== undefined).map((user, index) => (
                     <UserChatItem
                       key={user._id || index}
                       id={user._id}
@@ -205,18 +201,18 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
             <div className={styles.userList}>
               {groups.map(groupMembership => {
                 const group = groupMembership.group_id;
+                const icon = group.group_icon? `http://localhost:3000/uploads/${group.group_icon}` : '';
                 return (
                   <UserChatItem
                     key={group._id}
                     id={group._id}
                     name={group.group_name}
-                    image={group.group_icon || ""}
+                    image={icon || ""}
                     bio={group.description || "Group chat"}
                     onUserClick={() => onUserClick(group)}
                   />
                 );
-              })
-              }
+              })}
             </div>
           </>
         }
