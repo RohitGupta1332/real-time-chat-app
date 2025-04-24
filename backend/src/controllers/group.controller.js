@@ -28,7 +28,7 @@ export const fetchGroups = async (req, res) => {
         const memberships = await GroupMember.find({ user_id: userId })
             .populate("group_id")
 
-        res.status(200).json({ memberships });
+        res.status(200).json({ message: "Fetched group successfully", memberships });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
@@ -79,9 +79,6 @@ export const deleteGroup = async (req, res) => {
         }
         const deletedGroup = await Group.findByIdAndDelete(group_id);
 
-        if (!deletedGroup) {
-            return res.status(404).json({ message: "Group not found" });
-        }
         await GroupMember.deleteMany({ group_id });
         await GroupMessage.deleteMany({ group_id });
         res.status(200).json({ message: "Group deleted successfully" });
@@ -91,28 +88,24 @@ export const deleteGroup = async (req, res) => {
     }
 }
 
-export const fetchGroupMessage = async (req, res) => {
+export const fetchGroupMessages = async (req, res) => {
     try {
         const { group_id } = req.params;
-
         const groupExists = await Group.findById(group_id);
         if (!groupExists) {
-            return res.status(404).json({ message: "Group not found" });
+            return res.status(404).json({ message: "Group not found!" });
         }
-
-        const messages = await GroupMessage.find({ group_id })
-            .populate("sender_id", "username email")
-            .sort({ createdAt: 1 });
-
+        const messages = await GroupMessage.find({ group_id }).populate("sender_id", "username email").sort({ createdAt: 1 });
         res.status(200).json({ message: "Messages fetched successfully", messages });
     } catch (error) {
-        res.status(500).json({ message: "Internal server error", error: error.message || error });
+        res.status(500).json({ message: "Internal server error", error: error?.message || error })
     }
 }
 
 export const sendMessage = async (req, res) => {
     try {
-        const { group_id, sender_id, text } = req.body;
+        const { group_id, text } = req.body;
+        const sender_id = req.user.userId;
         const groupExists = await Group.findOne({ _id: group_id });
         if (!groupExists) {
             return res.status(404).json({ message: "Group not found!" });
@@ -126,24 +119,37 @@ export const sendMessage = async (req, res) => {
             text,
             media: mediaUrl
         });
-        io.to(group_id).emit("newMessage", newMessage);
+        io.to(group_id).emit("groupMessage", newMessage);
         res.status(201).json({ message: "Message sent successfully", newMessage });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
 }
 
-export const fetchGroupMessages = async (req, res) => {
+export const fetchGroupMembers = async (req, res) => {
     try {
-        const groud_id = req.params;
-        const groupExists = await Group.findById(group_id);
-        if (!groupExists) {
-            return res.status(404).json({ message: "Group not found!" });
+        const { group_id } = req.body;
+        const groupDetail = await GroupMember.find({ group_id}).populate("group_id");
+        if (!groupDetail) {
+            return res.status(404).json({ message: "Group not found" });
         }
-        const messages = await GroupMessage.find({ group_id }).populate("sender_id", "username email").sort({ createdAt: 1 });
-        res.status(200).json({ message: "Messages fetched successfully", messages });
+        return res.status(200).json({ message: "Group members fetched successfully", groupDetail })
+
     } catch (error) {
-        res.status(500).json({ message: "Internal server error", error: error?.message || error })
+        res.status(500).json({ message: "Internal server error", error: error?.message || error });
     }
 }
-//add fetchGroupMembers and deleteGroupMembers (only admin can delete?)
+
+export const removeGroupMember = async (req, res) => {
+    try {
+        const { group_id, user_id } = req.body;
+        const member = await GroupMember.findOne({ group_id, user_id });
+        if (!member) {
+            return res.status(404).json({ message: "Member not found in group" });
+        }
+        await GroupMember.deleteOne({ group_id, user_id });
+        res.status(200).json({ message: "Member removed successfully" })
+    } catch (error) {
+        res.status(500).json({ message: "Internal server error", error: error?.message || error });
+    }
+}
