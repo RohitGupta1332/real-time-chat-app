@@ -5,10 +5,13 @@ import { io } from "../lib/socket.js";
 
 export const createGroup = async (req, res) => {
     try {
-        const { group_name } = req.body;
+        const { group_name, description } = req.body;
         const created_by = req.user.userId;
+        const group_icon = req.file?.filename || "";
         const group = await Group.create({
             group_name,
+            group_icon,
+            description,
             created_by
         });
         const addMember = await GroupMember.create({
@@ -20,7 +23,7 @@ export const createGroup = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
-}
+};
 
 export const fetchGroups = async (req, res) => {
     try {
@@ -64,7 +67,7 @@ export const addGroupMembers = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
-}
+};
 
 export const deleteGroup = async (req, res) => {
     try {
@@ -86,7 +89,7 @@ export const deleteGroup = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error?.message || error })
     }
-}
+};
 
 export const fetchGroupMessages = async (req, res) => {
     try {
@@ -100,7 +103,7 @@ export const fetchGroupMessages = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error?.message || error })
     }
-}
+};
 
 export const sendMessage = async (req, res) => {
     try {
@@ -124,12 +127,12 @@ export const sendMessage = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
-}
+};
 
 export const fetchGroupMembers = async (req, res) => {
     try {
         const { group_id } = req.body;
-        const groupDetail = await GroupMember.find({ group_id}).populate("group_id");
+        const groupDetail = await GroupMember.find({ group_id }).populate("group_id");
         if (!groupDetail) {
             return res.status(404).json({ message: "Group not found" });
         }
@@ -138,7 +141,7 @@ export const fetchGroupMembers = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error?.message || error });
     }
-}
+};
 
 export const removeGroupMember = async (req, res) => {
     try {
@@ -152,4 +155,4 @@ export const removeGroupMember = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error?.message || error });
     }
-}
+};

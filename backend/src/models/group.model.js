@@ -5,6 +5,12 @@ const groupSchema = new Schema({
         type: String,
         required: true
     },
+    group_icon: {
+        type: String,
+    },
+    description: {
+        type: String
+    },
     created_by: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

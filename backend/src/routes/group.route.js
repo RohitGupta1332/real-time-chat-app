@@ -4,7 +4,7 @@ import { upload } from "../utils/multer.js";
 import { addGroupMembers, createGroup, deleteGroup, fetchGroupMembers, fetchGroupMessages, fetchGroups, removeGroupMember, sendMessage } from "../controllers/group.controller.js";
 
 const route = express.Router();
-route.post("/create", protectRoute, createGroup);
+route.post("/create", protectRoute, upload.single("group_icon"), createGroup);
 route.post("/add-members", protectRoute, addGroupMembers);
 route.post("/send", protectRoute, upload.single("media"), sendMessage);
 route.get("/get-groups", protectRoute, fetchGroups);
