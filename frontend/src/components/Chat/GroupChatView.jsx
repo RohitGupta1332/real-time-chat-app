@@ -19,7 +19,7 @@ const GroupChatView = ({ group, onClose }) => {
         <MessageList selectedUser={group} />
         <ChatInput selectedUser={group} />
       </div>
-      {showGroupInfo && <GroupInfo setShowGroupInfo={setShowGroupInfo} group={group}/>}
+      {showGroupInfo && <GroupInfo setShowGroupInfo={setShowGroupInfo} group={group} onClose={onClose}/>}
     </div>
   );
 };

@@ -12,12 +12,13 @@ const ChatHeader = ({ selectedUser, onInfoClick, onClose }) => {
   const { onlineUsers } = useAuthStore();
 
   const isAiBot = selectedUser?.userId === AI_BOT_USER_ID;
+  const group_image = selectedUser?.group_icon? `http://localhost:3000/uploads/${selectedUser.group_icon}` : ""
 
   return (
     <div className={styles.chatHeader}>
       <div className={styles.userInfo}>
         <img
-          src={selectedUser.image || `http://localhost:3000/uploads/${selectedUser.group_icon}` || DefaultPic}
+          src={selectedUser.image || group_image || DefaultPic}
           alt="Profile"
           className={styles.headerAvatar}
           onClick={isAiBot ? undefined : onInfoClick}
