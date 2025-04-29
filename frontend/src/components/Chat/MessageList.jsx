@@ -7,15 +7,16 @@ import { useEffect, useRef, useState } from 'react';
 
 const MessageList = ({ selectedUser }) => {
   const { messages, aiMessages, unreadMessages, getMessages, getAIMessages } = useChatStore();
-  const { groupMessages, fetchGroupMessages } = useGroupStore(); // Add hook
-  const { authUser } = useAuthStore();
+  const { groupMessages, fetchGroupMessages } = useGroupStore();
+  const { authUser, viewProfile } = useAuthStore();
   const messagesContainerRef = useRef(null);
   const [unreadIndex, setUnreadIndex] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [currentUser, setCurrentUser] = useState("Amira")
   const initialUnreadMessagesRef = useRef([]);
   const prevSelectedUserRef = useRef(null);
   const isAI = selectedUser?.userId === 'ai-bot-uuid-1234567890';
-  const isGroup = selectedUser?.isGroup; // Check if group
+  const isGroup = selectedUser?.isGroup; 
 
   const hasFetchedMessagesRef = useRef(false);
 
@@ -35,6 +36,22 @@ const MessageList = ({ selectedUser }) => {
       year: 'numeric',
     });
   };
+
+  const profile = async (user_id) => {
+    try {
+      const response = await viewProfile({ userId: user_id });
+      const profile = response.profile;
+      if(user_id === authUser?._id) {
+        setCurrentUser(profile?.name)
+      }
+    } catch (e) {
+      console.error("Error occured", e)
+    }
+  }
+
+  useEffect( () => {
+    profile(authUser._id);
+  }, [])
 
   const userMessages = messages.filter(
     (msg) =>
@@ -63,7 +80,7 @@ const MessageList = ({ selectedUser }) => {
       }
     } else if (isGroup) {
       if (selectedUser?.groupId && !hasFetchedMessagesRef.current) {
-        fetchGroupMessages(selectedUser.groupId); // Fetch group messages
+        fetchGroupMessages(selectedUser.groupId);
         hasFetchedMessagesRef.current = true;
       }
     } else {
@@ -167,7 +184,10 @@ const MessageList = ({ selectedUser }) => {
             )}
             {!isAI && (
               <Message
-                message={msg}
+                message={{
+                  msg : msg,
+                  name : isUserMessage?currentUser:selectedUser?.name
+                }}
                 isUserMessage={isUserMessage}
                 isLastMessage={true}
               />

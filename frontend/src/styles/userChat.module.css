@@ -91,6 +91,14 @@
     border-radius: 6px;
 }
 
+.userName {
+    font-style: italic;
+    padding-top: 8px;
+    color: #cccccc;
+    margin-bottom: 5px;
+    margin-top: -12px;
+    font-weight: 600;
+}
 
 .messages::-webkit-scrollbar {
     width: 2px;

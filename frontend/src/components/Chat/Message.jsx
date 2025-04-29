@@ -48,7 +48,7 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
         });
     };
 
-    const fileName = message.media;
+    const fileName = message.msg.media;
     const fileUrl = fileName ? `http://localhost:3000/uploads/${fileName}` : '';
 
     const ext = fileName && fileName.split('.').pop().toLowerCase();
@@ -59,8 +59,9 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
                 } ${isLastMessage ? styles.newMessage : ''}`}
         >
             <div className={styles.messageText}>
+                <div className={styles.userName}>{message.name}</div>
 
-                {message.media && (
+                {message.msg.media && (
                     <div className={styles.mediaContainer}>
                         {['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'heic', 'heif', 'raw', 'psd', 'ai', 'eps'].includes(ext) && (
                             <img src={fileUrl} alt="Sent" className={styles.messageImage} onClick={() => openImage(fileUrl)} />
@@ -81,14 +82,14 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
                         )}
                     </div>
                 )}
-                {message.text && (
+                {message.msg.text && (
                     <MarkdownView
-                        markdown={message.text}
+                        markdown={message.msg.text}
                         options={{ tables: true, emoji: true }}
                     />
                 )}
 
-                <span className={styles.messageTime}>{formatTime(message.createdAt)}</span>
+                <span className={styles.messageTime}>{formatTime(message.msg.createdAt)}</span>
             </div>
             {fullImageUrl && (
                 <div className={styles.fullscreenOverlay} onClick={closeImage}>
