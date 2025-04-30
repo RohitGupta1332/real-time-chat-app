@@ -4,9 +4,34 @@ import { useState, useEffect } from 'react';
 
 import AudioPlayer from '../AudioPlayer';
 
+import { useAuthStore } from '../../store/userAuth';
+
 import MarkdownView from 'react-showdown';
 
 const Message = ({ message, isUserMessage, isLastMessage }) => {
+
+    const {viewProfile, authUser} = useAuthStore()
+    const [name, setName] = useState("")
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                if (message.senderId === authUser._id) {
+                    setName("You")
+                    return
+                }
+                const response = await viewProfile({ userId: message.senderId });
+                const profile = response.profile;
+                setName(profile?.name || '');
+            } catch (e) {
+                console.error("Error fetching profile", e);
+            }
+        };
+    
+        if (message.senderId) {
+            fetchProfile();
+        }
+    }, [message.senderId]);
 
     const [fullImageUrl, setFullImageUrl] = useState(null);
 
@@ -48,7 +73,7 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
         });
     };
 
-    const fileName = message.msg.media;
+    const fileName = message.media;
     const fileUrl = fileName ? `http://localhost:3000/uploads/${fileName}` : '';
 
     const ext = fileName && fileName.split('.').pop().toLowerCase();
@@ -59,9 +84,9 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
                 } ${isLastMessage ? styles.newMessage : ''}`}
         >
             <div className={styles.messageText}>
-                <div className={styles.userName}>{message.name}</div>
+                <div className={styles.userName}>{name}</div>
 
-                {message.msg.media && (
+                {message.media && (
                     <div className={styles.mediaContainer}>
                         {['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'heic', 'heif', 'raw', 'psd', 'ai', 'eps'].includes(ext) && (
                             <img src={fileUrl} alt="Sent" className={styles.messageImage} onClick={() => openImage(fileUrl)} />
@@ -82,14 +107,14 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
                         )}
                     </div>
                 )}
-                {message.msg.text && (
+                {message.text && (
                     <MarkdownView
-                        markdown={message.msg.text}
+                        markdown={message.text}
                         options={{ tables: true, emoji: true }}
                     />
                 )}
 
-                <span className={styles.messageTime}>{formatTime(message.msg.createdAt)}</span>
+                <span className={styles.messageTime}>{formatTime(message.createdAt)}</span>
             </div>
             {fullImageUrl && (
                 <div className={styles.fullscreenOverlay} onClick={closeImage}>

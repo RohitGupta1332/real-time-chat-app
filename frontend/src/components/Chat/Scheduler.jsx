@@ -31,10 +31,10 @@ const Scheduler = ({ onScheduleSet, onClose }) => {
         className={styles.dateTimePicker}
       />
       <div className={styles.buttonGroup}>
-        <button onClick={onClose} className={`${styles.button} ${styles.cancelButton}`}>
+        <button onClick={onClose} className={`${styles.button} ${styles.cancelButton}`} style={{fontSize : '0.85rem'}}>
           Cancel
         </button>
-        <button onClick={handleConfirm} className={`${styles.button} ${styles.confirmButton}`}>
+        <button onClick={handleConfirm} className={`${styles.button} ${styles.confirmButton}`} style={{fontSize : '0.85rem'}}>
           Confirm
         </button>
       </div>

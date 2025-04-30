@@ -66,9 +66,10 @@ export const getMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
     try {
-        const { message } = req.body;
+        const { message, scheduleTime } = req.body;
+
         const { id: receiverId } = req.params;
-        const senderId = req.user.userId; //loggedIn person
+        const senderId = req.user.userId;
         let mediaUrl = req.file?.filename || "";
 
         const newMessage = await Message.create({

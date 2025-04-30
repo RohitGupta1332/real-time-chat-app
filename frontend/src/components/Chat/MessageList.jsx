@@ -1,22 +1,21 @@
 import { useAuthStore } from '../../store/userAuth';
 import { useChatStore } from '../../store/useChatStore';
-import { useGroupStore } from '../../store/useGroupStore'; // Add import
+import { useGroupStore } from '../../store/useGroupStore';
 import Message from './Message.jsx';
 import styles from '../../styles/userChat.module.css';
 import { useEffect, useRef, useState } from 'react';
 
 const MessageList = ({ selectedUser }) => {
   const { messages, aiMessages, unreadMessages, getMessages, getAIMessages } = useChatStore();
-  const { groupMessages, fetchGroupMessages } = useGroupStore();
-  const { authUser, viewProfile } = useAuthStore();
+  const { groupMessages, fetchGroupMessages, listenGroupMessages } = useGroupStore();
+  const { authUser } = useAuthStore();
   const messagesContainerRef = useRef(null);
   const [unreadIndex, setUnreadIndex] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [currentUser, setCurrentUser] = useState("Amira")
   const initialUnreadMessagesRef = useRef([]);
   const prevSelectedUserRef = useRef(null);
   const isAI = selectedUser?.userId === 'ai-bot-uuid-1234567890';
-  const isGroup = selectedUser?.isGroup; 
+  const isGroup = selectedUser?.isGroup;
 
   const hasFetchedMessagesRef = useRef(false);
 
@@ -36,22 +35,6 @@ const MessageList = ({ selectedUser }) => {
       year: 'numeric',
     });
   };
-
-  const profile = async (user_id) => {
-    try {
-      const response = await viewProfile({ userId: user_id });
-      const profile = response.profile;
-      if(user_id === authUser?._id) {
-        setCurrentUser(profile?.name)
-      }
-    } catch (e) {
-      console.error("Error occured", e)
-    }
-  }
-
-  useEffect( () => {
-    profile(authUser._id);
-  }, [])
 
   const userMessages = messages.filter(
     (msg) =>
@@ -73,14 +56,18 @@ const MessageList = ({ selectedUser }) => {
     : userMessages;
 
   useEffect(() => {
+    hasFetchedMessagesRef.current = false;
+  }, [selectedUser]);
+
+  useEffect(() => {
     if (isAI) {
       if (!hasFetchedMessagesRef.current) {
         getAIMessages();
         hasFetchedMessagesRef.current = true;
       }
     } else if (isGroup) {
-      if (selectedUser?.groupId && !hasFetchedMessagesRef.current) {
-        fetchGroupMessages(selectedUser.groupId);
+      if (selectedUser?._id && !hasFetchedMessagesRef.current) {
+        fetchGroupMessages(selectedUser._id);
         hasFetchedMessagesRef.current = true;
       }
     } else {
@@ -89,7 +76,7 @@ const MessageList = ({ selectedUser }) => {
         hasFetchedMessagesRef.current = true;
       }
     }
-  }, [selectedUser, isAI, isGroup, getMessages, getAIMessages, fetchGroupMessages]);
+  }, [selectedUser, isAI, isGroup, getMessages, getAIMessages, fetchGroupMessages, selectedUser?.groupId]);
 
   useEffect(() => {
     const messagesContainer = messagesContainerRef.current;
@@ -97,6 +84,16 @@ const MessageList = ({ selectedUser }) => {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
   }, [displayMessages, selectedUser]);
+
+  useEffect(() => {
+    if (!isGroup || !selectedUser?.groupId) return;
+  
+    const unsubscribe = listenGroupMessages(selectedUser.groupId);
+  
+    return () => {
+      if (unsubscribe) unsubscribe(); 
+    };
+  }, [isGroup, selectedUser?.groupId]);
 
   useEffect(() => {
     if (isAI || isGroup || !selectedUser?.userId) {
@@ -107,7 +104,7 @@ const MessageList = ({ selectedUser }) => {
     }
     const latestMessage = userMessages[userMessages.length - 1];
     const isLatestMessageSentByAuthUser =
-      latestMessage && latestMessage.senderId === authUser?._id;
+      latestMessage && (latestMessage.senderId) === authUser?._id;
     if (isLatestMessageSentByAuthUser) {
       setUnreadIndex(null);
       setUnreadCount(0);
@@ -137,7 +134,7 @@ const MessageList = ({ selectedUser }) => {
         const previousDate = index > 0 ? new Date(displayMessages[index - 1].createdAt) : null;
         const isNewDate =
           !previousDate || currentDate.toDateString() !== previousDate.toDateString();
-        const isUserMessage = !isAI && !isGroup && msg.receiverId === selectedUser?.userId;
+        const isUserMessage = (!isAI && !isGroup && msg.receiverId === selectedUser?.userId) || (isGroup && (msg.senderId._id || msg.senderId) === authUser._id);
 
         const showUnreadDividerForMessage =
           !isAI &&
@@ -184,10 +181,7 @@ const MessageList = ({ selectedUser }) => {
             )}
             {!isAI && (
               <Message
-                message={{
-                  msg : msg,
-                  name : isUserMessage?currentUser:selectedUser?.name
-                }}
+                message={msg}
                 isUserMessage={isUserMessage}
                 isLastMessage={true}
               />

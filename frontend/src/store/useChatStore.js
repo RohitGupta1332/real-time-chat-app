@@ -95,7 +95,7 @@ export const useChatStore = create((set, get) => ({
         }
     },
 
-    sendMessage: async (selected, message, file) => {
+    sendMessage: async (selected, message, file, scheduleTime) => {
         try {
             if (!selected) return;
     
@@ -106,6 +106,10 @@ export const useChatStore = create((set, get) => ({
     
             if (file) {
                 formData.append('media', file);
+            }
+
+            if (scheduleTime) {
+                formData.append('scheduleTime', scheduleTime)
             }
 
             const newMessage = await axiosInstance.post(`/messages/send/${id}`, formData);

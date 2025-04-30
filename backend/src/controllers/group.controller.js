@@ -98,7 +98,7 @@ export const fetchGroupMessages = async (req, res) => {
         if (!groupExists) {
             return res.status(404).json({ message: "Group not found!" });
         }
-        const messages = await GroupMessage.find({ group_id }).populate("sender_id", "username email").sort({ createdAt: 1 });
+        const messages = await GroupMessage.find({ group_id }).populate("senderId", "username email").sort({ createdAt: 1 });
         res.status(200).json({ message: "Messages fetched successfully", messages });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error?.message || error })
@@ -107,8 +107,8 @@ export const fetchGroupMessages = async (req, res) => {
 
 export const sendMessage = async (req, res) => {
     try {
-        const { group_id, text } = req.body;
-        const sender_id = req.user.userId;
+        const { group_id, text, scheduleTime } = req.body;
+        const senderId = req.user.userId;
         const groupExists = await Group.findOne({ _id: group_id });
         if (!groupExists) {
             return res.status(404).json({ message: "Group not found!" });
@@ -118,7 +118,7 @@ export const sendMessage = async (req, res) => {
 
         const newMessage = await GroupMessage.create({
             group_id,
-            sender_id,
+            senderId,
             text,
             media: mediaUrl
         });

@@ -46,30 +46,14 @@ const ChatInput = ({ selectedUser }) => {
         setInput('');
         setFile(null);
         setIsSchedulerOpen(false); 
-        return; 
-      }
-
-      if (scheduleTime) {
-        // Yet to handle backend
-        setInput('');
-        setFile(null);
-        setIsSchedulerOpen(false);
-
+      } else if (isGroup) {
+        sendGroupMessage(selectedUser._id, input, file, scheduleTime);
       } else {
-        if (isGroup) {
-          sendGroupMessage(selectedUser._id, input, file);
-        } else {
-          sendMessage(selectedUser, input, file);
-        }
-        setInput('');
-        setFile(null);
-        setIsSchedulerOpen(false);
+        sendMessage(selectedUser, input, file, scheduleTime);
       }
-    } else {
-      if (scheduleTime) {
-          setScheduleTime(null);
-      }
-       setIsSchedulerOpen(false);
+      setInput('');
+      setFile(null);
+      setIsSchedulerOpen(false);
     }
     setScheduleTime(null)
   };

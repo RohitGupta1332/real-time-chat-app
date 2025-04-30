@@ -1,4 +1,3 @@
-// src/components/Chat/ChatHeader.jsx
 import { FiInfo, FiX } from 'react-icons/fi';
 import { useChatStore } from '../../store/useChatStore';
 import { useAuthStore } from '../../store/userAuth';

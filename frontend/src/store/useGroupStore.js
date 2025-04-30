@@ -27,11 +27,9 @@ export const useGroupStore = create((set, get) => ({
   },
 
   fetchGroupMessages: async (group_id) => {
-    console.log('Fetching messages for group:', group_id);
     set({ isGroupMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/group/messages/${group_id}`);
-      console.log('Messages received:', res.data.messages);
       set({ groupMessages: res.data.messages });
     } catch (error) {
       console.error('Fetch error:', error.response?.data || error.message);
@@ -41,7 +39,7 @@ export const useGroupStore = create((set, get) => ({
     }
   },
 
-  sendGroupMessage: async (group_id, text, file) => {
+  sendGroupMessage: async (group_id, text, file, scheduleTime) => {
     if (!group_id) {
       toast.error("Invalid group ID");
       return;
@@ -52,6 +50,7 @@ export const useGroupStore = create((set, get) => ({
       formData.append("group_id", group_id);
       formData.append("text", text);
       if (file) formData.append("media", file);
+      if (scheduleTime) formData.append('scheduleTime', scheduleTime)
       const res = await axiosInstance.post("/group/send", formData);
       set((state) => ({
         groupMessages: [...state.groupMessages, res.data.newMessage],
@@ -159,22 +158,28 @@ export const useGroupStore = create((set, get) => ({
 
   listenGroupMessages: (group_id) => {
     const socket = useAuthStore.getState().socket;
+    const user_id = useAuthStore.getState().authUser._id
     if (!socket) return;
-
+  
     const handleGroupMessage = (newMessage) => {
-      set((state) => ({
-        groupMessages: [...state.groupMessages, newMessage],
-        unreadGroupMessages:
-          newMessage.group_id === group_id
-            ? state.unreadGroupMessages
-            : [...state.unreadGroupMessages, newMessage],
-      }));
+      set((state) => {
+        const alreadyExists = (state.groupMessages.some(msg => msg._id === newMessage._id) || newMessage.senderId === user_id);
+        if (alreadyExists) return state;
+  
+        return {
+          groupMessages: [...state.groupMessages, newMessage],
+          unreadGroupMessages:
+            newMessage.group_id === group_id
+              ? state.unreadGroupMessages
+              : [...state.unreadGroupMessages, newMessage],
+        };
+      });
     };
-
+  
     socket.on("groupMessage", handleGroupMessage);
-
+  
     return () => {
       socket.off("groupMessage", handleGroupMessage);
     };
-  },
+  },  
 }));
