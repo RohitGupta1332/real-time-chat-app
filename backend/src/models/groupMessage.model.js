@@ -8,7 +8,7 @@ const groupMessageSchema = new Schema({
     },
     senderId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
+        ref: 'User',
         required: true
     },
     text: {

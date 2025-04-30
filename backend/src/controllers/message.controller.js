@@ -6,6 +6,8 @@ import { getReceiverSocketId, io } from "../lib/socket.js";
 import { GoogleGenAI } from "@google/genai";
 import * as fs from "node:fs";
 import { Profile } from '../models/profile.model.js'
+import path from "path";
+
 
 export const getUsersForSidebar = async (req, res) => {
     try {
@@ -89,53 +91,51 @@ export const sendMessage = async (req, res) => {
 }
 
 export const messageAI = async (req, res) => {
-    try {
-        const genAI = new GoogleGenerativeAI(process.env.AI_API_KEY);
-        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const ai = new GoogleGenAI({ apiKey: process.env.AI_API_KEY });
 
-        const { prompt } = req.body;
+    const { prompt } = req.body;
 
-        const result = await model.generateContent(prompt);
-        const newAIMessage = await AIMessage.create({
-            userId: req.user.userId,
-            prompt,
-            response: result.response.text()
-        });
+    const chat = ai.chats.create({
+        model: "gemini-2.0-flash-exp-image-generation",
+        config: {
+            temperature: 0.05,
+            responseModalities: ["Text", "Image"],
+        },
+    });
 
-        res.status(200).json({ data: result.response.text() });
+    const response = await chat.sendMessage({
+        message: prompt,
+    });
 
-    } catch (error) {
-        return res.status(500).json({ message: "Internal server error", error: error.message })
+    const uploadDir = path.join(
+        "C:/Users/Rohit Gupta/OneDrive/Desktop/Major Project/backend/public/uploads"
+    );
+
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
     }
 
-}
+    for (const part of response.candidates[0].content.parts) {
+        if (part.text) {
+            res.status(200).json({text: part.text})
+        } else if (part.inlineData) {
+            const imageData = part.inlineData.data;
+            const buffer = Buffer.from(imageData, "base64");
 
-// export const messageAI = async (req, res) => {
-//     const ai = new GoogleGenAI({ apiKey: process.env.AI_API_KEY });
+            const fileName = `gemini-image-${Date.now()}.png`;
+            const filePath = path.join(uploadDir, fileName);
 
-//     const contents =
-//         "name some animal that has wings";
+            fs.writeFileSync(filePath, buffer);
+            console.log(`Image saved as ${filePath}`);
 
-//     // Set responseModalities to include "Image" so the model can generate  an image
-//     const response = await ai.models.generateContent({
-//         model: "gemini-2.0-flash-exp-image-generation",
-//         contents: contents,
-//         config: {
-//             responseModalities: ["Text", "Image"],
-//         },
-//     });
-//     for (const part of response.candidates[0].content.parts) {
-//         // Based on the part type, either show the text or save the image
-//         if (part.text) {
-//             console.log(part.text);
-//         } else if (part.inlineData) {
-//             const imageData = part.inlineData.data;
-//             const buffer = Buffer.from(imageData, "base64");
-//             fs.writeFileSync("gemini-native-image.png", buffer);
-//             console.log("Image saved as gemini-native-image.png");
-//         }
-//     }
-// }
+            res.status(200).json({file: fileName});
+            return;
+        }
+    }
+
+    res.status(200).json({ message: "No image generated" });
+};
+
 
 export const getMessagesWithAi = async (req, res) => {
     try {

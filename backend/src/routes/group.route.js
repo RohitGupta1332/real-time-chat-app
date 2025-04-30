@@ -1,7 +1,7 @@
 import express from "express";
 import { protectRoute } from "../middlewares/auth.middleware.js";
 import { upload } from "../utils/multer.js";
-import { addGroupMembers, createGroup, deleteGroup, fetchGroupMembers, fetchGroupMessages, fetchGroups, removeGroupMember, sendMessage } from "../controllers/group.controller.js";
+import { addGroupMembers, createGroup, deleteGroup, deleteMessage, fetchGroupMembers, fetchGroupMessages, fetchGroups, removeGroupMember, sendMessage } from "../controllers/group.controller.js";
 
 const route = express.Router();
 route.post("/create", protectRoute, upload.single("group_icon"), createGroup);
@@ -12,5 +12,6 @@ route.get("/get-members", protectRoute, fetchGroupMembers);
 route.get("/messages/:group_id", protectRoute, fetchGroupMessages);
 route.delete("/remove", protectRoute, removeGroupMember);
 route.delete("/delete/:group_id", protectRoute, deleteGroup);
+route.delete("/delete/message/:message_id", protectRoute, deleteMessage);
 
 export default route;
