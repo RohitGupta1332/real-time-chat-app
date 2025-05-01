@@ -28,13 +28,6 @@ const BottomNavbar = ({ activeTab, setActiveTab, isShrunk }) => {
         <FaUsers />
         <span>Groups</span>
       </div>
-      <div
-        className={`${styles.navItem} ${activeTab === "meetings" ? styles.active : ""}`}
-        onClick={() => setActiveTab("meetings")}
-      >
-        <FaUserFriends />
-        <span>Meetings</span>
-      </div>
     </div>
   );
 };

@@ -18,7 +18,6 @@ const Chat = () => {
   useEffect(() => {
     if (currentPath === "/ai") setActiveTab("ai");
     else if (currentPath === "/groups") setActiveTab("groups");
-    else if (currentPath === "/meetings") setActiveTab("meetings");
     else setActiveTab("chats");
   }, [currentPath]);
 
@@ -59,7 +58,6 @@ const Chat = () => {
     let path = '/chat';
     if (activeTab === 'ai') path = '/ai';
     else if (activeTab === 'groups') path = '/groups';
-    else if (activeTab === 'meetings') path = '/meetings';
 
     setSelectedUser(null);
 
@@ -67,8 +65,6 @@ const Chat = () => {
       navigate(path, { replace: true });
     }
   }, [activeTab]);
-
-  // console.log(selectedUser)
 
   return (
     <div style={{ display: 'flex', width: '100%', height: '100vh', overflow: 'hidden' }}>

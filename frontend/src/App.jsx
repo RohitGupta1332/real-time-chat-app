@@ -61,12 +61,6 @@ function App() {
           </ProtectedRoute>
         } />
 
-        <Route path='meetings' element={
-          <ProtectedRoute> 
-            <Chat />
-          </ProtectedRoute>
-        } />
-
         <Route path='ai' element={
           <ProtectedRoute> 
             <Chat />

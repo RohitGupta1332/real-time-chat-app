@@ -40,7 +40,6 @@ const ProtectedRoute = ({ children }) => {
   const allowedPaths = [
     "/profile/update",
     "/profile/view",
-    '/meetings',
     "/groups",
     "/chat",
     "/ai",

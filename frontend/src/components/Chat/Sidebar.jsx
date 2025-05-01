@@ -220,28 +220,6 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
             </div>
           </>
         }
-        {!isShrunk && activeTab === 'meetings' &&
-          <>
-            <input
-              type="search"
-              placeholder="Search users..."
-              className={styles.search}
-              value={searchValue}
-              onChange={handleSearchChange}
-              aria-label="Search for users"
-            />
-            {searchValue && (
-              <SearchResults
-                results={searchResult}
-                setSearchValue={setSearchValue}
-                onUserClick={onUserClick}
-                onAddUserToList={handleAddUserToList}
-              />
-            )}
-            <div className={styles.userList}>
-            </div>
-          </>
-        }
         <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} isShrunk={isShrunk && !isMobile} />
       </div>
     </>

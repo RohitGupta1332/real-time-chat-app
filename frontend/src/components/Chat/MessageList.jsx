@@ -60,9 +60,12 @@ const MessageList = ({ selectedUser }) => {
   }, [selectedUser]);
 
   useEffect(() => {
+    if (!selectedUser) return;
+    
     if (isAI) {
       if (!hasFetchedMessagesRef.current) {
         getAIMessages();
+        console.log(aiMessages)
         hasFetchedMessagesRef.current = true;
       }
     } else if (isGroup) {
@@ -76,7 +79,7 @@ const MessageList = ({ selectedUser }) => {
         hasFetchedMessagesRef.current = true;
       }
     }
-  }, [selectedUser, isAI, isGroup, getMessages, getAIMessages, fetchGroupMessages, selectedUser?.groupId]);
+  }, [isAI, isGroup, getMessages, getAIMessages, fetchGroupMessages, selectedUser?.groupId]);
 
   useEffect(() => {
     const messagesContainer = messagesContainerRef.current;
@@ -155,7 +158,7 @@ const MessageList = ({ selectedUser }) => {
                 <span>{unreadCount} new message{unreadCount !== 1 ? 's' : ''}</span>
               </div>
             )}
-            {isAI && (
+            {/* {isAI && (
               <>
                 <Message
                   message={{
@@ -178,7 +181,7 @@ const MessageList = ({ selectedUser }) => {
                   />
                 )}
               </>
-            )}
+            )} */}
             {!isAI && (
               <Message
                 message={msg}
