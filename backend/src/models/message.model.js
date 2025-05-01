@@ -17,6 +17,13 @@ const messageSchema = new Schema({
     media: {
         type: String
     },
+    scheduledAt: {
+        type: Date
+    },
+    isSent: {
+        type: Boolean,
+        default: false
+    }
 
 }, { timestamps: true }
 )
