@@ -98,7 +98,8 @@ export const fetchGroupMessages = async (req, res) => {
         if (!groupExists) {
             return res.status(404).json({ message: "Group not found!" });
         }
-        const messages = await GroupMessage.find({ group_id }).populate("senderId", "username email").sort({ createdAt: 1 });
+        const messages = await GroupMessage.find({ group_id, isSent: true })
+            .populate("senderId", "username email").sort({ updatedAt: 1 });
         res.status(200).json({ message: "Messages fetched successfully", messages });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error?.message || error })
@@ -114,16 +115,25 @@ export const sendMessage = async (req, res) => {
             return res.status(404).json({ message: "Group not found!" });
         }
 
+        let scheduledAt = "";
+        if (scheduleTime) {
+            scheduledAt = new Date(scheduleTime);
+        }
         let mediaUrl = req.file?.filename || "";
 
         const newMessage = await GroupMessage.create({
             group_id,
             senderId,
             text,
-            media: mediaUrl
+            media: mediaUrl,
+            scheduledAt
         });
-        io.to(group_id).emit("groupMessage", newMessage);
-        res.status(201).json({ message: "Message sent successfully", newMessage });
+        if (!scheduledAt) {
+            io.to(group_id).emit("groupMessage", newMessage);
+            newMessage.isSent = true;
+            await newMessage.save();
+            res.status(201).json({ message: "Message sent successfully", newMessage });
+        }
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
     }

@@ -8,7 +8,7 @@ import profileRoute from "./routes/profile.route.js";
 import groupRoute from "./routes/group.route.js";
 import cors from "cors";
 import { app, server } from "./lib/socket.js";
-import { scheduleMessage } from "./utils/cron.js";
+import { scheduleIndividualMessage, scheduleGroupMessage } from "./utils/cron.js";
 
 dotenv.config();
 
@@ -19,7 +19,8 @@ app.use(cors({
     credentials: true
 }));
 
-scheduleMessage();
+scheduleIndividualMessage();
+scheduleGroupMessage();
 
 app.use(cookieParser());
 app.use(express.json());

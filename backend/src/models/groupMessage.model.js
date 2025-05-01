@@ -1,7 +1,7 @@
-import mongoose, {Schema} from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const groupMessageSchema = new Schema({
-    group_id:{
+    group_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Group',
         required: true
@@ -16,7 +16,14 @@ const groupMessageSchema = new Schema({
     },
     media: {
         type: String
+    },
+    scheduledAt: {
+        type: Date
+    },
+    isSent: {
+        type: Boolean,
+        default: false
     }
-}, {timestamps: true});
+}, { timestamps: true });
 
 export const GroupMessage = mongoose.model("GroupMessage", groupMessageSchema);

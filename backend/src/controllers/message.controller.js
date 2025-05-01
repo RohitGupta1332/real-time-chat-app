@@ -1,13 +1,10 @@
-import { User } from "../models/user.model.js";
 import { Message } from "../models/message.model.js";
 import { AIMessage } from "../models/ai.model.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 import { GoogleGenAI } from "@google/genai";
 import * as fs from "node:fs";
 import { Profile } from '../models/profile.model.js'
 import path from "path";
-import cron from "node-cron";
 
 
 export const getUsersForSidebar = async (req, res) => {
@@ -59,8 +56,9 @@ export const getMessages = async (req, res) => {
             $or: [
                 { senderId, receiverId },
                 { senderId: receiverId, receiverId: senderId }
-            ]
-        })
+            ],
+            isSent: true
+        }).sort({ updatedAt: 1 });
         res.status(200).json({ messages: messages });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
@@ -70,7 +68,11 @@ export const getMessages = async (req, res) => {
 export const sendMessage = async (req, res) => {
     try {
         const { message, scheduleTime } = req.body;
-        console.log(scheduleTime)
+
+        let scheduledAt = "";
+        if (scheduleTime) {
+            scheduledAt = new Date(scheduleTime);
+        }
 
         const { id: receiverId } = req.params;
         const senderId = req.user.userId;
@@ -81,15 +83,16 @@ export const sendMessage = async (req, res) => {
             receiverId,
             text: message,
             media: mediaUrl,
-            scheduledAt: scheduleTime
+            scheduledAt
         });
 
         const receiverSocketId = getReceiverSocketId(receiverId);
-        if (receiverSocketId && !scheduleTime){
+        if (receiverSocketId && !scheduleTime) {
             io.to(receiverSocketId).emit("newMessage", newMessage);
             newMessage.isSent = true;
+            newMessage.save();
+            res.status(201).json({ message: "Message sent successfully", data: newMessage })
         }
-        res.status(201).json({ message: "Message sent successfully", data: newMessage })
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error })
     }
