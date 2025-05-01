@@ -5,7 +5,7 @@ import { GoogleGenAI } from "@google/genai";
 import * as fs from "node:fs";
 import { Profile } from '../models/profile.model.js'
 import path from "path";
-
+import { fileURLToPath } from "url";
 
 export const getUsersForSidebar = async (req, res) => {
     try {
@@ -91,57 +91,73 @@ export const sendMessage = async (req, res) => {
             io.to(receiverSocketId).emit("newMessage", newMessage);
             newMessage.isSent = true;
             newMessage.save();
-            res.status(201).json({ message: "Message sent successfully", data: newMessage })
         }
+        res.status(201).json({ message: "Message sent successfully", data: newMessage })
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error })
     }
 }
 
 export const messageAI = async (req, res) => {
-    const ai = new GoogleGenAI({ apiKey: process.env.AI_API_KEY });
+    try {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const ai = new GoogleGenAI({ apiKey: process.env.AI_API_KEY });
+        const { prompt } = req.body;
+        const userId = req.user.userId;
 
-    const { prompt } = req.body;
+        const chat = ai.chats.create({
+            model: "gemini-2.0-flash-exp-image-generation",
+            config: {
+                temperature: 0.05,
+                responseModalities: ["Text", "Image"],
+            },
+        });
 
-    const chat = ai.chats.create({
-        model: "gemini-2.0-flash-exp-image-generation",
-        config: {
-            temperature: 0.05,
-            responseModalities: ["Text", "Image"],
-        },
-    });
+        const response = await chat.sendMessage({ message: prompt });
+        const uploadDir = path.join(__dirname, "../../public/uploads");
 
-    const response = await chat.sendMessage({
-        message: prompt,
-    });
-
-    const uploadDir = path.join(
-        "C:/Users/Rohit Gupta/OneDrive/Desktop/Major Project/backend/public/uploads"
-    );
-
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    for (const part of response.candidates[0].content.parts) {
-        if (part.text) {
-            res.status(200).json({ text: part.text })
-        } else if (part.inlineData) {
-            const imageData = part.inlineData.data;
-            const buffer = Buffer.from(imageData, "base64");
-
-            const fileName = `gemini-image-${Date.now()}.png`;
-            const filePath = path.join(uploadDir, fileName);
-
-            fs.writeFileSync(filePath, buffer);
-            console.log(`Image saved as ${filePath}`);
-
-            res.status(200).json({ file: fileName });
-            return;
+        console.log(uploadDir)
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
         }
-    }
 
-    res.status(200).json({ message: "No image generated" });
+        let responseText = "";
+        let mediaFilename = "";
+
+        for (const part of response.candidates[0].content.parts) {
+            if (part.text) {
+                responseText += part.text.trim();
+            } else if (part.inlineData) {
+                const imageData = part.inlineData.data;
+                const buffer = Buffer.from(imageData, "base64");
+
+                mediaFilename = `gemini-image-${Date.now()}.png`;
+                const filePath = path.join(uploadDir, mediaFilename);
+
+                fs.writeFileSync(filePath, buffer);
+                console.log(`Image saved as ${filePath}`);
+            }
+        }
+
+        const saved = await AIMessage.create({
+            userId,
+            prompt,
+            response: {
+                text: responseText || undefined,
+                media: mediaFilename || undefined
+            }
+        });
+
+        res.status(200).json({
+            message: "AI response saved successfully",
+            response: saved.response
+        });
+
+    } catch (error) {
+        console.error("Error in messageAI:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
 };
 
 

@@ -11,8 +11,14 @@ const aiMessageSchema = new Schema({
         required: true
     },
     response: {
-        type: String,
-        required: true
+        text: {
+            type: String,
+            default: ""
+        },
+        media: {
+            type: String,
+            default: ""
+        }
     }
 }, {timestamps: true});
 

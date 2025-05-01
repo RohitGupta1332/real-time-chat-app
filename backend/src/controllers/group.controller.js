@@ -132,8 +132,8 @@ export const sendMessage = async (req, res) => {
             io.to(group_id).emit("groupMessage", newMessage);
             newMessage.isSent = true;
             await newMessage.save();
-            res.status(201).json({ message: "Message sent successfully", newMessage });
         }
+        res.status(201).json({ message: "Message sent successfully", newMessage });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
     }
