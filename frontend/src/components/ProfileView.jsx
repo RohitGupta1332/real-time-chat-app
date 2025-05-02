@@ -17,7 +17,7 @@ const ProfileView = ({
     onClose
 }) => {
     const navigate = useNavigate();
-    const {onlineUsers, authUser, isLoadingProfile} = useAuthStore()
+    const {onlineUsers, authUser, isLoadingProfile, logout} = useAuthStore()
 
     return (
         <div className={styles.page}>
@@ -75,12 +75,20 @@ const ProfileView = ({
                     )}
                 </div>
                 {authUser?._id === formData.userID && (
-                    <button
-                        className={buttonStyle.button}
-                        onClick={() => navigate("/profile/update")}
-                    >
-                        Update Profile
-                    </button>
+                    <>
+                        <button
+                            className={buttonStyle.button}
+                            onClick={() => navigate("/profile/update")}
+                        >
+                            Update Profile
+                        </button>
+                        <br/>
+                        <button
+                            className={buttonStyle.button}
+                            onClick={() => {logout()}}>
+                            Logout
+                        </button>
+                    </>
                 )}
             </div>
 

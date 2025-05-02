@@ -217,6 +217,17 @@ export const useAuthStore = create((set, get) => ({
             set({ searchResult : null})
         }
     },
+
+    logout : async () => {
+        try {
+            await axiosInstance.post('/auth/logout')
+            toast.success('Logged out successfully')
+        } catch (error) {
+            console.log(error)
+            toast.error(error.response?.data?.message || "Some error occured!")
+        }
+    },
+
     connectSocket: () => {
         const { authUser, isProfileCreated } = get();
         if (!authUser || !isProfileCreated || get().socket?.connected)

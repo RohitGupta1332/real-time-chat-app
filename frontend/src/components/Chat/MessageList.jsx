@@ -4,6 +4,7 @@ import { useGroupStore } from '../../store/useGroupStore';
 import Message from './Message.jsx';
 import styles from '../../styles/userChat.module.css';
 import { useEffect, useRef, useState } from 'react';
+import Loading from '../../pages/Loading.jsx'
 
 const MessageList = ({ selectedUser }) => {
   const { messages, aiMessages, unreadMessages, getMessages, getAIMessages } = useChatStore();
@@ -61,25 +62,27 @@ const MessageList = ({ selectedUser }) => {
 
   useEffect(() => {
     if (!selectedUser) return;
-    
+  
     if (isAI) {
       if (!hasFetchedMessagesRef.current) {
         getAIMessages();
-        console.log(aiMessages)
         hasFetchedMessagesRef.current = true;
       }
     } else if (isGroup) {
       if (selectedUser?._id && !hasFetchedMessagesRef.current) {
-        fetchGroupMessages(selectedUser._id);
+        fetchGroupMessages(selectedUser._id); 
         hasFetchedMessagesRef.current = true;
       }
     } else {
       if (selectedUser?.userId && !hasFetchedMessagesRef.current) {
-        getMessages(selectedUser.userId);
+        getMessages(selectedUser.userId); 
+        console.log('Done fetching...')
         hasFetchedMessagesRef.current = true;
       }
     }
+    console.log(aiMessages)
   }, [isAI, isGroup, getMessages, getAIMessages, fetchGroupMessages, selectedUser?.groupId]);
+  
 
   useEffect(() => {
     const messagesContainer = messagesContainerRef.current;
@@ -158,7 +161,7 @@ const MessageList = ({ selectedUser }) => {
                 <span>{unreadCount} new message{unreadCount !== 1 ? 's' : ''}</span>
               </div>
             )}
-            {/* {isAI && (
+            {isAI && (
               <>
                 <Message
                   message={{
@@ -173,7 +176,8 @@ const MessageList = ({ selectedUser }) => {
                   <Message
                     message={{
                       _id: `response-${msg._id}`,
-                      text: msg.response,
+                      text: msg.response.text,
+                      media: msg.response.media,
                       createdAt: msg.createdAt,
                     }}
                     isUserMessage={false}
@@ -181,7 +185,7 @@ const MessageList = ({ selectedUser }) => {
                   />
                 )}
               </>
-            )} */}
+            )}
             {!isAI && (
               <Message
                 message={msg}

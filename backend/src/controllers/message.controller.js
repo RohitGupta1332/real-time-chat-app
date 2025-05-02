@@ -1,13 +1,11 @@
-import { User } from "../models/user.model.js";
 import { Message } from "../models/message.model.js";
 import { AIMessage } from "../models/ai.model.js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { getReceiverSocketId, io } from "../lib/socket.js";
 import { GoogleGenAI } from "@google/genai";
 import * as fs from "node:fs";
 import { Profile } from '../models/profile.model.js'
 import path from "path";
-
+import { fileURLToPath } from "url";
 
 export const getUsersForSidebar = async (req, res) => {
     try {
@@ -58,8 +56,12 @@ export const getMessages = async (req, res) => {
             $or: [
                 { senderId, receiverId },
                 { senderId: receiverId, receiverId: senderId }
-            ]
-        })
+            ],
+            isSent: true
+        }).sort({ updatedAt: 1 });
+        console.log(receiverId)
+        console.log(senderId)
+        console.log(messages)
         res.status(200).json({ messages: messages });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
@@ -70,6 +72,11 @@ export const sendMessage = async (req, res) => {
     try {
         const { message, scheduleTime } = req.body;
 
+        let scheduledAt = "";
+        if (scheduleTime) {
+            scheduledAt = new Date(scheduleTime);
+        }
+
         const { id: receiverId } = req.params;
         const senderId = req.user.userId;
         let mediaUrl = req.file?.filename || "";
@@ -78,12 +85,16 @@ export const sendMessage = async (req, res) => {
             senderId,
             receiverId,
             text: message,
-            media: mediaUrl
+            media: mediaUrl,
+            scheduledAt
         });
 
         const receiverSocketId = getReceiverSocketId(receiverId);
-        if (receiverSocketId)
+        if (receiverSocketId && !scheduleTime) {
             io.to(receiverSocketId).emit("newMessage", newMessage);
+            newMessage.isSent = true;
+            newMessage.save();
+        }
         res.status(201).json({ message: "Message sent successfully", data: newMessage })
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error })
@@ -91,49 +102,64 @@ export const sendMessage = async (req, res) => {
 }
 
 export const messageAI = async (req, res) => {
-    const ai = new GoogleGenAI({ apiKey: process.env.AI_API_KEY });
+    try {
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
+        const ai = new GoogleGenAI({ apiKey: process.env.AI_API_KEY });
+        const { prompt } = req.body;
+        const userId = req.user.userId;
 
-    const { prompt } = req.body;
+        const chat = ai.chats.create({
+            model: "gemini-2.0-flash-exp-image-generation",
+            config: {
+                temperature: 0.05,
+                responseModalities: ["Text", "Image"],
+            },
+        });
 
-    const chat = ai.chats.create({
-        model: "gemini-2.0-flash-exp-image-generation",
-        config: {
-            temperature: 0.05,
-            responseModalities: ["Text", "Image"],
-        },
-    });
+        const response = await chat.sendMessage({ message: prompt });
+        console.log(response.text)
+        const uploadDir = path.join(__dirname, "../../public/uploads");
 
-    const response = await chat.sendMessage({
-        message: prompt,
-    });
-
-    const uploadDir = path.join(
-        "C:/Users/Rohit Gupta/OneDrive/Desktop/Major Project/backend/public/uploads"
-    );
-
-    if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    for (const part of response.candidates[0].content.parts) {
-        if (part.text) {
-            res.status(200).json({text: part.text})
-        } else if (part.inlineData) {
-            const imageData = part.inlineData.data;
-            const buffer = Buffer.from(imageData, "base64");
-
-            const fileName = `gemini-image-${Date.now()}.png`;
-            const filePath = path.join(uploadDir, fileName);
-
-            fs.writeFileSync(filePath, buffer);
-            console.log(`Image saved as ${filePath}`);
-
-            res.status(200).json({file: fileName});
-            return;
+        if (!fs.existsSync(uploadDir)) {
+            fs.mkdirSync(uploadDir, { recursive: true });
         }
-    }
 
-    res.status(200).json({ message: "No image generated" });
+        let responseText = "";
+        let mediaFilename = "";
+
+        for (const part of response.candidates[0].content.parts) {
+            if (part.text) {
+                responseText += part.text.trim();
+            } else if (part.inlineData) {
+                const imageData = part.inlineData.data;
+                const buffer = Buffer.from(imageData, "base64");
+
+                mediaFilename = `gemini-image-${Date.now()}.png`;
+                const filePath = path.join(uploadDir, mediaFilename);
+
+                fs.writeFileSync(filePath, buffer);
+            }
+        }
+
+        const saved = await AIMessage.create({
+            userId,
+            prompt,
+            response: {
+                text: responseText || undefined,
+                media: mediaFilename || undefined
+            }
+        });
+
+        res.status(200).json({
+            message: "AI response saved successfully",
+            response: saved.response
+        });
+
+    } catch (error) {
+        console.error("Error in messageAI:", error);
+        res.status(500).json({ message: "Internal server error", error: error.message });
+    }
 };
 
 
