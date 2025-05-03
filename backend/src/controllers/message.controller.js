@@ -59,9 +59,6 @@ export const getMessages = async (req, res) => {
             ],
             isSent: true
         }).sort({ updatedAt: 1 });
-        console.log(receiverId)
-        console.log(senderId)
-        console.log(messages)
         res.status(200).json({ messages: messages });
     } catch (error) {
         res.status(500).json({ message: "Internal server error", error: error.message || error });
@@ -118,7 +115,6 @@ export const messageAI = async (req, res) => {
         });
 
         const response = await chat.sendMessage({ message: prompt });
-        console.log(response.text)
         const uploadDir = path.join(__dirname, "../../public/uploads");
 
         if (!fs.existsSync(uploadDir)) {
@@ -155,6 +151,7 @@ export const messageAI = async (req, res) => {
             message: "AI response saved successfully",
             response: saved.response
         });
+
 
     } catch (error) {
         console.error("Error in messageAI:", error);

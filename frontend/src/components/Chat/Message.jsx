@@ -10,7 +10,7 @@ import MarkdownView from 'react-showdown';
 
 const Message = ({ message, isUserMessage, isLastMessage }) => {
 
-    const {viewProfile, authUser} = useAuthStore()
+    const { viewProfile, authUser } = useAuthStore()
     const [name, setName] = useState("")
 
     useEffect(() => {
@@ -27,7 +27,7 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
                 console.error("Error fetching profile", e);
             }
         };
-    
+
         if (message.senderId) {
             fetchProfile();
         }
@@ -78,11 +78,20 @@ const Message = ({ message, isUserMessage, isLastMessage }) => {
 
     const ext = fileName && fileName.split('.').pop().toLowerCase();
 
+    if (message.text === 'Responding') {
+        return (
+            <div className={`${styles.messageWrapper} ${isUserMessage ? styles.messageUser : styles.messageOther} ${isLastMessage ? styles.newMessage : ''}`}>
+                <div className={styles.messageText}>
+                    <div className={styles.typingIndicator}>
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+        )
+    }
+
     return (
-        <div
-            className={`${styles.messageWrapper} ${isUserMessage ? styles.messageUser : styles.messageOther
-                } ${isLastMessage ? styles.newMessage : ''}`}
-        >
+        <div className={`${styles.messageWrapper} ${isUserMessage ? styles.messageUser : styles.messageOther} ${isLastMessage ? styles.newMessage : ''}`}>
             <div className={styles.messageText}>
                 <div className={styles.userName}>{name}</div>
 

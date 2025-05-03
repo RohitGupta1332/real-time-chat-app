@@ -145,8 +145,7 @@ export const useChatStore = create((set, get) => ({
     
         try {
             const response = await axiosInstance.post("/messages/ai", { prompt });
-            const result = response.data;
-    
+            const result = response.data;    
             set((state) => ({
                 aiMessages: state.aiMessages.map((msg) =>
                     msg._id === tempId
@@ -161,6 +160,7 @@ export const useChatStore = create((set, get) => ({
         } catch (error) {
             toast.error(error?.response?.data?.message || "Something went wrong!");
         } finally {
+            get().getAIMessages()
             set({ isResponseLoading: false });
         }
     }    

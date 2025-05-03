@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { RxCross2 } from 'react-icons/rx';
 import { FaInstagram, FaFacebook, FaYoutube } from 'react-icons/fa';
 import { FaXTwitter } from 'react-icons/fa6';
@@ -18,6 +18,8 @@ const ProfileView = ({
 }) => {
     const navigate = useNavigate();
     const {onlineUsers, authUser, isLoadingProfile, logout} = useAuthStore()
+
+    useEffect(() => {}, [logout])
 
     return (
         <div className={styles.page}>

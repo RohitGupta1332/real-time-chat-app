@@ -4,11 +4,10 @@ import { useGroupStore } from '../../store/useGroupStore';
 import Message from './Message.jsx';
 import styles from '../../styles/userChat.module.css';
 import { useEffect, useRef, useState } from 'react';
-import Loading from '../../pages/Loading.jsx'
 
 const MessageList = ({ selectedUser }) => {
-  const { messages, aiMessages, unreadMessages, getMessages, getAIMessages } = useChatStore();
-  const { groupMessages, fetchGroupMessages, listenGroupMessages } = useGroupStore();
+  const { messages, aiMessages, unreadMessages, getMessages, getAIMessages, isResponseLoading, isUserTyping } = useChatStore();
+  const { groupMessages, fetchGroupMessages, listenGroupMessages, unreadGroupMessages } = useGroupStore();
   const { authUser } = useAuthStore();
   const messagesContainerRef = useRef(null);
   const [unreadIndex, setUnreadIndex] = useState(null);
@@ -17,6 +16,7 @@ const MessageList = ({ selectedUser }) => {
   const prevSelectedUserRef = useRef(null);
   const isAI = selectedUser?.userId === 'ai-bot-uuid-1234567890';
   const isGroup = selectedUser?.isGroup;
+  const ai_messages = aiMessages;
 
   const hasFetchedMessagesRef = useRef(false);
 
@@ -37,13 +37,14 @@ const MessageList = ({ selectedUser }) => {
     });
   };
 
+
   const userMessages = messages.filter(
     (msg) =>
       (msg.senderId === selectedUser?.userId && msg.receiverId === authUser?._id) ||
       (msg.receiverId === selectedUser?.userId && msg.senderId === authUser?._id)
   );
 
-  const aiFormattedMessages = aiMessages.map((msg, i) => ({
+  const aiFormattedMessages = ai_messages.map((msg, i) => ({
     ...msg,
     _id: `ai-${i}`,
     senderId: 'ai-bot-uuid-1234567890',
@@ -53,8 +54,8 @@ const MessageList = ({ selectedUser }) => {
   const displayMessages = isAI
     ? aiFormattedMessages
     : isGroup
-    ? groupMessages
-    : userMessages;
+      ? groupMessages
+      : userMessages;
 
   useEffect(() => {
     hasFetchedMessagesRef.current = false;
@@ -62,7 +63,7 @@ const MessageList = ({ selectedUser }) => {
 
   useEffect(() => {
     if (!selectedUser) return;
-  
+
     if (isAI) {
       if (!hasFetchedMessagesRef.current) {
         getAIMessages();
@@ -70,19 +71,16 @@ const MessageList = ({ selectedUser }) => {
       }
     } else if (isGroup) {
       if (selectedUser?._id && !hasFetchedMessagesRef.current) {
-        fetchGroupMessages(selectedUser._id); 
+        fetchGroupMessages(selectedUser._id);
         hasFetchedMessagesRef.current = true;
       }
     } else {
       if (selectedUser?.userId && !hasFetchedMessagesRef.current) {
-        getMessages(selectedUser.userId); 
-        console.log('Done fetching...')
+        getMessages(selectedUser.userId);
         hasFetchedMessagesRef.current = true;
       }
     }
-    console.log(aiMessages)
   }, [isAI, isGroup, getMessages, getAIMessages, fetchGroupMessages, selectedUser?.groupId]);
-  
 
   useEffect(() => {
     const messagesContainer = messagesContainerRef.current;
@@ -93,11 +91,11 @@ const MessageList = ({ selectedUser }) => {
 
   useEffect(() => {
     if (!isGroup || !selectedUser?.groupId) return;
-  
+
     const unsubscribe = listenGroupMessages(selectedUser.groupId);
-  
+
     return () => {
-      if (unsubscribe) unsubscribe(); 
+      if (unsubscribe) unsubscribe();
     };
   }, [isGroup, selectedUser?.groupId]);
 
@@ -196,6 +194,15 @@ const MessageList = ({ selectedUser }) => {
           </div>
         );
       })}
+      {(isResponseLoading || isUserTyping) && (
+        <Message
+          message={{
+            _id: 'temp',
+            text: 'Responding',
+            media: null,
+            createdAt: new Date().toISOString()
+          }} />
+      )}
     </div>
   );
 };

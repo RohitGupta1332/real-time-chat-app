@@ -17,9 +17,10 @@ import ProtectedRoute from "./utils/ProtectedRoute";
 function App() {
 
   const checkAuth = useAuthStore((state) => state.checkAuth);
+  const logout = useAuthStore((state) => state.logout);
   useEffect(() => {
     checkAuth();
-  }, [checkAuth])
+  }, [checkAuth, logout])
 
   const route = createBrowserRouter(
     createRoutesFromElements(
