@@ -14,6 +14,8 @@ export const useGroupStore = create((set, get) => ({
   isSendingGroupMessage: false,
   isFetchingMembers: false,
 
+  groupTypingUsers: {}, // { [group_id]: [userId, userId, ...] }
+
   fetchGroups: async () => {
     set({ isGroupsLoading: true });
     try {
@@ -156,22 +158,36 @@ export const useGroupStore = create((set, get) => ({
     }
   },
 
-  listenGroupMessages: (group_id) => {
+  listenGroupMessages: (listeningGroupId, selectedGroupId) => {
     const socket = useAuthStore.getState().socket;
-    const user_id = useAuthStore.getState().authUser._id
+    const user_id = useAuthStore.getState().authUser._id;
     if (!socket) return;
   
     const handleGroupMessage = (newMessage) => {
       set((state) => {
-        const alreadyExists = (state.groupMessages.some(msg => msg._id === newMessage._id) || newMessage.senderId === user_id);
-        if (alreadyExists) return state;
+        const isFromSelf = newMessage.senderId === user_id;
+        const isSameGroup = newMessage.group_id === listeningGroupId;
+        const isSelectedGroup = newMessage.group_id === selectedGroupId;
+
+        console.log('isFromSelf : ', isFromSelf)
+        console.log('isSameGroup : ', isSameGroup)
+        console.log('isSelectedGroup : ', isSelectedGroup)
+        console.log('_________________________________________')
+  
+        if (!isSameGroup || isFromSelf) return state;
+  
+        const updatedGroupMessages = [
+          ...state.groupMessages,
+          newMessage, // Add the new message
+        ];
+  
+        const updatedUnreadGroupMessages = isSelectedGroup
+          ? state.unreadGroupMessages // Don't add to unread if the group is selected
+          : [...state.unreadGroupMessages, newMessage];
   
         return {
-          groupMessages: [...state.groupMessages, newMessage],
-          unreadGroupMessages:
-            newMessage.group_id === group_id
-              ? state.unreadGroupMessages
-              : [...state.unreadGroupMessages, newMessage],
+          groupMessages: updatedGroupMessages,
+          unreadGroupMessages: updatedUnreadGroupMessages,
         };
       });
     };
@@ -181,5 +197,6 @@ export const useGroupStore = create((set, get) => ({
     return () => {
       socket.off("groupMessage", handleGroupMessage);
     };
-  },  
+  }
+  
 }));

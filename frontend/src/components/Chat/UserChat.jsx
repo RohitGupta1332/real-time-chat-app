@@ -14,41 +14,54 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
   const [showProfileView, setShowProfileView] = useState(false);
   const [showProfilePicOptions, setShowProfilePicOptions] = useState(false);
   const { getMessages, listenMessages } = useChatStore();
-  const { listenGroupMessages } = useGroupStore(); // Add hook
+  const { listenGroupMessages, groups } = useGroupStore(); // Add hook
   const { onlineUsers } = useAuthStore();
   const isGroup = selectedUser?.isGroup; // Check if group
 
   useEffect(() => {
     if (!onlineUsers || onlineUsers.length === 0) return;
+
     const unsubscribeFunctions = [];
-    let CurrentUsers = onlineUsers.filter((userId) => userId !== selectedUser?.userId);
-    CurrentUsers.forEach((userId) => {
-      const unsubscribe = listenMessages({ userId });
+
+    // if (isGroup) {
+    groups.forEach(group => {
+      const group_id = group.group_id._id;
+      const unsubscribe = listenGroupMessages(group_id, selectedUser?._id);
       if (typeof unsubscribe === 'function') {
         unsubscribeFunctions.push(unsubscribe);
       }
     });
+    // } else {
+    onlineUsers.forEach((userId) => {
+      const unsubscribe = listenMessages(userId, selectedUser);
+      if (typeof unsubscribe === 'function') {
+        unsubscribeFunctions.push(unsubscribe);
+      }
+    });
+    // }
+
     return () => {
       unsubscribeFunctions.forEach((unsubscribe) => {
         unsubscribe();
       });
     };
-  }, [onlineUsers, listenMessages, selectedUser]);
+  }, [onlineUsers, listenMessages, selectedUser, isGroup, groups, listenGroupMessages]);
 
-  useEffect(() => {
-    if (!selectedUser?.userId && !isGroup) return;
-    let unsubscribe;
-    if (isGroup) {
-      unsubscribe = listenGroupMessages(selectedUser.groupId); // Listen for group messages
-    } else {
-      unsubscribe = listenMessages(selectedUser);
-    }
-    return () => {
-      if (typeof unsubscribe === 'function') {
-        unsubscribe();
-      }
-    };
-  }, [selectedUser, isGroup, listenMessages, listenGroupMessages]);
+
+  // useEffect(() => {
+  //   if (!selectedUser?.userId && !isGroup) return;
+  //   let unsubscribe;
+  //   if (isGroup) {
+  //     unsubscribe = listenGroupMessages(selectedUser.groupId); // Listen for group messages
+  //   } else {
+  //     unsubscribe = listenMessages(selectedUser);
+  //   }
+  //   return () => {
+  //     if (typeof unsubscribe === 'function') {
+  //       unsubscribe();
+  //     }
+  //   };
+  // }, [selectedUser, isGroup, listenMessages, listenGroupMessages]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
