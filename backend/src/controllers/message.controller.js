@@ -68,7 +68,6 @@ export const getMessages = async (req, res) => {
 export const sendMessage = async (req, res) => {
     try {
         const { message, scheduleTime } = req.body;
-
         let scheduledAt = "";
         if (scheduleTime) {
             scheduledAt = new Date(scheduleTime);
@@ -87,8 +86,11 @@ export const sendMessage = async (req, res) => {
         });
 
         const receiverSocketId = getReceiverSocketId(receiverId);
-        if (receiverSocketId && !scheduleTime) {
-            io.to(receiverSocketId).emit("newMessage", newMessage);
+
+        if (!scheduleTime) {
+            if (receiverSocketId) {
+                io.to(receiverSocketId).emit("newMessage", newMessage);
+            }
             newMessage.isSent = true;
             newMessage.save();
         }

@@ -1,18 +1,18 @@
 import nodemailer from "nodemailer";
 
 const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: "itzrg31052004@gmail.com",
-      pass: "quku uwek lpxe xmes",
-    },
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  auth: {
+    user: "itzrg31052004@gmail.com",
+    pass: "quku uwek lpxe xmes",
+  },
 });
 
 export const sendVerificationMail = async (email, verificationCode) => {
 
-    const Tempelate = `
+  const Tempelate = `
 <!DOCTYPE html>
 <html>
   <head>
@@ -92,16 +92,16 @@ export const sendVerificationMail = async (email, verificationCode) => {
 </html>
     `;
 
-    try {
-        const info = await transporter.sendMail({
-            from: '"Rohit" <itzrg31052004@gmail.com>', // sender address
-            to: email, // list of receivers
-            subject: "Verify your Email", // Subject line
-            text: "Verify your Email", // plain text body
-            html : Tempelate
-        });
-      
-    } catch (error) {
-          console.error("Email error", error);
-    }
+  try {
+    const info = await transporter.sendMail({
+      from: '"LockTalk" <itzrg31052004@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: "Verify your Email", // Subject line
+      text: "Verify your Email", // plain text body
+      html: Tempelate
+    });
+
+  } catch (error) {
+    console.error("Email error", error);
+  }
 };
