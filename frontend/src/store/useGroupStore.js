@@ -14,7 +14,7 @@ export const useGroupStore = create((set, get) => ({
   isSendingGroupMessage: false,
   isFetchingMembers: false,
 
-  groupTypingUsers: {}, // { [group_id]: [userId, userId, ...] }
+  groupTypingUsers: {}, 
 
   fetchGroups: async () => {
     set({ isGroupsLoading: true });
@@ -29,10 +29,16 @@ export const useGroupStore = create((set, get) => ({
   },
 
   fetchGroupMessages: async (group_id) => {
+    console.log('fetching.....')
     set({ isGroupMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/group/messages/${group_id}`);
-      set({ groupMessages: res.data.messages });
+      set((state) => ({
+        groupMessages: res.data.messages,
+        unreadGroupMessages: state.unreadGroupMessages.filter(
+          (msg) => msg.group_id !== group_id
+        ),
+      }));
     } catch (error) {
       console.error('Fetch error:', error.response?.data || error.message);
       toast.error(error?.response?.data?.message || "Could not fetch group messages");
@@ -167,24 +173,19 @@ export const useGroupStore = create((set, get) => ({
       set((state) => {
         const isFromSelf = newMessage.senderId === user_id;
         const isSameGroup = newMessage.group_id === listeningGroupId;
-        const isSelectedGroup = newMessage.group_id === selectedGroupId;
-
-        console.log('isFromSelf : ', isFromSelf)
-        console.log('isSameGroup : ', isSameGroup)
-        console.log('isSelectedGroup : ', isSelectedGroup)
-        console.log('_________________________________________')
   
         if (!isSameGroup || isFromSelf) return state;
   
-        const updatedGroupMessages = [
-          ...state.groupMessages,
-          newMessage, // Add the new message
-        ];
+        const isSelectedGroup = selectedGroupId && newMessage.group_id === selectedGroupId;
   
-        const updatedUnreadGroupMessages = isSelectedGroup
-          ? state.unreadGroupMessages // Don't add to unread if the group is selected
-          : [...state.unreadGroupMessages, newMessage];
+        const updatedGroupMessages = isSelectedGroup
+          ? [...state.groupMessages, newMessage]
+          : state.groupMessages;
   
+        const updatedUnreadGroupMessages = !isSelectedGroup
+          ? [...state.unreadGroupMessages, newMessage]
+          : state.unreadGroupMessages;
+
         return {
           groupMessages: updatedGroupMessages,
           unreadGroupMessages: updatedUnreadGroupMessages,
@@ -198,5 +199,6 @@ export const useGroupStore = create((set, get) => ({
       socket.off("groupMessage", handleGroupMessage);
     };
   }
+  
   
 }));

@@ -1,10 +1,9 @@
-/* Overlay to make the modal appear in front */
 .groupAddOverlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
-    height: 100vh;
+    max-height: 100vh;
     background-color: rgba(0, 0, 0, 0.7);
     display: flex;
     justify-content: center;
@@ -23,6 +22,7 @@
     flex-direction: column;
     gap: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    transform: scale(0.9);
 }
 
 .groupAddHeader {
@@ -55,7 +55,9 @@
     gap: 1rem;
 }
 
-.groupAddInput input, .groupAddInput textarea , .usersSection input{
+.groupAddInput input,
+.groupAddInput textarea,
+.usersSection input {
     padding: 0.8rem;
     border-radius: 8px;
     border: none;
@@ -102,11 +104,11 @@ textarea::-webkit-scrollbar-thumb:hover {
     align-items: center;
     justify-content: center;
     overflow: hidden;
-  }
-  
-  .groupIconCircle:hover {
+}
+
+.groupIconCircle:hover {
     border-color: #888;
-  }
+}
 
 .groupAddContent {
     display: flex;
@@ -120,11 +122,30 @@ textarea::-webkit-scrollbar-thumb:hover {
 
 .usersListContainer {
     margin-top: 10px;
-    max-height: 300px;
+    max-height: 150px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+.usersListContainer::-webkit-scrollbar {
+    width: 2px;
+    transition: all 0.3s ease-in;
+}
+
+.usersListContainer::-webkit-scrollbar-track {
+    background: #1A1A1A;
+}
+
+.usersListContainer::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 10px;
+}
+
+.usersListContainer::-webkit-scrollbar-thumb:hover {
+    background: #666;
+    width: 8px;
 }
 
 .selectedMembersSection {
@@ -132,11 +153,30 @@ textarea::-webkit-scrollbar-thumb:hover {
 }
 
 .selectedMembersList {
-    max-height: 300px;
+    max-height: 150px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+}
+
+.selectedMembersList::-webkit-scrollbar {
+    width: 2px;
+    transition: all 0.3s ease-in;
+}
+
+.selectedMembersList::-webkit-scrollbar-track {
+    background: #1A1A1A;
+}
+
+.selectedMembersList::-webkit-scrollbar-thumb {
+    background: #444;
+    border-radius: 10px;
+}
+
+.selectedMembersList::-webkit-scrollbar-thumb:hover {
+    background: #666;
+    width: 8px;
 }
 
 .groupAddFooter {
@@ -164,6 +204,7 @@ textarea::-webkit-scrollbar-thumb:hover {
     .groupAddContainer {
         width: 90%;
         padding: 1.5rem;
+        transform: scale(0.8);
     }
 
     .groupAddHeader h2 {

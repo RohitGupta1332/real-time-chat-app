@@ -31,14 +31,12 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
         unsubscribeFunctions.push(unsubscribe);
       }
     });
-    // } else {
     onlineUsers.forEach((userId) => {
       const unsubscribe = listenMessages(userId, selectedUser);
       if (typeof unsubscribe === 'function') {
         unsubscribeFunctions.push(unsubscribe);
       }
     });
-    // }
 
     return () => {
       unsubscribeFunctions.forEach((unsubscribe) => {
@@ -46,22 +44,6 @@ const UserChat = ({ selectedUser, setSelectedUser, onClose, activeTab }) => {
       });
     };
   }, [onlineUsers, listenMessages, selectedUser, isGroup, groups, listenGroupMessages]);
-
-
-  // useEffect(() => {
-  //   if (!selectedUser?.userId && !isGroup) return;
-  //   let unsubscribe;
-  //   if (isGroup) {
-  //     unsubscribe = listenGroupMessages(selectedUser.groupId); // Listen for group messages
-  //   } else {
-  //     unsubscribe = listenMessages(selectedUser);
-  //   }
-  //   return () => {
-  //     if (typeof unsubscribe === 'function') {
-  //       unsubscribe();
-  //     }
-  //   };
-  // }, [selectedUser, isGroup, listenMessages, listenGroupMessages]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {

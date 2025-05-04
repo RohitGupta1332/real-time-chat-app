@@ -128,8 +128,8 @@ export const useAuthStore = create((set, get) => ({
                 error?.message ??
                 "Verification failed"
             );
-            set({ isVerifing: false })
         } finally {
+            set({ isVerifing: false })
             localStorage.clear();
         }
     },

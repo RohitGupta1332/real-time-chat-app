@@ -83,7 +83,7 @@ export const useChatStore = create((set, get) => ({
             socket.off("newMessage", handleNewMessage);
             socket.off("typing", handleTyping);
         };
-    },    
+    },
 
     sendTypingStatus: async (receiverId, typing) => {
         try {

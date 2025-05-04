@@ -11,11 +11,11 @@ import SearchResults from './SearchResults';
 import GroupAdd from './GroupAdd';
 
 import { FiX, FiUser, FiMenu } from 'react-icons/fi';
-import { MdGroupAdd } from "react-icons/md";
+import { MdGroupAdd } from 'react-icons/md';
 
 import LockTalk from '../../assets/LockTalk.png';
 import Logo from '../../assets/Logo.png';
-import AiImage from '../../assets/Ai.jpg'
+import AiImage from '../../assets/Ai.jpg';
 
 import styles from '../../styles/sidebar.module.css';
 
@@ -29,14 +29,14 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
 
   const { searchUser, searchResult } = useAuthStore();
   const { users, getUsersForSidebar, isUserLoading, messages, unreadMessages } = useChatStore();
-  const { groups, fetchGroups } = useGroupStore();
+  const { groups, fetchGroups, unreadGroupMessages } = useGroupStore();
 
   useEffect(() => {
-      fetchGroups();
+    fetchGroups();
   }, [fetchGroups, activeTab]);
 
   useEffect(() => {
-      getUsersForSidebar();
+    getUsersForSidebar();
   }, [getUsersForSidebar, unreadMessages, messages]);
 
   useEffect(() => {
@@ -78,10 +78,17 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
     });
   };
 
+  const getUnreadCount = (userId, isGroup = false) => {
+    if (isGroup) {
+      return unreadGroupMessages.filter((msg) => msg.group_id === userId).length;
+    }
+    return unreadMessages.filter((msg) => msg.senderId === userId).length;
+  };
+
   return (
     <>
       {showGroupAdd && (
-        <GroupAdd users={userList} setShowGroupAdd={setShowGroupAdd}/>
+        <GroupAdd users={userList} setShowGroupAdd={setShowGroupAdd} />
       )}
 
       <div className={`${styles.sidebar} ${isShrunk && !isMobile ? styles.shrunk : ''}`}>
@@ -97,10 +104,13 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
           )}
           <div className={`${styles.icons} ${isShrunk && !isMobile ? styles.shrunkIcons : ''}`}>
             <FiUser style={{ cursor: 'pointer' }} onClick={() => navigate('/profile/view')} />
-            <MdGroupAdd style={{ cursor: 'pointer' }} onClick={() => {
-              navigate('/groups');
-              setShowGroupAdd(true);
-            }} />
+            <MdGroupAdd
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                navigate('/groups');
+                setShowGroupAdd(true);
+              }}
+            />
             {!isMobile && (
               isShrunk ? (
                 <FiMenu style={{ cursor: 'pointer' }} onClick={handleToggle} aria-label="Expand sidebar" />
@@ -135,24 +145,28 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
                 ) : userList.length === 0 ? (
                   <p>No chats yet</p>
                 ) : (
-                  userList.filter(user => user !== null && user !== undefined).map((user, index) => (
-                    <UserChatItem
-                      key={user._id || index}
-                      id={user._id}
-                      userId={user.userId}
-                      name={user.name}
-                      image={user.image}
-                      bio={user.bio}
-                      time={""}
-                      onUserClick={() => onUserClick(user)}
-                    />
-                  ))
+                  userList
+                    .filter((user) => user !== null && user !== undefined)
+                    .map((user, index) => (
+                      <UserChatItem
+                        key={user._id || index}
+                        id={user._id}
+                        userId={user.userId}
+                        name={user.name}
+                        image={user.image}
+                        bio={user.bio}
+                        time={''}
+                        unreadCount={getUnreadCount(user.userId)}
+                        onUserClick={() => onUserClick(user)}
+                        isGroup={false}
+                      />
+                    ))
                 )}
               </div>
             )}
           </>
         )}
-        {!isShrunk && activeTab === 'ai' &&
+        {!isShrunk && activeTab === 'ai' && (
           <>
             <input
               type="search"
@@ -172,18 +186,20 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
             )}
             <div className={styles.userList}>
               <UserChatItem
-                id={"ai-bot-id-001"}
-                userId={"ai-bot-uuid-1234567890"}
-                name={"Astra"}
+                id={'ai-bot-id-001'}
+                userId={'ai-bot-uuid-1234567890'}
+                name={'Astra'}
                 image={AiImage}
                 bio={"Heyy, I'm Astra"}
-                time={""}
-                onUserClick={() => { }}
+                time={''}
+                unreadCount={0}
+                onUserClick={() => onUserClick({ userId: 'ai-bot-uuid-1234567890', name: 'Astra', isAI: true })}
+                isGroup={false}
               />
             </div>
           </>
-        }
-        {!isShrunk && activeTab === 'groups' &&
+        )}
+        {!isShrunk && activeTab === 'groups' && (
           <>
             <input
               type="search"
@@ -202,24 +218,26 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
               />
             )}
             <div className={styles.userList}>
-              {groups.map(groupMembership => {
+              {groups.map((groupMembership) => {
                 const group = groupMembership.group_id;
-                const icon = group.group_icon? `http://localhost:3000/uploads/${group.group_icon}` : '';
+                const icon = group.group_icon ? `http://localhost:3000/uploads/${group.group_icon}` : '';
                 return (
                   <UserChatItem
                     key={group._id}
                     id={group._id}
                     name={group.group_name}
-                    image={icon || ""}
-                    bio={group.description || "Group chat"}
-                    time={""}
-                    onUserClick={() => onUserClick(group)}
+                    image={icon || ''}
+                    bio={group.description || 'Group chat'}
+                    time={''}
+                    unreadCount={getUnreadCount(group._id, true)}
+                    onUserClick={() => onUserClick({ ...group, isGroup: true })}
+                    isGroup={true}
                   />
                 );
               })}
             </div>
           </>
-        }
+        )}
         <BottomNavbar activeTab={activeTab} setActiveTab={setActiveTab} isShrunk={isShrunk && !isMobile} />
       </div>
     </>

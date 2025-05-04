@@ -11,27 +11,29 @@ import MarkdownView from 'react-showdown';
 const Message = ({ message, isUserMessage, isLastMessage }) => {
 
     const { viewProfile, authUser } = useAuthStore()
-    const [name, setName] = useState("")
+    const [name, setName] = useState(" ")
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                if (message.senderId === authUser._id) {
-                    setName("You")
-                    return
-                }
+    const fetchProfile = async () => {
+        let temp_name = ''
+        try {
+            if (message.senderId === authUser._id || message.senderId?._id === authUser._id) {
+                temp_name = 'You';
+            } else {
                 const response = await viewProfile({ userId: message.senderId });
                 const profile = response.profile;
-                setName(profile?.name || '');
-            } catch (e) {
-                console.error("Error fetching profile", e);
+                temp_name = profile?.name || '';
             }
-        };
+            setName(temp_name);
+        } catch (e) {
+            console.error("Error fetching profile", e);
+        }
+    };
 
+    useEffect(() => {
         if (message.senderId) {
             fetchProfile();
         }
-    }, [message.senderId]);
+    }, []);
 
     const [fullImageUrl, setFullImageUrl] = useState(null);
 
