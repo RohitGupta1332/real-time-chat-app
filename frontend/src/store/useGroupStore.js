@@ -29,7 +29,6 @@ export const useGroupStore = create((set, get) => ({
   },
 
   fetchGroupMessages: async (group_id) => {
-    console.log('fetching.....')
     set({ isGroupMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/group/messages/${group_id}`);
@@ -198,7 +197,14 @@ export const useGroupStore = create((set, get) => ({
     return () => {
       socket.off("groupMessage", handleGroupMessage);
     };
-  }
+  },
   
-  
+  deleteGroupMessage : async (message_id, group_id) => {
+    try {
+      await axiosInstance.delete(`/group/delete/message/${message_id}`)
+      await get().fetchGroupMessages(group_id)
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Failed to delete the message")
+    }
+  }  
 }));

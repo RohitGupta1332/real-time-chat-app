@@ -97,6 +97,7 @@
     color: #ccc;
     margin-top: -15px;
     font-weight: 600;
+    cursor: default;
 }
 
 .messages::-webkit-scrollbar {
@@ -171,6 +172,7 @@
 
     font-size: 0.9em;
     user-select: text;
+    cursor: pointer;
 }
 
 .messageUser .messageText {
@@ -814,6 +816,7 @@
     height: 20px;
     gap: 4px;
     padding: 4px 8px;
+    margin-bottom: 10px;
 }
 
 .typingIndicator span {
@@ -849,4 +852,27 @@
         transform: scale(1);
         opacity: 1;
     }
+}
+
+.optionContainer {
+    position: absolute;
+    bottom: 85px;
+    right: 0; 
+    z-index: 999;
+    background-color: #1a1a1a;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 4px 0px;
+    width: 120px;
+    transition: all 0.3s ease-in;
+    text-align: center;
+}
+
+.optionItem {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.optionItem:hover {
+    background-color: #1e1e1e;
 }

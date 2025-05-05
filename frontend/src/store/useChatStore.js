@@ -164,5 +164,14 @@ export const useChatStore = create((set, get) => ({
             get().getAIMessages()
             set({ isResponseLoading: false });
         }
-    }    
+    },
+    deleteChatMessage : async (message_id, chat_id) => {
+        try {
+            console.log(message_id)
+            await get().getMessages(chat_id)
+            toast.info("Working on this feature")
+        } catch (error) {
+            toast.error(error?.response?.data?.message || "Something went wrong!");
+        }
+    }
 }));

@@ -3,11 +3,11 @@ import { useChatStore } from '../../store/useChatStore';
 import { useGroupStore } from '../../store/useGroupStore';
 import Message from './Message.jsx';
 import styles from '../../styles/userChat.module.css';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 
 const MessageList = ({ selectedUser }) => {
   const { messages, aiMessages, unreadMessages, getMessages, getAIMessages, isResponseLoading, isUserTyping } = useChatStore();
-  const { groupMessages, fetchGroupMessages, unreadGroupMessages } = useGroupStore();
+  const { groupMessages, fetchGroupMessages, unreadGroupMessages, deleteMessage } = useGroupStore();
   const { authUser } = useAuthStore();
 
   const isAI = selectedUser?.userId === 'ai-bot-uuid-1234567890';
@@ -18,11 +18,13 @@ const MessageList = ({ selectedUser }) => {
   const initialUnreadMessagesRef = useRef([]);
   const initialUnreadGroupMessagesRef = useRef([]);
   const unreadMessagesByChatRef = useRef({});
+  const prevMessageCountRef = useRef(0);
 
   const [unreadIndex, setUnreadIndex] = useState(null);
   const [unreadCount, setUnreadCount] = useState(0);
   const [unreadGroupIndex, setUnreadGroupIndex] = useState(null);
   const [unreadGroupCount, setUnreadGroupCount] = useState(0);
+  const [activeMessageId, setActiveMessageId] = useState(null);
 
   const formatDate = (createdAt) => {
     const msgDate = createdAt ? new Date(createdAt) : null;
@@ -42,39 +44,44 @@ const MessageList = ({ selectedUser }) => {
     });
   };
 
-  const userMessages = messages.filter(
-    (msg) =>
-      (msg.senderId === selectedUser?.userId && msg.receiverId === authUser?._id) ||
-      (msg.receiverId === selectedUser?.userId && msg.senderId === authUser?._id)
+  const userMessages = useMemo(
+    () =>
+      messages.filter(
+        (msg) =>
+          (msg.senderId === selectedUser?.userId && msg.receiverId === authUser?._id) ||
+          (msg.receiverId === selectedUser?.userId && msg.senderId === authUser?._id)
+      ),
+    [messages, selectedUser?.userId, authUser?._id]
   );
 
-  const aiFormattedMessages = aiMessages.map((msg, i) => ({
-    ...msg,
-    _id: `ai-${i}`,
-    senderId: 'ai-bot-uuid-1234567890',
-    receiverId: authUser?._id,
-  }));
+  const aiFormattedMessages = useMemo(
+    () =>
+      aiMessages.map((msg, i) => ({
+        ...msg,
+        _id: `ai-${i}`,
+        senderId: 'ai-bot-uuid-1234567890',
+        receiverId: authUser?._id,
+      })),
+    [aiMessages, authUser?._id]
+  );
 
-  const displayMessages = isAI
-    ? aiFormattedMessages
-    : isGroup
-    ? groupMessages
-    : userMessages;
+  const displayMessages = useMemo(
+    () => (isAI ? aiFormattedMessages : isGroup ? groupMessages : userMessages),
+    [isAI, aiFormattedMessages, isGroup, groupMessages, userMessages]
+  );
 
   useEffect(() => {
     hasFetchedMessagesRef.current = false;
   }, [selectedUser]);
 
   useEffect(() => {
-    if (!selectedUser) return;
+    if (!selectedUser || isAI || hasFetchedMessagesRef.current) return;
 
     const chatId = isGroup ? selectedUser._id : selectedUser.userId;
 
-    if (isAI && !hasFetchedMessagesRef.current) {
-      getAIMessages();
-    } else if (isGroup && selectedUser?._id && !hasFetchedMessagesRef.current) {
+    if (isGroup && selectedUser._id) {
       fetchGroupMessages(selectedUser._id);
-    } else if (selectedUser?.userId && !hasFetchedMessagesRef.current) {
+    } else if (selectedUser?.userId) {
       getMessages(selectedUser.userId);
     }
 
@@ -89,13 +96,34 @@ const MessageList = ({ selectedUser }) => {
     }
 
     hasFetchedMessagesRef.current = true;
-  }, [selectedUser, isAI, isGroup, getMessages, getAIMessages, fetchGroupMessages]);
+  }, [selectedUser, isGroup, getMessages, fetchGroupMessages, deleteMessage]);
+
+  useEffect(() => {
+    if (!selectedUser || selectedUser.userId !== 'ai-bot-uuid-1234567890') return;
+    if (hasFetchedMessagesRef.current) return;
+
+    getAIMessages();
+    hasFetchedMessagesRef.current = true;
+  }, [isAI, getAIMessages]);
 
   useEffect(() => {
     const messagesContainer = messagesContainerRef.current;
-    if (messagesContainer) {
+    if (!messagesContainer) return;
+
+    const isAtBottom =
+      messagesContainer.scrollHeight - messagesContainer.scrollTop <=
+      messagesContainer.clientHeight + 50;
+    const messageCount = displayMessages.length;
+
+    if (
+      messageCount > prevMessageCountRef.current ||
+      isAtBottom ||
+      prevMessageCountRef.current === 0
+    ) {
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
+
+    prevMessageCountRef.current = messageCount;
   }, [displayMessages, selectedUser]);
 
   useEffect(() => {
@@ -113,7 +141,7 @@ const MessageList = ({ selectedUser }) => {
       return;
     }
 
-    const existingIds = new Set(initialUnreadMessagesRef.current.map(m => m._id));
+    const existingIds = new Set(initialUnreadMessagesRef.current.map((m) => m._id));
     const newUnread = unreadMessages.filter(
       (msg) =>
         !existingIds.has(msg._id) &&
@@ -126,7 +154,7 @@ const MessageList = ({ selectedUser }) => {
     setUnreadCount(initialUnreadMessagesRef.current.length);
 
     const firstUnreadId = initialUnreadMessagesRef.current[0]?._id;
-    const index = userMessages.findIndex(msg => msg._id === firstUnreadId);
+    const index = userMessages.findIndex((msg) => msg._id === firstUnreadId);
     setUnreadIndex(index !== -1 ? index : null);
   }, [selectedUser, userMessages, authUser, unreadMessages, isAI, isGroup]);
 
@@ -145,7 +173,7 @@ const MessageList = ({ selectedUser }) => {
       return;
     }
 
-    const existingIds = new Set(initialUnreadGroupMessagesRef.current.map(m => m._id));
+    const existingIds = new Set(initialUnreadGroupMessagesRef.current.map((m) => m._id));
     const newUnread = unreadGroupMessages.filter(
       (msg) =>
         !existingIds.has(msg._id) &&
@@ -158,7 +186,7 @@ const MessageList = ({ selectedUser }) => {
     setUnreadGroupCount(initialUnreadGroupMessagesRef.current.length);
 
     const allMessages = [...groupMessages];
-    const unreadIds = new Set(groupMessages.map(m => m._id));
+    const unreadIds = new Set(groupMessages.map((m) => m._id));
     newUnread.forEach((msg) => {
       if (!unreadIds.has(msg._id)) {
         allMessages.push(msg);
@@ -166,9 +194,13 @@ const MessageList = ({ selectedUser }) => {
     });
 
     const firstUnreadId = initialUnreadGroupMessagesRef.current[0]?._id;
-    const index = allMessages.findIndex(msg => msg._id === firstUnreadId);
+    const index = allMessages.findIndex((msg) => msg._id === firstUnreadId);
     setUnreadGroupIndex(index !== -1 ? index : null);
   }, [groupMessages, unreadGroupMessages, selectedUser, authUser, isGroup]);
+
+  const handleToggleOptions = (messageId) => {
+    setActiveMessageId(activeMessageId === messageId ? null : messageId);
+  };
 
   return (
     <div className={styles.messages} ref={messagesContainerRef}>
@@ -199,37 +231,45 @@ const MessageList = ({ selectedUser }) => {
                 <span>{unreadToShow} new message{unreadToShow !== 1 ? 's' : ''}</span>
               </div>
             )}
-            {isAI ? (
-              <>
-                <Message
-                  message={{
-                    _id: `prompt-${msg._id}`,
-                    text: msg.prompt,
-                    createdAt: msg.createdAt,
-                  }}
-                  isUserMessage={true}
-                  isLastMessage={index === displayMessages.length - 1}
-                />
-                {msg.response && (
+            <div style={{ position: 'relative' }}>
+              {isAI ? (
+                <>
                   <Message
                     message={{
-                      _id: `response-${msg._id}`,
-                      text: msg.response.text,
-                      media: msg.response.media,
+                      _id: `prompt-${msg._id}`,
+                      text: msg.prompt,
                       createdAt: msg.createdAt,
                     }}
-                    isUserMessage={false}
+                    isUserMessage={true}
                     isLastMessage={index === displayMessages.length - 1}
+                    showOptions={activeMessageId === `prompt-${msg._id}`}
+                    onToggleOptions={() => handleToggleOptions(`prompt-${msg._id}`)}
                   />
-                )}
-              </>
-            ) : (
-              <Message
-                message={msg}
-                isUserMessage={isUserMessage}
-                isLastMessage={index === displayMessages.length - 1}
-              />
-            )}
+                  {msg.response && (
+                    <Message
+                      message={{
+                        _id: `response-${msg._id}`,
+                        text: msg.response.text,
+                        media: msg.response.media,
+                        createdAt: msg.createdAt,
+                      }}
+                      isUserMessage={false}
+                      isLastMessage={index === displayMessages.length - 1}
+                      showOptions={activeMessageId === `response-${msg._id}`}
+                      onToggleOptions={() => handleToggleOptions(`response-${msg._id}`)}
+                    />
+                  )}
+                </>
+              ) : (
+                <Message
+                  message={msg}
+                  isUserMessage={isUserMessage}
+                  isLastMessage={index === displayMessages.length - 1}
+                  showOptions={activeMessageId === msg._id}
+                  onToggleOptions={() => handleToggleOptions(msg._id)}
+                />
+              )}
+            </div>
           </div>
         );
       })}
