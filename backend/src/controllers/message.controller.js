@@ -187,3 +187,16 @@ export const isTyping = async (req, res) => {
         res.status(500).json({ message: "Internal server error", error: error.message })
     }
 }
+
+export const deleteMessage = async (req, res) => {
+    try {
+        const { message_id } = req.params;
+        const message = await Message.findByIdAndDelete({ _id: message_id });
+        if (message) {
+            return res.status(200).json({ message: "Message deleted successfully" });
+        }
+        res.status(400).json("Something went wrong");
+    } catch (error) {
+        res.status(500).json({ message: "Internal server errror", error: error.message || error });
+    }
+}
