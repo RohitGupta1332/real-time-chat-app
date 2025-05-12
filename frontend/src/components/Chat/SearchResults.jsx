@@ -1,4 +1,5 @@
 import styles from '../../styles/sidebar.module.css';
+import DefaultPic from '../../assets/default-profile.png';
 
 const SearchResults = ({ results, setSearchValue, onUserClick, onAddUserToList }) => {
     if (!results || results.length === 0) {
@@ -9,7 +10,7 @@ const SearchResults = ({ results, setSearchValue, onUserClick, onAddUserToList }
         <div className={styles.searchResults}>
             {results.map((user) => {
                 const userItem = {
-                    _id : user._id,
+                    _id: user._id,
                     userId: user.userId,
                     name: user.name,
                     image: user.image,
@@ -30,7 +31,7 @@ const SearchResults = ({ results, setSearchValue, onUserClick, onAddUserToList }
                         }}
                     >
                         <img
-                            src={user.image}
+                            src={user.image || DefaultPic}
                             alt={`${user.name}'s profile`}
                             className={styles.searchResultPic}
                         />

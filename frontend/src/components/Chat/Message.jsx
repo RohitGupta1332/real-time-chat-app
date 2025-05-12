@@ -107,7 +107,7 @@ const Message = ({ message, isUserMessage, isLastMessage, showOptions, onToggleO
   };
 
   const fileName = message.media;
-  const fileUrl = fileName ? `http://localhost:3000/uploads/${fileName}` : '';
+  const fileUrl = fileName ? `https://real-time-chat-app-pbgx.onrender.com/uploads/${fileName}` : '';
   const ext = fileName && fileName.split('.').pop().toLowerCase();
 
   const handleDelete = (message_id) => {

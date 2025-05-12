@@ -26,7 +26,7 @@ const GroupInfo = ({ setShowGroupInfo, group, onClose }) => {
     const [selectedUserId, setSelectedUserId] = useState(null); // Track which user's options are shown
     const [selectedProfile, setSelectedProfile] = useState(null); // Track the user whose profile is being viewed
 
-    const mediaBaseUrl = 'http://localhost:3000/uploads/';
+    const mediaBaseUrl = 'https://real-time-chat-app-pbgx.onrender.com/uploads/';
 
     const groupIconUrl = group?.group_icon ? `${mediaBaseUrl}${group.group_icon}` : null;
 

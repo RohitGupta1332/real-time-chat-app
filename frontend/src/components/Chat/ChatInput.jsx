@@ -88,7 +88,6 @@ const ChatInput = ({ selectedUser }) => {
       {file && <MediaPreview file={file} onRemove={handleRemoveMedia} />}
       {isMediaSelected && <MediaInput onMediaSelect={handleMediaSelect} />}
       <div className={`${styles.inputArea} ${styles.inputAreaRelative}`}>
-        <MdEmojiEmotions className={styles.emojiButton} />
         <GoPaperclip
           className={styles.emojiButton}
           onClick={() => setMediaSelected((prev) => !prev)}

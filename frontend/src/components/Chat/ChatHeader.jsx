@@ -11,7 +11,7 @@ const ChatHeader = ({ selectedUser, onInfoClick, onClose }) => {
   const { onlineUsers } = useAuthStore();
 
   const isAiBot = selectedUser?.userId === AI_BOT_USER_ID;
-  const group_image = selectedUser?.group_icon? `http://localhost:3000/uploads/${selectedUser.group_icon}` : ""
+  const group_image = selectedUser?.group_icon ? `https://real-time-chat-app-pbgx.onrender.com/uploads/${selectedUser.group_icon}` : ""
 
   return (
     <div className={styles.chatHeader}>
