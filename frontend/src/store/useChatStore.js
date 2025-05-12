@@ -1,7 +1,9 @@
 import { create } from "zustand";
-import { axiosInstance } from "../lib/axios";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuthStore } from "../store/userAuth.js";
+
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 export const useChatStore = create((set, get) => ({
     messages: [],
@@ -15,14 +17,13 @@ export const useChatStore = create((set, get) => ({
     isResponseLoading: false,
     isUserTyping: false,
 
-
     getUsersForSidebar: async () => {
         set({ isUserLoading: true });
         try {
-            const res = await axiosInstance.get("/messages/users");
+            const res = await axios.get(`${BASE_URL}/messages/users`, { withCredentials: true });
             set({ users: res.data });
         } catch (error) {
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message);
         } finally {
             set({ isUserLoading: false });
         }
@@ -31,10 +32,10 @@ export const useChatStore = create((set, get) => ({
     getMessages: async (id) => {
         set({ isMessageLoading: true });
         try {
-            const res = await axiosInstance.get(`/messages/${id}`);
+            const res = await axios.get(`${BASE_URL}/messages/${id}`, { withCredentials: true });
             set({ messages: res.data.messages });
         } catch (error) {
-            toast.error(error.response.data.message);
+            toast.error(error.response?.data?.message);
         } finally {
             set({ isMessageLoading: false });
         }
@@ -87,10 +88,10 @@ export const useChatStore = create((set, get) => ({
 
     sendTypingStatus: async (receiverId, typing) => {
         try {
-            await axiosInstance.post("/messages/typing", {
+            await axios.post(`${BASE_URL}/messages/typing`, {
                 receiverId,
                 typing,
-            });
+            }, { withCredentials: true });
         } catch (error) {
             console.error("Typing status error:", error.response?.data?.message || error.message);
         }
@@ -110,13 +111,14 @@ export const useChatStore = create((set, get) => ({
             }
 
             if (scheduleTime) {
-                formData.append('scheduleTime', scheduleTime)
+                formData.append('scheduleTime', scheduleTime);
             }
 
-            const newMessage = await axiosInstance.post(`/messages/send/${id}`, formData);
+            const newMessage = await axios.post(`${BASE_URL}/messages/send/${id}`, formData, {
+                withCredentials: true,
+            });
 
             set((state) => ({ messages: [...state.messages, newMessage.data.data] }));
-
         } catch (error) {
             toast.error(error.response?.data?.message || error.message || "An error occurred");
         }
@@ -125,7 +127,7 @@ export const useChatStore = create((set, get) => ({
     getAIMessages: async () => {
         set({ isMessageLoading: true });
         try {
-            const res = await axiosInstance.get(`/messages/ai/chats`);
+            const res = await axios.get(`${BASE_URL}/messages/ai/chats`, { withCredentials: true });
             set({ aiMessages: res.data.messages });
         } catch (error) {
             toast.error(error?.response?.data?.message);
@@ -145,7 +147,7 @@ export const useChatStore = create((set, get) => ({
         }));
 
         try {
-            const response = await axiosInstance.post("/messages/ai", { prompt });
+            const response = await axios.post(`${BASE_URL}/messages/ai`, { prompt }, { withCredentials: true });
             const result = response.data;
             set((state) => ({
                 aiMessages: state.aiMessages.map((msg) =>
@@ -161,15 +163,16 @@ export const useChatStore = create((set, get) => ({
         } catch (error) {
             toast.error(error?.response?.data?.message || "Something went wrong!");
         } finally {
-            get().getAIMessages()
+            get().getAIMessages();
             set({ isResponseLoading: false });
         }
     },
+
     deleteChatMessage: async (message_id, chat_id) => {
         try {
-            await axiosInstance.delete(`/messages/delete/${message_id}`);
-            toast.success("message deleted");
-            await get().getMessages(chat_id)
+            await axios.delete(`${BASE_URL}/messages/delete/${message_id}`, { withCredentials: true });
+            toast.success("Message deleted");
+            await get().getMessages(chat_id);
         } catch (error) {
             toast.error(error?.response?.data?.message || "Something went wrong!");
         }

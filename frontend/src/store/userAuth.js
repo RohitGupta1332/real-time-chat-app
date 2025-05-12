@@ -1,9 +1,9 @@
 import { create } from "zustand";
-import { axiosInstance } from "../lib/axios.js";
 import { toast } from "react-toastify";
 import { io } from "socket.io-client";
+import axios from "axios";
 
-const BASE_URL = "https://real-time-chat-app-pbgx.onrender.com"
+const API = import.meta.env.VITE_API_URL;
 
 export const useAuthStore = create((set, get) => ({
     authUser: null,
@@ -29,35 +29,38 @@ export const useAuthStore = create((set, get) => ({
 
     checkAuth: async () => {
         try {
-            const res = await axiosInstance.get("/auth/check");
+            const res = await axios.get(`${API}/auth/check`, {
+                withCredentials: true
+            });
             set({ authUser: res.data });
-            set({ isProfileCreated: res.data.isProfileCreated })
+            set({ isProfileCreated: res.data.isProfileCreated });
             get().connectSocket();
         } catch (error) {
             console.error(error);
             set({ authUser: null });
         } finally {
-            set({ isCheckingAuth: false })
+            set({ isCheckingAuth: false });
         }
     },
 
     resendVerification: async () => {
         try {
-            set({ isResending: true })
+            set({ isResending: true });
             const email = localStorage.getItem("email");
 
             if (!email) {
-                toast.error("Some error occured! Please retry");
+                toast.error("Some error occurred! Please retry");
                 return;
             }
 
-            await axiosInstance.post("/auth/resend", { email });
+            await axios.post(`${API}/auth/resend`, { email }, {
+                withCredentials: true
+            });
             toast.success("Verification code resent");
         } catch (error) {
             console.error(error);
             toast.error(error.response?.data?.message || "Failed to resend code");
-        }
-        finally {
+        } finally {
             set({ isResending: false });
         }
     },
@@ -65,16 +68,18 @@ export const useAuthStore = create((set, get) => ({
     signup: async (data, navigate) => {
         try {
             set({ isSigningIn: true });
-            const res = await axiosInstance.post("/auth/signup", data);
+            const res = await axios.post(`${API}/auth/signup`, data, {
+                withCredentials: true
+            });
 
             localStorage.setItem("email", res.data.email);
 
-            toast.success("Verification code sent")
+            toast.success("Verification code sent");
             set({ isVerificationCodeSent: true });
             navigate("/otp");
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Signup failed");
-            console.error(error)
+            console.error(error);
         } finally {
             set({ isSigningIn: false });
         }
@@ -83,7 +88,9 @@ export const useAuthStore = create((set, get) => ({
     login: async (data, navigate) => {
         try {
             set({ isLoggingIn: true });
-            const res = await axiosInstance.post("/auth/login", data);
+            const res = await axios.post(`${API}/auth/login`, data, {
+                withCredentials: true
+            });
             toast.success("Login successful");
 
             get().connectSocket();
@@ -98,7 +105,7 @@ export const useAuthStore = create((set, get) => ({
             }
 
         } catch (error) {
-            toast.error(`${error.response?.data?.message}` || "Login failed")
+            toast.error(`${error.response?.data?.message}` || "Login failed");
         } finally {
             set({ isLoggingIn: false });
         }
@@ -106,9 +113,11 @@ export const useAuthStore = create((set, get) => ({
 
     verifyEmail: async (code, navigate) => {
         try {
-            set({ isVerifing: true })
+            set({ isVerifing: true });
             const email = localStorage.getItem('email');
-            const res = await axiosInstance.post("/auth/verify", { email, verificationCode: code });
+            const res = await axios.post(`${API}/auth/verify`, { email, verificationCode: code }, {
+                withCredentials: true
+            });
 
             if (res.status === 201) {
                 set({
@@ -129,7 +138,7 @@ export const useAuthStore = create((set, get) => ({
                 "Verification failed"
             );
         } finally {
-            set({ isVerifing: false })
+            set({ isVerifing: false });
             localStorage.clear();
         }
     },
@@ -146,14 +155,17 @@ export const useAuthStore = create((set, get) => ({
                 return;
             }
 
-            const res = await axiosInstance.post("/profile/create", data);
+            const res = await axios.post(`${API}/profile/create`, data, {
+                withCredentials: true
+            });
             if (res.status === 201) {
                 toast.success("Profile created successfully");
                 get().connectSocket();
-                set({ isProfileCreated: true })
+                set({ isProfileCreated: true });
                 navigate("/chat");
-            } else
-                toast.error(`${error.response?.data?.message}` || "Profile creation failed")
+            } else {
+                toast.error(`${res.data?.message}` || "Profile creation failed");
+            }
 
         } catch (error) {
             toast.error(`${error.response?.data?.message}` || "Profile creation failed");
@@ -164,9 +176,10 @@ export const useAuthStore = create((set, get) => ({
 
     viewProfile: async (data) => {
         try {
-            set({ isLoadingProfile: true })
-            const res = await axiosInstance.get("/profile/view", {
-                params: { userId: data.userId }
+            set({ isLoadingProfile: true });
+            const res = await axios.get(`${API}/profile/view`, {
+                params: { userId: data.userId },
+                withCredentials: true
             });
 
             if (res.status === 200) {
@@ -178,15 +191,15 @@ export const useAuthStore = create((set, get) => ({
             }
 
         } catch (error) {
-            toast.error(`${error.response?.data?.message}` || "Some error occured")
+            toast.error(`${error.response?.data?.message}` || "Some error occurred");
         } finally {
-            set({ isLoadingProfile: false })
+            set({ isLoadingProfile: false });
         }
     },
 
     updateProfile: async (data, navigate) => {
         try {
-            set({ isUpdatingProfile: true })
+            set({ isUpdatingProfile: true });
 
             const requiredFields = ['name', 'bio'];
             const missingFields = requiredFields.filter(field => !data[field] || data[field].trim() === '');
@@ -196,35 +209,43 @@ export const useAuthStore = create((set, get) => ({
                 return;
             }
 
-            const res = await axiosInstance.post("/profile/update", data);
+            const res = await axios.post(`${API}/profile/update`, data, {
+                withCredentials: true
+            });
             if (res.status === 200) {
                 toast.success("Profile Updated successfully");
-                navigate("/profile/view")
-            } else
-                toast.error(`${error.response?.data?.message}` || "Profile update failed")
+                navigate("/profile/view");
+            } else {
+                toast.error(`${res.data?.message}` || "Profile update failed");
+            }
 
         } catch (error) {
-            toast.error(`${error.response?.data?.message}` || "Some error occured")
+            toast.error(`${error.response?.data?.message}` || "Some error occurred");
         } finally {
-            set({ isUpdatingProfile: false })
+            set({ isUpdatingProfile: false });
         }
     },
+
     searchUser: async (searchValue) => {
         try {
-            const res = await axiosInstance(`/profile/search/${searchValue}`);
-            set({ searchResult: res.data.result })
+            const res = await axios.get(`${API}/profile/search/${searchValue}`, {
+                withCredentials: true
+            });
+            set({ searchResult: res.data.result });
         } catch (error) {
-            set({ searchResult : null})
+            set({ searchResult: null });
         }
     },
 
-    logout : async () => {
+    logout: async () => {
         try {
-            await axiosInstance.post('/auth/logout')
+            await axios.post(`${API}/auth/logout`, {}, {
+                withCredentials: true
+            });
             window.location.reload();
-            toast.success('Logged out successfully')
+            toast.success('Logged out successfully');
         } catch (error) {
-            toast.error(error.response?.data?.message || "Some error occured!")
+            toast.error(error.response?.data?.message || "Some error occurred!");
         }
     },
 
@@ -232,7 +253,7 @@ export const useAuthStore = create((set, get) => ({
         const { authUser, isProfileCreated } = get();
         if (!authUser || !isProfileCreated || get().socket?.connected)
             return;
-        const socket = io(BASE_URL, {
+        const socket = io(import.meta.env.VITE_BASE_URL, {
             query: {
                 userId: authUser._id
             }
@@ -241,12 +262,11 @@ export const useAuthStore = create((set, get) => ({
         set({ socket: socket });
         socket.on("getOnlineUsers", (onlineUserIds) => {
             set({ onlineUsers: [...onlineUserIds] });
-        })
-
+        });
     },
 
     disconnectSocket: () => {
         if (get().socket?.connected)
             get().socket.disconnect();
     }
-}))
+}));

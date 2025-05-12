@@ -220,7 +220,7 @@ const Sidebar = ({ onUserClick, activeTab, setActiveTab }) => {
             <div className={styles.userList}>
               {groups.map((groupMembership) => {
                 const group = groupMembership.group_id;
-                const icon = group.group_icon ? `https://real-time-chat-app-pbgx.onrender.com/uploads/${group.group_icon}` : '';
+                const icon = group.group_icon ? `${import.meta.env.VITE_BASE_URL}/uploads/${group.group_icon}` : '';
                 return (
                   <UserChatItem
                     key={group._id}
