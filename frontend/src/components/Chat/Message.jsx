@@ -18,9 +18,9 @@ const Message = ({ message, isUserMessage, isLastMessage, showOptions, onToggleO
 
   useEffect(() => {
     if (message.senderId === authUser._id) {
-        setchat_id(message.receiverId)
+      setchat_id(message.receiverId)
     } else {
-        setchat_id(message.senderId)
+      setchat_id(message.senderId)
     }
   }, [])
 
@@ -103,7 +103,7 @@ const Message = ({ message, isUserMessage, isLastMessage, showOptions, onToggleO
     const msgDate = new Date(message.createdAt);
     const now = new Date();
     const fourHoursInMs = 4 * 60 * 60 * 1000;
-    return (now - msgDate <= fourHoursInMs) && !isAi && (message.senderId === authUser._id || message.senderId?._id === authUser._id); 
+    return (now - msgDate <= fourHoursInMs) && !isAi && (message.senderId === authUser._id || message.senderId?._id === authUser._id);
   };
 
   const fileName = message.media;
@@ -119,9 +119,8 @@ const Message = ({ message, isUserMessage, isLastMessage, showOptions, onToggleO
   if (message.text === 'Responding') {
     return (
       <div
-        className={`${styles.messageWrapper} ${isUserMessage ? styles.messageUser : styles.messageOther} ${
-          isLastMessage ? styles.newMessage : ''
-        }`}
+        className={`${styles.messageWrapper} ${isUserMessage ? styles.messageUser : styles.messageOther} ${isLastMessage ? styles.newMessage : ''
+          }`}
       >
         <div className={styles.messageText}>
           <div className={styles.typingIndicator}>
@@ -138,11 +137,10 @@ const Message = ({ message, isUserMessage, isLastMessage, showOptions, onToggleO
   return (
     <>
       <div
-        className={`${styles.messageWrapper} ${isUserMessage ? styles.messageUser : styles.messageOther} ${
-          isLastMessage ? styles.newMessage : ''
-        }`}
+        className={`${styles.messageWrapper} ${isUserMessage ? styles.messageUser : styles.messageOther} ${isLastMessage ? styles.newMessage : ''
+          }`}
         onClick={() => {
-            onToggleOptions()
+          onToggleOptions()
         }}
       >
         <div className={styles.messageText}>
@@ -163,8 +161,8 @@ const Message = ({ message, isUserMessage, isLastMessage, showOptions, onToggleO
               {['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'tif', 'svg', 'ico', 'heic', 'heif', 'raw', 'psd', 'ai', 'eps'].includes(
                 ext
               ) && (
-                <img src={fileUrl} alt="Sent" className={styles.messageImage} onClick={() => openImage(fileUrl)} />
-              )}
+                  <img src={fileUrl} alt="Sent" className={styles.messageImage} onClick={() => openImage(fileUrl)} />
+                )}
 
               {['mp4', 'webm', 'ogg', 'mov', 'mkv', 'avi', 'wmv', 'flv', '3gp', 'mpeg'].includes(ext) && (
                 <video src={fileUrl} controls className={styles.messageVideo} />
@@ -175,10 +173,10 @@ const Message = ({ message, isUserMessage, isLastMessage, showOptions, onToggleO
               {['pdf', 'doc', 'docx', 'dot', 'dotx', 'ppt', 'pptx', 'xls', 'xlsx', 'odt', 'ods', 'odm', 'odp', 'rtf', 'txt', 'html', 'htm', 'xml', 'epub', 'mobi', 'azw3', 'chm', 'zip', 'rar', '7z', 'tar', 'gz'].includes(
                 ext
               ) && (
-                <a href={fileUrl} target="_blank" rel="noopener noreferrer" className={styles.messageDocument}>
-                  <IoDocumentTextSharp /> {fileName}
-                </a>
-              )}
+                  <a href={fileUrl} target="_blank" rel="noopener noreferrer" className={styles.messageDocument}>
+                    <IoDocumentTextSharp /> {fileName}
+                  </a>
+                )}
             </div>
           )}
           {message.text && <MarkdownView markdown={message.text} options={{ tables: true, emoji: true }} />}

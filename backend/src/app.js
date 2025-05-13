@@ -9,11 +9,12 @@ import groupRoute from "./routes/group.route.js";
 import cors from "cors";
 import { app, server } from "./lib/socket.js";
 import { scheduleIndividualMessage, scheduleGroupMessage } from "./utils/cron.js";
+import path from "path";
 
 dotenv.config();
 
 databaseConn();
-
+const PORT = process.env.PORT || 3000;
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
@@ -21,6 +22,7 @@ app.use(cors({
 
 scheduleIndividualMessage();
 scheduleGroupMessage();
+const __dirname = path.resolve();
 
 app.use(cookieParser());
 app.use(express.json());
@@ -30,8 +32,12 @@ app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute)
 app.use("/api/messages", messageRoute);
 app.use("/api/group", groupRoute);
-app.use('/uploads', express.static('public/uploads'));
+app.use('/uploads',  express.static(path.join(__dirname, '..', 'public', 'uploads')));
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+});
 
-server.listen(3000, () => {
-    console.log("Server is running on port 3000");
+server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 })
