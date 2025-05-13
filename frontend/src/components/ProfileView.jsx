@@ -87,7 +87,7 @@ const ProfileView = ({
                         <br/>
                         <button
                             className={buttonStyle.button}
-                            onClick={() => {logout()}}>
+                            onClick={() => {logout(navigate)}}>
                             Logout
                         </button>
                     </>

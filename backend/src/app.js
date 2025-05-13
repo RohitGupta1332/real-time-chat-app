@@ -32,7 +32,7 @@ app.use("/api/auth", authRoute);
 app.use("/api/profile", profileRoute)
 app.use("/api/messages", messageRoute);
 app.use("/api/group", groupRoute);
-app.use('/uploads',  express.static(path.join(__dirname, '..', 'public', 'uploads')));
+app.use('/uploads',  express.static(path.join(__dirname, 'backend', 'public', 'uploads')));
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));

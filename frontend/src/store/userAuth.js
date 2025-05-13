@@ -237,12 +237,13 @@ export const useAuthStore = create((set, get) => ({
         }
     },
 
-    logout: async () => {
+    logout: async (navigate) => {
         try {
             await axios.post(`${API}/auth/logout`, {}, {
                 withCredentials: true
             });
-            window.location.reload();
+            // window.location.reload();
+            navigate('/');
             toast.success('Logged out successfully');
         } catch (error) {
             toast.error(error.response?.data?.message || "Some error occurred!");
