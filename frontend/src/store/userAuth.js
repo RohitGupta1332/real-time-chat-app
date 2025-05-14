@@ -93,11 +93,10 @@ export const useAuthStore = create((set, get) => ({
             });
             toast.success("Login successful");
 
-            get().connectSocket();
-
+            
             set({ isProfileCreated: res.data.isProfileCreated });
             set({ authUser: res.data });
-
+            get().connectSocket();
             if (res.data.isProfileCreated) {
                 navigate("/chat");
             } else {
@@ -160,8 +159,8 @@ export const useAuthStore = create((set, get) => ({
             });
             if (res.status === 201) {
                 toast.success("Profile created successfully");
-                get().connectSocket();
                 set({ isProfileCreated: true });
+                get().connectSocket();
                 navigate("/chat");
             } else {
                 toast.error(`${res.data?.message}` || "Profile creation failed");
