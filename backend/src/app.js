@@ -10,6 +10,7 @@ import cors from "cors";
 import { app, server } from "./lib/socket.js";
 import { scheduleIndividualMessage, scheduleGroupMessage } from "./utils/cron.js";
 
+
 dotenv.config();
 
 databaseConn();
