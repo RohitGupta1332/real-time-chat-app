@@ -11,6 +11,7 @@ import { app, server } from "./lib/socket.js";
 import { scheduleIndividualMessage, scheduleGroupMessage } from "./utils/cron.js";
 import path from "path";
 
+
 dotenv.config();
 
 databaseConn();
