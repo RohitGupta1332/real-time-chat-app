@@ -104,5 +104,6 @@ export const sendVerificationMail = async (email, verificationCode) => {
 
   } catch (error) {
     console.error("Email error", error);
+    throw error;
   }
 };
