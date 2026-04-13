@@ -17,7 +17,7 @@ dotenv.config();
 databaseConn();
 const PORT = process.env.PORT || 3000;
 app.use(cors({
-    origin: ["http://localhost:5173", "https://toksy.vercel.app"],
+    origin: ["http://localhost:5173", "https://toksy.vercel.app", "http://localhost:5174"],
     credentials: true
 }));
 
